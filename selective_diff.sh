@@ -192,7 +192,7 @@ then
 fi
 
 # Compare directories briefly:
-diff --brief $1 $2 2>&1 | grep "^Only in " >grep_out
+diff --recursive --brief $1 $2 2>&1 | grep "^Only in " >grep_out_$$
 
 declare -i n_diff=0
 # (number of differing files)
@@ -203,10 +203,18 @@ declare -i n_id=0
 for filename in $1/*
 do
     name=$(basename $filename)
-    if [[ -f $2/$name ]]
+    if [[ -a $2/$name ]]
     then
-	# We have a file with the same name in the two directories
-	cmp --silent $1/$name $2/$name
+	# We have an object with the same name in the two directories
+	
+	if [[ -f $2/$name ]]
+	then
+	    cmp --silent $1/$name $2/$name
+	elif [[ -d $2/$name ]]
+	then
+	    selective_diff.sh -b $1/$name $2/$name
+	fi
+	    
 	if (($? != 0))
 	then
             # Different content
@@ -220,11 +228,11 @@ do
     fi
 done
 
-if [[ $report_identical == y || -s grep_out ]] || ((n_diff != 0))
+if [[ $report_identical == y || -s grep_out_$$ ]] || ((n_diff != 0))
 then
     echo
     echo "Directories: $*"
-    cat grep_out
+    cat grep_out_$$
     echo
     IFS="
 "
@@ -321,11 +329,11 @@ then
     fi
 fi
 
-if ((n_diff == 0)) && [[ ! -s grep_out ]]
+if ((n_diff == 0)) && [[ ! -s grep_out_$$ ]]
 then
-    rm grep_out
+    rm grep_out_$$
     exit 0
 else
-    rm grep_out
+    rm grep_out_$$
     exit 1
 fi
