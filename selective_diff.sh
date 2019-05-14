@@ -192,7 +192,7 @@ then
 fi
 
 # Compare directories briefly:
-diff --recursive --brief $1 $2 2>&1 | grep "^Only in " >grep_out_$$
+diff --recursive --brief $1 $2 2>&1 | grep "^Only in " >grep_out
 
 declare -i n_diff=0
 # (number of differing files)
@@ -200,39 +200,37 @@ declare -i n_diff=0
 declare -i n_id=0
 # (number of identical files)
 
-for filename in $1/*
+cd $1
+find -type f >/tmp/file_list
+cd - >/dev/null
+
+while read filename
 do
-    name=$(basename $filename)
-    if [[ -a $2/$name ]]
+    if [[ -f $2/$filename ]]
     then
-	# We have an object with the same name in the two directories
-	
-	if [[ -f $2/$name ]]
-	then
-	    cmp --silent $1/$name $2/$name
-	elif [[ -d $2/$name ]]
-	then
-	    selective_diff.sh -b $1/$name $2/$name
-	fi
+	# We have a file with the same name in the two directories
+	cmp --silent $1/$filename $2/$filename
 	    
 	if (($? != 0))
 	then
             # Different content
 	    ((n_diff = n_diff + 1))
-	    diff_file[n_diff]=$name
+	    diff_file[n_diff]=$filename
 	else
 	    # Same content
 	    ((n_id = n_id + 1))
-	    id_file[n_id]=$name
+	    id_file[n_id]=$filename
 	fi
     fi
-done
+done </tmp/file_list
 
-if [[ $report_identical == y || -s grep_out_$$ ]] || ((n_diff != 0))
+rm /tmp/file_list
+
+if [[ $report_identical == y || -s grep_out ]] || ((n_diff != 0))
 then
     echo
     echo "Directories: $*"
-    cat grep_out_$$
+    cat grep_out
     echo
     IFS="
 "
@@ -329,11 +327,11 @@ then
     fi
 fi
 
-if ((n_diff == 0)) && [[ ! -s grep_out_$$ ]]
+if ((n_diff == 0)) && [[ ! -s grep_out ]]
 then
-    rm grep_out_$$
+    rm grep_out
     exit 0
 else
-    rm grep_out_$$
+    rm grep_out
     exit 1
 fi
