@@ -59,18 +59,17 @@ import subprocess
 import sys
 import tempfile
 import time
+import string
 
 def substitute(input_filename, subst_filename, output_file):
     with open(subst_filename) as subst_file:
         substitutions = json.load(subst_file)
 
-    substitutions["$PWD"] = os.getcwd()
+    substitutions["PWD"] = os.getcwd()
     
     with open(input_filename) as input_file:
         for line in input_file:
-            for old, new in substitutions.items():
-                line = line.replace(old, new)
-
+            line = string.Template(line).substitute(substitutions)
             output_file.write(line)
 
 def my_symlink(src, run_dir, base_dest):
