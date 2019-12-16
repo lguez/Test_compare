@@ -1,35 +1,6 @@
 #!/usr/bin/env python3
 
-from sys import argv, exit
-from getopt import getopt, GetoptError
-
-## @package nccmp
-## Compares NetCDF files by absolute max norms of difference of variables
-##
-## Without options,
-## \code
-## nccmp.py foo.nc bar.nc
-## \endcode 
-## compares all the variables in \c foo.nc and \c bar.nc.
-## 
-## Option \c -v allows selecting varibles to compare:
-## \code
-## nccmp.py -v thk,cbar foo.nc bar.nc
-## \endcode
-## only compares \c thk and \c cbar.
-## 
-## Option \c -t sets the tolerance:
-## \code
-## nccmp.py -t 1e-6 foo.nc bar.nc
-## \endcode
-## compares all the variables using the tolerance of 1e-6.
-## 
-## Finally, option \c -x \b excludes variables given with \c -v, instead of
-## selecting them for comparison.
-## 
-## Run with --help to get a "usage" message.
-
-tol = 0.0   # default tolerance is perfection
+import sys
 
 def success(relative):
     if relative:
@@ -37,28 +8,18 @@ def success(relative):
               % tol)
     else:        
         print("Common variables are the same within tolerance %.1e" % tol)
-    exit(0)
+    sys.exit(0)
 
 def failure():
     print("Files are different.")
-    exit(1)
-
-usage="""
-nccmp.py compares NetCDF files by absolute max norms of difference of variables
-usage:
-  nccmp.py foo.nc bar.nc            compare all variables
-  nccmp.py -v A,B foo.nc bar.nc     compare variables A and B
-  nccmp.py -x -v C foo.nc bar.nc    compare all variables except C
-  nccmp.py -t 1e-6 foo.nc bar.nc    use tolerance 1e-6 instead of default of 0
-"""
+    sys.exit(1)
 
 def usagefailure(message):
     print(message)
     print()
-    print(usage)
-    exit(2)
+    sys.exit(2)
 
-def compare_vars(nc1, nc2, name, tol, relative=False):
+def compare_vars(nc1, nc2, name, tol, relative):
     from numpy import squeeze, isnan, ma
 
     try:
@@ -94,8 +55,8 @@ def compare_vars(nc1, nc2, name, tol, relative=False):
 
     # The actual check:
     if (delta > tol):
-        print("name = %s, delta = %e, tol = %e" % (name, delta, tol))
-        failure()
+        print(f"name = {name}, delta = {delta}")
+        ##failure()
 
 
 def compare(file1, file2, variables, exclude, tol, relative):
@@ -103,7 +64,7 @@ def compare(file1, file2, variables, exclude, tol, relative):
         from netCDF4 import Dataset
     except:
         print("nccmp_pism.py: netCDF4 is not installed!")
-        exit(2)
+        sys.exit(2)
 
     from numpy import unique, r_
 
@@ -135,31 +96,32 @@ def compare(file1, file2, variables, exclude, tol, relative):
             compare_vars(nc1, nc2, each, tol, relative)
 
 if __name__ == "__main__":
-    from numpy import double
-    try:
-      opts, args = getopt(argv[1:], "t:v:xr", ["help","usage"])
-    except GetoptError:
-      usagefailure('ERROR: INCORRECT COMMAND LINE ARGUMENTS FOR nccmp.py')
-    file1 = ""
-    file2 = ""
-    variables = []
-    exclude = False
-    relative = False
-    for (opt, arg) in opts:
-        if opt == "-t":
-            tol = double(arg)
-        if opt == "-x":
-            exclude = True
-        if opt == "-r":
-            relative = True
-        if opt == "-v":
-            variables = arg.split(",")
-        if opt in ("--help", "--usage"):
-            print(usage)
-            exit(0)
+    import argparse
 
-    if len(args) != 2:
-        usagefailure('ERROR: WRONG NUMBER OF ARGUMENTS FOR nccmp.py')
+    description = \
+    """Compares NetCDF variables by infinite norm."""
 
-    compare(args[0],args[1], variables, exclude, tol, relative)
-    success(relative)
+    parser = argparse.ArgumentParser(description = description)
+    parser.add_argument("file1")
+    parser.add_argument("file2")
+    parser.add_argument("--tol", "-t", help = "tolerance (default 0)",
+                        type = float, default = 0.)
+    parser.add_argument("--relative", "-r",
+                        help =
+                        "compare relative difference instead of absolute",
+                        action = "store_true")
+    parser.add_argument("--variables", "-v",
+                        help = "variables to compare (default all) or to "
+                        "exclude if -x")
+    parser.add_argument("--exclude", "-x", help = "exclude mode",
+                        action = "store_true")
+    args = parser.parse_args()
+    
+    if args.variables:
+        variables = args.variables.split(",")
+    else:
+        variables = []
+
+    compare(args.file1,args.file2, variables, args.exclude, args.tol,
+            args.relative)
+    ##success(relative)
