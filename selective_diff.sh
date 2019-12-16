@@ -300,7 +300,8 @@ then
 			      ${name0}_2_dbfdump.txt >ndiff_out
 			cat_not_too_many ndiff_out
 
-			echo "dbfdumps of \"$name\" compared with numdiff:"
+			echo "dbfdumps of \"$name\" compared with numdiff, "\
+			     "tolerance 1e-5:"
 			numdiff -r 1e-5 ${name0}_1_dbfdump.txt \
 				${name0}_2_dbfdump.txt >ndiff_out
 			cat_not_too_many ndiff_out
@@ -312,7 +313,7 @@ then
 			ndiff -relerr 0.1 $1/$name $2/$name >ndiff_out
 			cat_not_too_many ndiff_out
 			
-			echo "Comparison with numdiff:"
+			echo "Comparison with numdiff, tolerance 1e-5:"
 			numdiff -r 1e-5 $1/$name $2/$name >ndiff_out
 			cat_not_too_many ndiff_out
 			
