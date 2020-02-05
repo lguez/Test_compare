@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import sys
+from netCDF4 import Dataset
+from numpy import unique, r_, squeeze, isnan, ma
 
 def success(relative):
     if relative:
@@ -20,8 +22,6 @@ def usagefailure(message):
     sys.exit(2)
 
 def compare_vars(nc1, nc2, name, tol, relative):
-    from numpy import squeeze, isnan, ma
-
     try:
         var1 = ma.array(squeeze(nc1.variables[name][:]))
     except:
@@ -33,41 +33,32 @@ def compare_vars(nc1, nc2, name, tol, relative):
         print("ERROR: VARIABLE '%s' NOT FOUND IN FILE 2" % name)
         return
 
-    try:
+    if var1.shape != var2.shape:
+        usagefailure(f"Error: variable {name}, incompatible shapes in files")
+
+    if var1.size == 0:
+        print(f'Variable {name}: 0 size.')
+    else:        
         mask = var1.mask | var2.mask
-    except:
-        usagefailure("ERROR: VARIABLE '%s' OF INCOMPATIBLE SHAPES (?) IN FILES"
-                     % name)
 
-    if mask.all():
-        print('Variable %10s: no values to compare.' % name)
-        return
+        if mask.all():
+            print(f'Variable {name}: no values to compare.')
+        else:
+            var1 = ma.array(var1, mask = mask)
+            var2 = ma.array(var2, mask = mask)
 
-    var1 = ma.array(var1, mask = mask)
-    var2 = ma.array(var2, mask = mask)
+            delta = abs(var1 - var2).max()
 
-    delta = abs(var1 - var2).max()
+            if relative:
+                denom = max(abs(var1).max(), abs(var2).max())
+                if denom > 0:
+                    delta = delta / denom
 
-    if relative:
-        denom = max(abs(var1).max(), abs(var2).max())
-        if denom > 0:
-            delta = delta / denom
-
-    # The actual check:
-    if (delta > tol):
-        print(f"name = {name}, delta = {delta}")
-        ##failure()
-
+            # The actual check:
+            if (delta > tol):
+                print(f"name = {name}, delta = {delta}")
 
 def compare(file1, file2, variables, exclude, tol, relative):
-    try:
-        from netCDF4 import Dataset
-    except:
-        print("nccmp_pism.py: netCDF4 is not installed!")
-        sys.exit(2)
-
-    from numpy import unique, r_
-
     try:
         nc1 = Dataset(file1, 'r')
     except:
