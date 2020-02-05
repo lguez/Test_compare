@@ -295,26 +295,27 @@ then
 			dbfdump $1/$name >${name0}_1_dbfdump.txt
 			dbfdump $2/$name >${name0}_2_dbfdump.txt
 
-			echo "dbfdumps of \"$name\" compared with ndiff:"
-			ndiff -relerr 0.1 ${name0}_1_dbfdump.txt \
+			echo "dbfdumps of \"$name\" compared with ndiff, "\
+			     "tolerance 1e-7:"
+			ndiff -relerr 1e-7 ${name0}_1_dbfdump.txt \
 			      ${name0}_2_dbfdump.txt >ndiff_out
 			cat_not_too_many ndiff_out
 
 			echo "dbfdumps of \"$name\" compared with numdiff, "\
-			     "tolerance 1e-5:"
-			numdiff -r 1e-5 ${name0}_1_dbfdump.txt \
+			     "tolerance 1e-7:"
+			numdiff -r 1e-7 ${name0}_1_dbfdump.txt \
 				${name0}_2_dbfdump.txt >ndiff_out
 			cat_not_too_many ndiff_out
 			
 			rm ${name0}_[12]_dbfdump.txt ndiff_out
 		    elif [[ $suffix == csv ]]
 		    then
-			echo "Comparison with ndiff:"
-			ndiff -relerr 0.1 $1/$name $2/$name >ndiff_out
+			echo "Comparison with ndiff, tolerance 1e-7::"
+			ndiff -relerr 1e-7 $1/$name $2/$name >ndiff_out
 			cat_not_too_many ndiff_out
 			
-			echo "Comparison with numdiff, tolerance 1e-5:"
-			numdiff -r 1e-5 $1/$name $2/$name >ndiff_out
+			echo "Comparison with numdiff, tolerance 1e-7:"
+			numdiff -r 1e-7 $1/$name $2/$name >ndiff_out
 			cat_not_too_many ndiff_out
 			
 			rm ndiff_out
