@@ -42,7 +42,7 @@ def compare_vars(nc1, nc2, name, tol, relative):
         mask = var1.mask | var2.mask
 
         if mask.all():
-            print(f'Variable {name}: no values to compare.')
+            print(f'Variable {name}: domains of definition do not intersect.')
         else:
             var1 = ma.array(var1, mask = mask)
             var2 = ma.array(var2, mask = mask)

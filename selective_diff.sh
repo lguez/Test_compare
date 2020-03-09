@@ -137,9 +137,10 @@ USAGE="Usage:
              (default: do not compute)
    -b      : only compare directories briefly (default: analyse each file
              after brief comparison of directories)
-   -r      : report indentical directories"
+   -r      : report indentical directories
+   -x PAT  : exclude files that match PAT"
 
-while getopts :dl:sbr argument
+while getopts :dl:sbrx: argument
 do
     case $argument in
 	d) subtract=y;;
@@ -147,6 +148,7 @@ do
 	s) statistics=y;;
 	b) brief=y;;
 	r) report_identical=y;;
+	x) PAT=$OPTARG;;
 	:) echo "Missing argument for switch $OPTARG"
 	   exit 2;;
 	\?) echo "$OPTARG: invalid switch"
@@ -192,7 +194,8 @@ then
 fi
 
 # Compare directories briefly:
-diff --recursive --brief $1 $2 2>&1 | grep "^Only in " >grep_out
+diff --recursive --brief --exclude="$PAT" $1 $2 2>&1 | grep "^Only in " \
+							    >grep_out
 
 declare -i n_diff=0
 # (number of differing files)
@@ -201,7 +204,7 @@ declare -i n_id=0
 # (number of identical files)
 
 cd $1
-find -type f >/tmp/file_list
+find -type f ! -name "$PAT" >/tmp/file_list
 cd - >/dev/null
 
 while read filename
