@@ -185,8 +185,10 @@ parser.add_argument("test_descr",
                     help = "JSON file containing description of tests")
 parser.add_argument("-d", "--dirnames", help="JSON input file containing "
                     "abbreviations for directory names")
-parser.add_argument("-c", "--compare", help = "Direction containing old runs "
+parser.add_argument("-c", "--compare", help = "Directory containing old runs "
                     "for comparison, after running the tests")
+parser.add_argument("-x", "--exclude", help = "exclude files that match PAT "
+                    "from comparison, after running the tests", metavar = "PAT")
 parser.add_argument("--clean", help = """
 Remove any existing run directories in the current directory before
 new runs. With -t, remove only the selected run directory, if it
@@ -234,10 +236,12 @@ if args.compare:
         with open("comparison.txt", "w") as comparison_file:
             for my_run in my_runs:
                 old_dir = path.join(args.compare, my_run["title"])
-                cp = subprocess.run(["selective_diff.sh", old_dir,
-                                     my_run["title"]],
-                                    stdout = comparison_file,
+                subprocess_args = ["selective_diff.sh", old_dir,
+                                   my_run["title"]]
+                if args.exclude: subprocess_args[1:1] = ["-x",  args.exclude]
+                cp = subprocess.run(subprocess_args, stdout = comparison_file,
                                     stderr = subprocess.STDOUT)
+                
                 if cp.returncode in [0, 1]:
                     cumul_return += cp.returncode
 
