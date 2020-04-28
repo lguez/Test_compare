@@ -187,8 +187,9 @@ parser.add_argument("-d", "--dirnames", help="JSON input file containing "
                     "abbreviations for directory names")
 parser.add_argument("-c", "--compare", help = "Directory containing old runs "
                     "for comparison, after running the tests")
-parser.add_argument("-x", "--exclude", help = "exclude files that match PAT "
-                    "from comparison, after running the tests", metavar = "PAT")
+parser.add_argument("-x", "--exclude", help = "exclude files that match shell "
+                    "pattern PAT from comparison, after running the tests",
+                    metavar = "PAT")
 parser.add_argument("--clean", help = """
 Remove any existing run directories in the current directory before
 new runs. With -t, remove only the selected run directory, if it
