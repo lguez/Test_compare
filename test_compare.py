@@ -7,18 +7,23 @@ created.
 
 This script reads a JSON test description file. The test description
 file must contain a list of dictionaries. Each run is defined by
-title, args (including executable file), required files (that is,
-files required to be present in the current directory at run time),
-stdin_filename or input, and stdout file. The title is used as
-directory name. Each dictionary must thus include the keys:
+title, commands, required files (that is, files required to be present
+in the current directory at run time), stdin_filename or input, and
+stdout file. The title is used as directory name. Each dictionary must
+thus include the keys:
 
-"title", "args"
+"title", either "command" or "commands"
 
 and may also include the keys:
 
 "description", "stdin_filename", "stdout", "required", "input"
 
-"args" may be a list or a string.
+"commands" is a list of commands, "command" is a single command. A
+command is a list of strings or a single string. (The command includes
+the executable file.)
+
+If "commands" is present then "stdin_filename", "stdout" and "input"
+apply to the last command only.
 
 The difference between the keys "stdin_filename" and "input" is that
 "input" must be the content of standard input and stdin_filename must
@@ -35,10 +40,9 @@ JSON).
 If "stdout" is not present then the file name for standard output is
 constructed from the name of the executable file.
 
-This script will try to access required files and executable (args or
-args[0]) specified in the JSON input file. All paths must be
-absolute. File arguments in args, if any, also have to be specified
-with an absolute path.
+The required files and executables must be specified in the JSON input
+file with absolute paths. File arguments in commands, if any, also
+have to be specified with absolute paths.
 
 This script can also read a JSON file containing string substitutions
 to be made in the test description file. This is useful to abbreviate
@@ -126,13 +130,18 @@ def run_tests(my_runs):
                                 my_symlink(expanded_item, my_run["title"],
                                            base_dest)
 
+            if "command" in my_run:
+                commands = [my_run["command"]]
+            else:
+                commands = my_run["commands"]
+                
             if "stdout" in my_run:
                 stdout_filename = my_run["stdout"]
             else:
-                if isinstance(my_run["args"], list):
-                     stdout_filename = my_run["args"][0]
+                if isinstance(commands[-1], list):
+                     stdout_filename = commands[-1][0]
                 else:
-                     stdout_filename = my_run["args"]
+                     stdout_filename = commands[-1]
 
                 stdout_filename = path.basename(stdout_filename)
                 stdout_filename = path.splitext(stdout_filename)[0] \
@@ -161,9 +170,12 @@ def run_tests(my_runs):
 
             t0_single_run = time.perf_counter()
 
+            for command in commands[:-1]:
+                subprocess.run(command, check = True)
+                
             with open(stdout_filename, "w") as stdout:
                 try:
-                    subprocess.run(my_run["args"], stdout = stdout,
+                    subprocess.run(commands[-1], stdout = stdout,
                                    stderr = subprocess.STDOUT,
                                    check = True, universal_newlines = True,
                                    **input_kwds)
