@@ -56,7 +56,9 @@ def compare_vars(nc1, nc2, name, tol, relative):
 
             # The actual check:
             if (delta > tol):
-                print(f"name = {name}, delta = {delta}")
+                print("name = {}, {} difference = {}"\
+                      .format(name, "relative" if relative else "absolute",
+                              delta))
 
 def compare(file1, file2, variables, exclude, tol, relative):
     try:

@@ -73,7 +73,7 @@ function nc_over_diff
     rm ${name0}_1.cdl ${name0}_2.cdl diff_out
     echo
 
-    nccmp_pism.py -r $1/$name $2/$name
+    nccmp_pism.py --relative $1/$name $2/$name
     return_code=$?
 
     if (($return_code == 1))
@@ -138,7 +138,7 @@ USAGE="Usage:
    -b      : only compare directories briefly (default: analyse each file
              after brief comparison of directories)
    -r      : report indentical directories
-   -x PAT  : exclude files that match PAT"
+   -x PAT  : exclude files that match shell pattern PAT"
 
 while getopts :dl:sbrx: argument
 do
