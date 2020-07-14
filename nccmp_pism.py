@@ -27,6 +27,7 @@ def compare_vars(nc1, nc2, name, tol, relative):
     except:
         print("VARIABLE '%s' NOT FOUND IN FILE 1" % name)
         return
+
     try:
         var2 = ma.array(squeeze(nc2.variables[name][:]))
     except:
@@ -65,6 +66,7 @@ def compare(file1, file2, variables, exclude, tol, relative):
         nc1 = Dataset(file1, 'r')
     except:
         usagefailure("ERROR: FILE '%s' CANNOT BE OPENED FOR READING" % file1)
+        
     try:
         nc2 = Dataset(file2, 'r')
     except:
