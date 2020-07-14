@@ -16,7 +16,7 @@ thus include the keys:
 
 and may also include the keys:
 
-"description", "stdin_filename", "stdout", "required", "input"
+"description", "stdout", "required", either "stdin_filename" or "input"
 
 "commands" is a list of commands, "command" is a single command. A
 command is a list of strings or a single string. (The command includes
@@ -35,7 +35,11 @@ allowed.
 
 If present, "required" must be a list. Each element of "required" must
 itself be a string or a list of two strings (no tuple allowed in
-JSON).
+JSON). If a required element is a string then it must be the absolute
+path to a file that will be sym-linked to the test directory, with the
+same basename. If a required element is a list of two strings then the
+first string must be the absolute path to a file that will be
+sym-linked to the test directory, with the second string as basename.
 
 If "stdout" is not present then the file name for standard output is
 constructed from the name of the executable file.
@@ -176,9 +180,8 @@ def run_tests(my_runs):
             with open(stdout_filename, "w") as stdout:
                 try:
                     subprocess.run(commands[-1], stdout = stdout,
-                                   stderr = subprocess.STDOUT,
-                                   check = True, universal_newlines = True,
-                                   **input_kwds)
+                                   stderr = subprocess.STDOUT, check = True,
+                                   universal_newlines = True, **input_kwds)
                 except subprocess.CalledProcessError:
                     print()
                     if "stdin_filename" in my_run:
