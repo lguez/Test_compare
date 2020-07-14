@@ -35,7 +35,8 @@ def compare_vars(nc1, nc2, name, tol, relative):
         return
 
     if var1.shape != var2.shape:
-        usagefailure(f"Error: variable {name}, incompatible shapes in files")
+        print(f"Error: variable {name}, different shapes in the two files")
+        return
 
     if var1.size == 0:
         print(f'Variable {name}: 0 size.')
