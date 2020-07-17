@@ -24,7 +24,7 @@
 # current directory.
 
 # Non-standard utilities invoked in this script: ncdump, NCO,
-# nccmp_pism.py, max_diff_nc.sh, dbfdump, ndiff by Nelson Beebe,
+# nccmp.py, max_diff_nc.sh, dbfdump, ndiff by Nelson Beebe,
 # numdiff. ndiff and numdiff are not completely redundant.
 
 # An exit status of 0 means no differences were found, 1 means some
@@ -73,7 +73,7 @@ function nc_over_diff
     rm ${name0}_1.cdl ${name0}_2.cdl diff_out
     echo
 
-    nccmp_pism.py --relative $1/$name $2/$name
+    nccmp.py --relative $1/$name $2/$name
     return_code=$?
 
     if (($return_code == 1))
@@ -178,10 +178,10 @@ then
     exit 2
 fi
 
-type nccmp_pism.py >/dev/null
+type nccmp.py >/dev/null
 if (($? != 0))
 then
-    echo "Please install nccmp_pism.py."
+    echo "Please install nccmp.py."
     exit 2
 fi
 

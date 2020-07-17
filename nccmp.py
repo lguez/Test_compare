@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+"""From nccmp_pism.py."""
+
 import sys
 from netCDF4 import Dataset
 from numpy import unique, r_, squeeze, isnan, ma
