@@ -69,17 +69,6 @@ import tempfile
 import time
 import string
 
-def substitute(input_filename, subst_filename, output_file):
-    with open(subst_filename) as subst_file:
-        substitutions = json.load(subst_file)
-
-    substitutions["PWD"] = os.getcwd()
-    
-    with open(input_filename) as input_file:
-        for line in input_file:
-            line = string.Template(line).substitute(substitutions)
-            output_file.write(line)
-
 def my_symlink(src, run_dir, base_dest):
     """If src does not exist, remove run_dir, else symlink src to
     run_dir/base_dest.
@@ -218,14 +207,21 @@ if args.compare:
         sys.exit("Directory " + args.compare + " not found.")
 
 if args.dirnames:
-    json_substituded = tempfile.TemporaryFile(mode = "w+")
-    substitute(args.test_descr, args.dirnames, json_substituded)
-    json_substituded.seek(0)
+    with open(args.dirnames) as subst_file:
+        substitutions = json.load(subst_file)
 else:
-    json_substituded = open(args.test_descr)
+    substitutions = {}
 
-my_runs = json.load(json_substituded)
-json_substituded.close()
+substitutions["PWD"] = os.getcwd()
+
+with tempfile.TemporaryFile(mode = "w+") as json_substituted, \
+     open(args.test_descr) as input_file:
+    for line in input_file:
+        line = string.Template(line).substitute(substitutions)
+        json_substituted.write(line)
+
+    json_substituted.seek(0)
+    my_runs = json.load(json_substituted)
 
 if args.title:
     for my_run in my_runs:
