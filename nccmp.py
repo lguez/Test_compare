@@ -3,8 +3,9 @@
 """From nccmp_pism.py."""
 
 import sys
-from netCDF4 import Dataset
-from numpy import unique, r_, squeeze, isnan, ma
+import netCDF4
+import numpy as np
+from numpy import ma
 
 def success(relative):
     if relative:
@@ -25,13 +26,13 @@ def usagefailure(message):
 
 def compare_vars(nc1, nc2, name, tol, relative):
     try:
-        var1 = ma.array(squeeze(nc1.variables[name][:]))
+        var1 = ma.array(np.squeeze(nc1.variables[name][:]))
     except:
         print("VARIABLE '%s' NOT FOUND IN FILE 1" % name)
         return
 
     try:
-        var2 = ma.array(squeeze(nc2.variables[name][:]))
+        var2 = ma.array(np.squeeze(nc2.variables[name][:]))
     except:
         print("ERROR: VARIABLE '%s' NOT FOUND IN FILE 2" % name)
         return
@@ -66,12 +67,12 @@ def compare_vars(nc1, nc2, name, tol, relative):
 
 def compare(file1, file2, variables, exclude, tol, relative):
     try:
-        nc1 = Dataset(file1, 'r')
+        nc1 = netCDF4.Dataset(file1, 'r')
     except:
         usagefailure("ERROR: FILE '%s' CANNOT BE OPENED FOR READING" % file1)
         
     try:
-        nc2 = Dataset(file2, 'r')
+        nc2 = netCDF4.Dataset(file2, 'r')
     except:
         usagefailure("ERROR: FILE '%s' CANNOT BE OPENED FOR READING" % file2)
 
@@ -79,14 +80,14 @@ def compare(file1, file2, variables, exclude, tol, relative):
         if len(variables) == 0:
             vars1 = list(nc1.variables.keys())
             vars2 = list(nc2.variables.keys())
-            variables = unique(r_[vars1, vars2])
+            variables = np.unique(np.r_[vars1, vars2])
 
         for each in variables:
             compare_vars(nc1, nc2, each, tol, relative)
     else:
         vars1 = nc1.variables.keys()
         vars2 = nc2.variables.keys()
-        vars = unique(r_[vars1, vars2])
+        vars = np.unique(np.r_[vars1, vars2])
 
         for each in vars:
             if (each in variables):
