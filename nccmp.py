@@ -19,11 +19,6 @@ def failure():
     print("Files are different.")
     sys.exit(1)
 
-def usagefailure(message):
-    print(message)
-    print()
-    sys.exit(2)
-
 def compare_vars(nc1, nc2, name, tol, relative):
     try:
         var1 = ma.array(np.squeeze(nc1.variables[name][:]))
@@ -66,15 +61,8 @@ def compare_vars(nc1, nc2, name, tol, relative):
                               delta))
 
 def compare(file1, file2, variables, exclude, tol, relative):
-    try:
-        nc1 = netCDF4.Dataset(file1, 'r')
-    except:
-        usagefailure("ERROR: FILE '%s' CANNOT BE OPENED FOR READING" % file1)
-        
-    try:
-        nc2 = netCDF4.Dataset(file2, 'r')
-    except:
-        usagefailure("ERROR: FILE '%s' CANNOT BE OPENED FOR READING" % file2)
+    nc1 = netCDF4.Dataset(file1, 'r')
+    nc2 = netCDF4.Dataset(file2, 'r')
 
     if (exclude == False):
         if len(variables) == 0:
