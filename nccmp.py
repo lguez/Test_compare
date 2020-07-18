@@ -96,5 +96,5 @@ if __name__ == "__main__":
     else:
         variables = []
 
-    compare(args.file1,args.file2, variables, args.exclude, args.tol,
+    compare(args.file1, args.file2, variables, args.exclude, args.tol,
             args.relative)
