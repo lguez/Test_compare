@@ -16,14 +16,18 @@ thus include the keys:
 
 and may also include the keys:
 
-"description", "stdout", "required", either "stdin_filename" or "input"
+"main_command", "description", "stdout", "required", either
+"stdin_filename" or "input"
 
 "commands" is a list of commands, "command" is a single command. A
 command is a list of strings or a single string. (The command includes
 the executable file.)
 
-If "commands" is present then "stdin_filename", "stdout" and "input"
-apply to the last command only.
+"main_command" should be an integer value giving the 0-based index of
+the main command in the list "commands". If "main_command" is absent
+and "commands" is present then the last command is defined as the main
+command. "stdin_filename", "stdout" and "input" apply to the main
+command only.
 
 The difference between the keys "stdin_filename" and "input" is that
 "input" must be the content of standard input and stdin_filename must
@@ -125,16 +129,22 @@ def run_tests(my_runs):
 
             if "command" in my_run:
                 commands = [my_run["command"]]
+                main_command = 0
             else:
                 commands = my_run["commands"]
+
+                if "main_command" in my_run:
+                    main_command = my_run["main_command"]
+                else:
+                    main_command = len(commands) - 1
                 
             if "stdout" in my_run:
                 stdout_filename = my_run["stdout"]
             else:
-                if isinstance(commands[-1], list):
-                     stdout_filename = commands[-1][0]
+                if isinstance(commands[main_command], list):
+                     stdout_filename = commands[main_command][0]
                 else:
-                     stdout_filename = commands[-1]
+                     stdout_filename = commands[main_command]
 
                 stdout_filename = path.basename(stdout_filename)
                 stdout_filename = path.splitext(stdout_filename)[0] \
@@ -163,12 +173,12 @@ def run_tests(my_runs):
 
             t0_single_run = time.perf_counter()
 
-            for command in commands[:-1]:
+            for command in commands[:main_command]:
                 subprocess.run(command, check = True)
                 
             with open(stdout_filename, "w") as stdout:
                 try:
-                    subprocess.run(commands[-1], stdout = stdout,
+                    subprocess.run(commands[main_command], stdout = stdout,
                                    stderr = subprocess.STDOUT, check = True,
                                    universal_newlines = True, **input_kwds)
                 except subprocess.CalledProcessError:
@@ -177,6 +187,9 @@ def run_tests(my_runs):
                         print("stdin_filename:", my_run["stdin_filename"])
                     raise
 
+            for command in commands[main_command + 1:]:
+                subprocess.run(command, check = True)
+                
             writer.writerow([my_run["title"], format(time.perf_counter()
                                                      - t0_single_run, ".0f")])
             os.chdir("..")
