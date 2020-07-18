@@ -2,22 +2,9 @@
 
 """From nccmp_pism.py."""
 
-import sys
 import netCDF4
 import numpy as np
 from numpy import ma
-
-def success(relative):
-    if relative:
-        print("Common variables are the same within relative tolerance %.1e" 
-              % tol)
-    else:        
-        print("Common variables are the same within tolerance %.1e" % tol)
-    sys.exit(0)
-
-def failure():
-    print("Files are different.")
-    sys.exit(1)
 
 def compare_vars(nc1, nc2, name, tol, relative):
     try:
@@ -111,4 +98,3 @@ if __name__ == "__main__":
 
     compare(args.file1,args.file2, variables, args.exclude, args.tol,
             args.relative)
-    ##success(relative)
