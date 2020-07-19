@@ -78,7 +78,7 @@ function nc_over_diff
 
     if (($return_code == 1))
     then
-	echo "Data parts of common variables are different."
+	echo "Data parts are different."
 	filesize1=$(du $1/$name | cut -f 1)
 	filesize2=$(du $2/$name | cut -f 1)
 	if ((filesize1 <= 1024 && filesize2 <= 1024))
