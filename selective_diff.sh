@@ -231,9 +231,27 @@ do
     if [[ -f $2/$filename ]]
     then
 	# We have a file with the same name in the two directories
-	cmp --silent $1/$filename $2/$filename
+
+	suffix=${filename##*.}
+	
+	if [[ $suffix == nc ]]
+	then
+	    # Sometimes the files have the same content but are not
+	    # identical, so do not use cmp
+	    nccmp_meta.py --silent $1/$filename $2/$filename
+	    return_code=$?
+
+	    if (($return_code == 0))
+	    then
+		nccmp.py --brief --silent $1/$filename $2/$filename
+		return_code=$?
+	    fi
+	else
+	    cmp --silent $1/$filename $2/$filename
+	    return_code=$?
+	fi
 	    
-	if (($? != 0))
+	if (($return_code != 0))
 	then
             # Different content
 	    ((n_diff = n_diff + 1))
