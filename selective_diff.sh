@@ -73,7 +73,7 @@ function nc_over_diff
     rm ${name0}_1.cdl ${name0}_2.cdl diff_out
     echo
 
-    nccmp.py --relative $1/$name $2/$name
+    nccmp.py $1/$name $2/$name
     return_code=$?
 
     if (($return_code == 1))
