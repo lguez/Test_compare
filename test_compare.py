@@ -258,6 +258,7 @@ if args.compare:
         run_tests(my_runs)
         cumul_return = 0
         print("Comparing...")
+        t0 = time.perf_counter()
 
         with open("comparison.txt", "w") as comparison_file:
             for my_run in my_runs:
@@ -283,6 +284,7 @@ if args.compare:
                           "should be 0 or 1.\nSee \"comparison.txt\".")
                     cp.check_returncode()
 
+        print("Elapsed time for comparisons:", time.perf_counter() - t0, "s")
         print("Created file \"comparison.txt\".")
         print("cumul_return =", cumul_return)
         reply = input("Remove old runs? ")
