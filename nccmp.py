@@ -9,13 +9,13 @@ import argparse
 
 def compare_vars(nc1, nc2, name):
     try:
-        var1 = nc1.variables[name][:]
+        var1 = nc1.variables[name]
     except:
         if not args.silent: print(f"Variable {name} not found in file 1")
         return True
 
     try:
-        var2 = nc2.variables[name][:]
+        var2 = nc2.variables[name]
     except:
         if not args.silent: print(f"Variable {name} not found in file 2")
         return True
@@ -30,7 +30,7 @@ def compare_vars(nc1, nc2, name):
         if not args.silent: print(f'Variable {name}: 0 size.')
         return False
     else:
-        if np.any(var1 != var2):
+        if np.any(var1[:] != var2[:]):
             if not args.silent: print(f"Variable {name}, different content")
             return True
         else:
