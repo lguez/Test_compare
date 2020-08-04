@@ -233,11 +233,13 @@ do
 	# We have a file with the same name in the two directories
 
 	suffix=${filename##*.}
+	cmp --silent $1/$filename $2/$filename
+	return_code=$?
 	
-	if [[ $suffix == nc ]]
+	if (($return_code != 0)) && [[ $suffix == nc ]]
 	then
 	    # Sometimes the files have the same content but are not
-	    # identical, so do not use cmp
+	    # identical, so double-check:
 	    nccmp_meta.py --silent $1/$filename $2/$filename
 	    return_code=$?
 
@@ -246,9 +248,6 @@ do
 		nccmp.py --brief --silent $1/$filename $2/$filename
 		return_code=$?
 	    fi
-	else
-	    cmp --silent $1/$filename $2/$filename
-	    return_code=$?
 	fi
 	    
 	if (($return_code != 0))
