@@ -205,6 +205,8 @@ parser.add_argument("-d", "--dirnames", help="JSON input file containing "
                     "abbreviations for directory names")
 parser.add_argument("-c", "--compare", help = "Directory containing old runs "
                     "for comparison, after running the tests")
+parser.add_argument("-b", "--brief", help = "compare briefly",
+                    action = "store_true")
 parser.add_argument("-x", "--exclude", help = "exclude files that match shell "
                     "pattern PAT from comparison, after running the tests",
                     metavar = "PAT", action = "append")
@@ -269,7 +271,8 @@ if args.compare:
                 if args.exclude:
                     for pat in args.exclude:
                         subprocess_args[1:1] = ["-x",  pat]
-                        
+
+                if args.brief: subprocess_args.insert(1, "-b")
                 cp = subprocess.run(subprocess_args, stdout = comparison_file,
                                     stderr = subprocess.STDOUT)
                 
