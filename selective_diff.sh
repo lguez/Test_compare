@@ -301,8 +301,10 @@ then
 		echo "Broken link: $2/$name"
 	    else
 		suffix=${name##*.}
-		if [[ $suffix == txt || ($suffix != nc && $suffix != csv \
-					     && $(file "$1/$name") == *text*) ]]
+
+		if [[ $suffix == txt || $suffix == json \
+			  || ($suffix != nc && $suffix != csv \
+				  && $(file "$1/$name") == *text*) ]]
 		then
 		    text_file=true
 		else
