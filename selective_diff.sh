@@ -308,6 +308,7 @@ then
 		else
 		    text_file=false
 		fi
+
 		if [[ $text_file == true || $suffix == @(nc|dbf|csv) ]]
 		then
 		    # We have a text, NetCDF, DBF or CSV file
