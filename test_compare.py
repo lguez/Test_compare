@@ -159,7 +159,11 @@ def run_tests(my_runs):
             input_kwds = {}
 
             if "stdin_filename" in my_run:
-                input_kwds["stdin"] = open(my_run["stdin_filename"])
+                try:
+                    input_kwds["stdin"] = open(my_run["stdin_filename"])
+                except FileNotFoundError:
+                    shutil.rmtree(my_run["title"])
+                    raise
             elif "input" in my_run:
                 input_kwds["input"] = my_run["input"]
             else:
