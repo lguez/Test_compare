@@ -181,15 +181,9 @@ def run_tests(my_runs):
                 subprocess.run(command, check = True)
                 
             with open(stdout_filename, "w") as stdout:
-                try:
-                    subprocess.run(commands[main_command], stdout = stdout,
-                                   stderr = subprocess.STDOUT, check = True,
-                                   universal_newlines = True, **input_kwds)
-                except subprocess.CalledProcessError:
-                    print()
-                    if "stdin_filename" in my_run:
-                        print("stdin_filename:", my_run["stdin_filename"])
-                    raise
+                subprocess.run(commands[main_command], stdout = stdout,
+                               stderr = subprocess.STDOUT, check = True,
+                               universal_newlines = True, **input_kwds)
 
             for command in commands[main_command + 1:]:
                 subprocess.run(command, check = True)
