@@ -236,7 +236,7 @@ do
 	cmp --silent $1/$filename $2/$filename
 	return_code=$?
 	
-	if (($return_code != 0)) && [[ $suffix == nc ]]
+	if (($return_code != 0)) && [[ $suffix == nc  && $brief == n ]]
 	then
 	    # Sometimes the files have the same content but are not
 	    # identical, so double-check:
