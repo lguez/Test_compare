@@ -24,8 +24,8 @@
 # current directory.
 
 # Non-standard utilities invoked in this script: ncdump, NCO,
-# nccmp.py, max_diff_nc.sh, dbfdump, ndiff by Nelson Beebe,
-# numdiff. ndiff and numdiff are not completely redundant.
+# nccmp.py, nccmp_meta.py, max_diff_nc.sh, dbfdump, ndiff by Nelson
+# Beebe, numdiff. ndiff and numdiff are not completely redundant.
 
 # An exit status of 0 means no differences were found, 1 means some
 # differences were found, and 2 means trouble.
