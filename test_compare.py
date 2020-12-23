@@ -150,6 +150,9 @@ def run_tests(my_runs):
                 stdout_filename = path.splitext(stdout_filename)[0] \
                                   + "_stdout.txt"
 
+            stderr_filename = stdout_filename.replace("_stdout.txt",
+                                                      "_stderr.txt")
+
             if "stdin_filename" in my_run and "input" in my_run:
                 print(my_run["title"],
                       ": stdin_filename and input are exclusive.")
@@ -180,9 +183,10 @@ def run_tests(my_runs):
             for command in commands[:main_command]:
                 subprocess.run(command, check = True)
                 
-            with open(stdout_filename, "w") as stdout:
+            with open(stdout_filename, "w") as stdout, open(stderr_filename,
+                                                            "w") as stderr:
                 subprocess.run(commands[main_command], stdout = stdout,
-                               stderr = subprocess.STDOUT, check = True,
+                               stderr = stderr, check = True,
                                universal_newlines = True, **input_kwds)
 
             for command in commands[main_command + 1:]:
