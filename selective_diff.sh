@@ -127,7 +127,7 @@ function nc_over_diff
 }
 
 USAGE="Usage:
-`basename $0` [-d] [-l limit] [-s] [-b] [-r] directory directory
+`basename $0` [-d] [-l limit] [-s] [-b] [-r] [-x PAT] directory directory
 
    -d      : create a NetCDF file containing differences for NetCDF files 
              with different data parts (default: do not create)
