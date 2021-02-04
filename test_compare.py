@@ -91,7 +91,7 @@ def run_tests(my_runs):
     """my_runs should be a list of dictionaries."""
 
     perf_report = open("perf_report.csv", "w", newline='')
-    writer = csv.writer(perf_report)
+    writer = csv.writer(perf_report, lineterminator = "\n")
     writer.writerow(["Name of test", "elapsed time, in s"])
     print("Starting runs at", datetime.datetime.now())
     t0 = time.perf_counter()
