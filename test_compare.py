@@ -159,18 +159,18 @@ def run_tests(my_runs):
                 shutil.rmtree(my_run["title"])
                 sys.exit(1)
 
-            input_kwds = {}
+            other_kwargs = {}
 
             if "stdin_filename" in my_run:
                 try:
-                    input_kwds["stdin"] = open(my_run["stdin_filename"])
+                    other_kwargs["stdin"] = open(my_run["stdin_filename"])
                 except FileNotFoundError:
                     shutil.rmtree(my_run["title"])
                     raise
             elif "input" in my_run:
-                input_kwds["input"] = my_run["input"]
+                other_kwargs["input"] = my_run["input"]
             else:
-                input_kwds["stdin"] = subprocess.DEVNULL
+                other_kwargs["stdin"] = subprocess.DEVNULL
 
             os.chdir(my_run["title"])
 
@@ -187,7 +187,7 @@ def run_tests(my_runs):
                                                             "w") as stderr:
                 subprocess.run(commands[main_command], stdout = stdout,
                                stderr = stderr, check = True,
-                               universal_newlines = True, **input_kwds)
+                               universal_newlines = True, **other_kwargs)
 
             for command in commands[main_command + 1:]:
                 subprocess.run(command, check = True)
