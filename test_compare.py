@@ -8,15 +8,15 @@ created.
 This script reads a JSON test description file. The test description
 file must contain a list of dictionaries. Each run is defined by
 title, commands, required files (that is, files required to be present
-in the current directory at run time), stdin_filename or input, and
-stdout file. The title is used as directory name. Each dictionary must
-thus include the keys:
+in the current directory at run time), environment, stdin_filename or
+input, and stdout file. The title is used as directory name. Each
+dictionary must thus include the keys:
 
 "title", either "command" or "commands"
 
 and may also include the keys:
 
-"main_command", "description", "stdout", "required", either
+"main_command", "description", "stdout", "required", "env", either
 "stdin_filename" or "input"
 
 "commands" is a list of commands, "command" is a single command. A
@@ -44,6 +44,11 @@ path to a file that will be sym-linked to the test directory, with the
 same basename. If a required element is a list of two strings then the
 first string must be the absolute path to a file that will be
 sym-linked to the test directory, with the second string as basename.
+
+If present, "env" must be a dictionary of environment variables and
+values. This dictionary will be added to, not replace, the inherited
+environment. If an environment variable in "env" was already in the
+environment, the value in "env" replaces the old value.
 
 If "stdout" is not present then the file name for standard output is
 constructed from the name of the executable file.
@@ -171,6 +176,9 @@ def run_tests(my_runs):
                 other_kwargs["input"] = my_run["input"]
             else:
                 other_kwargs["stdin"] = subprocess.DEVNULL
+
+            if "env" in my_run:
+                other_kwargs["env"] = dict(os.environ, **my_run["env"])
 
             os.chdir(my_run["title"])
 
