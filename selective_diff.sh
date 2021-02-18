@@ -60,7 +60,7 @@ function nc_over_diff
     # Headers:
     ncdump -h $1/$name > ${name0}_1.cdl
     ncdump -h $2/$name > ${name0}_2.cdl
-    diff ${name0}_1.cdl ${name0}_2.cdl >diff_out
+    diff ${name0}_[12].cdl >diff_out
 
     if (($? == 0))
     then
@@ -70,7 +70,7 @@ function nc_over_diff
 	cat_not_too_many diff_out
     fi
 
-    rm ${name0}_1.cdl ${name0}_2.cdl diff_out
+    rm ${name0}_[12].cdl diff_out
     echo
 
     nccmp.py $1/$name $2/$name
@@ -88,11 +88,11 @@ function nc_over_diff
 	    ncdump $2/$name | csplit --silent - %^data:$%
 	    mv xx00 ${name0}_2.cdl
 
-	    diff --text ${name0}_1.cdl ${name0}_2.cdl >diff_out
+	    diff --text ${name0}_[12].cdl >diff_out
             # (--text because undefined values may produce non-ascii
             # characters)
 
-	    rm ${name0}_1.cdl ${name0}_2.cdl
+	    rm ${name0}_[12].cdl
 	    echo "-- Differences between dumps of data parts of \"$name\""
 	    cat_not_too_many diff_out
 	    rm diff_out
@@ -339,14 +339,12 @@ then
 
 			echo "dbfdumps of \"$name\" compared with ndiff, "\
 			     "tolerance 1e-7:"
-			ndiff -relerr 1e-7 ${name0}_1_dbfdump.txt \
-			      ${name0}_2_dbfdump.txt >ndiff_out
+			ndiff -relerr 1e-7 ${name0}_[12]_dbfdump.txt >ndiff_out
 			cat_not_too_many ndiff_out
 
 			echo "dbfdumps of \"$name\" compared with numdiff, "\
 			     "tolerance 1e-7:"
-			numdiff -r 1e-7 ${name0}_1_dbfdump.txt \
-				${name0}_2_dbfdump.txt >ndiff_out
+			numdiff -r 1e-7 ${name0}_[12]_dbfdump.txt >ndiff_out
 			cat_not_too_many ndiff_out
 			
 			rm ${name0}_[12]_dbfdump.txt ndiff_out
