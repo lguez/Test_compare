@@ -236,17 +236,28 @@ do
 	cmp --silent $1/$filename $2/$filename
 	return_code=$?
 	
-	if (($return_code != 0)) && [[ $suffix == nc  && $brief == n ]]
+	if (($return_code != 0)) && [[ $brief == n ]]
 	then
 	    # Sometimes the files have the same content but are not
 	    # identical, so double-check:
-	    nccmp_meta.py --silent $1/$filename $2/$filename
-	    return_code=$?
-
-	    if (($return_code == 0))
+	    if [[ $suffix == nc ]]
 	    then
-		nccmp.py --brief --silent $1/$filename $2/$filename
+		nccmp_meta.py --silent $1/$filename $2/$filename
 		return_code=$?
+
+		if (($return_code == 0))
+		then
+		    nccmp.py --brief --silent $1/$filename $2/$filename
+		    return_code=$?
+		fi
+	    elif [[ $suffix == dbf ]]
+	    then
+		name0=$(basename $filename .dbf)
+		dbfdump $1/$filename >${name0}_1_dbfdump.txt
+		dbfdump $2/$filename >${name0}_2_dbfdump.txt
+		cmp --silent ${name0}_[12]_dbfdump.txt
+		return_code=$?
+		rm ${name0}_[12]_dbfdump.txt
 	    fi
 	fi
 	    
