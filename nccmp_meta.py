@@ -17,7 +17,9 @@ def cmp(tag, v1, v2):
         else:
             print(tag, ":\n")
             print(v1)
+            print()
             print(v2)
+            print("-------------\n")
             return 1
     else:
         return 0
