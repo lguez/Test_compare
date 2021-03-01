@@ -62,6 +62,9 @@ to be made in the test description file. This is useful to abbreviate
 paths that occur repeatedly in test description file. This
 abbreviation file must contain a single dictionary.
 
+There may be several JSON test description files on the command
+line. If two tests have the same name, the second one will be skipped.
+
 """
 
 import argparse
@@ -209,7 +212,7 @@ def run_tests(my_runs):
 
 parser = argparse.ArgumentParser(description = __doc__,
                                  formatter_class = argparse.RawDescriptionHelpFormatter)
-parser.add_argument("test_descr",
+parser.add_argument("test_descr", nargs = "+",
                     help = "JSON file containing description of tests")
 parser.add_argument("-d", "--dirnames", help="JSON input file containing "
                     "abbreviations for directory names")
@@ -239,15 +242,17 @@ else:
     substitutions = {}
 
 substitutions["PWD"] = os.getcwd()
+my_runs = []
 
-with tempfile.TemporaryFile(mode = "w+") as json_substituted, \
-     open(args.test_descr) as input_file:
-    for line in input_file:
-        line = string.Template(line).substitute(substitutions)
-        json_substituted.write(line)
+for test_descr in args.test_descr:
+    with tempfile.TemporaryFile(mode = "w+") as json_substituted, \
+         open(test_descr) as input_file:
+        for line in input_file:
+            line = string.Template(line).substitute(substitutions)
+            json_substituted.write(line)
 
-    json_substituted.seek(0)
-    my_runs = json.load(json_substituted)
+        json_substituted.seek(0)
+        my_runs += json.load(json_substituted)
 
 if args.title:
     for my_run in my_runs:
