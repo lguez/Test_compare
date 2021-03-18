@@ -8,6 +8,8 @@ import sys
 import argparse
 
 def compare_vars(nc1, nc2, name):
+    """Return True if a difference if found."""
+    
     try:
         var1 = nc1.variables[name]
     except:
