@@ -34,7 +34,6 @@ def compare_vars(nc1, nc2, name):
 
 parser = argparse.ArgumentParser()
 parser.add_argument("netCDF_file", nargs = 2)
-parser.add_argument("--brief", action="store_true")
 parser.add_argument("--silent", action="store_true")
 args = parser.parse_args()
 nc1 = netCDF4.Dataset(args.netCDF_file[0])
@@ -46,6 +45,6 @@ any_difference = False
 for name in vars1 & vars2:
     difference_found = compare_vars(nc1, nc2, name)
     any_difference = any_difference or difference_found
-    if difference_found and args.brief: break
+    if difference_found and args.silent: break
 
 if any_difference: sys.exit(1)
