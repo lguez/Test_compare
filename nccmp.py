@@ -40,11 +40,12 @@ nc1 = netCDF4.Dataset(args.netCDF_file[0])
 nc2 = netCDF4.Dataset(args.netCDF_file[1])
 vars1 = nc1.variables.keys()
 vars2 = nc2.variables.keys()
-any_difference = False
+difference_found = False
 
 for name in vars1 & vars2:
-    difference_found = compare_vars(nc1, nc2, name)
-    any_difference = any_difference or difference_found
+    difference_found = compare_vars(nc1, nc2, name) or difference_found
+    # (Note: call to compare_vars first to avoid short-circuit)
+    
     if difference_found and args.silent: break
 
-if any_difference: sys.exit(1)
+if difference_found: sys.exit(1)
