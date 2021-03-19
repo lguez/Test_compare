@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-"""From nccmp_pism.py."""
-
 import netCDF4
 import sys
 import argparse
@@ -9,7 +7,7 @@ import diff_funct
 
 parser = argparse.ArgumentParser()
 parser.add_argument("netCDF_file", nargs = 2)
-parser.add_argument("--silent", action="store_true")
+parser.add_argument("--silent", action = "store_true")
 args = parser.parse_args()
 nc1 = netCDF4.Dataset(args.netCDF_file[0])
 nc2 = netCDF4.Dataset(args.netCDF_file[1])
