@@ -28,15 +28,16 @@ f2 = netCDF4.Dataset(args.netCDF_file[1])
 diff_found = jumble.diff_dict(f1.__dict__, f2.__dict__, args.silent,
                               tag = "All attributes of the dataset")
 if args.silent and diff_found: sys.exit(1)
-diff_found = cmp("Data_model", f1.data_model, f2.data_model) or diff_found
-if diff_found and args.silent: sys.exit(1)
-diff_found = cmp("Disk_format", f1.disk_format, f2.disk_format) or diff_found
-if diff_found and args.silent: sys.exit(1)
-diff_found = cmp("File_format", f1.file_format, f2.file_format) or diff_found
-if diff_found and args.silent: sys.exit(1)
-diff_found = cmp("Dimension names", f1.dimensions.keys(),
-                 f2.dimensions.keys()) or diff_found
-if diff_found and args.silent: sys.exit(1)
+
+for tag, v1, v2 in [("Data_model", f1.data_model, f2.data_model),
+                    ("Disk_format", f1.disk_format, f2.disk_format),
+                    ("File_format", f1.file_format, f2.file_format),
+                    ("Dimension names", f1.dimensions.keys(),
+                     f2.dimensions.keys()),
+                    ("Variable names", f1.variables.keys(),
+                     f2.variables.keys())]:
+    diff_found = cmp(tag, v1, v2) or diff_found
+    if diff_found and args.silent: sys.exit(1)
 
 for x in f1.dimensions:
     if x in f2.dimensions:
@@ -44,10 +45,6 @@ for x in f1.dimensions:
                          len(f2.dimensions[x])) or diff_found
         if diff_found and args.silent: sys.exit(1)
         
-diff_found = cmp("Variable names", f1.variables.keys(), f2.variables.keys()) \
-    or diff_found
-if diff_found and args.silent: sys.exit(1)
-
 for x in f1.variables:
     if x in f2.variables:
         diff_found = jumble.diff_dict(f1.variables[x].__dict__,
