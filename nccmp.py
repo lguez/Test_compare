@@ -14,29 +14,32 @@ def compare_vars(nc1, nc2, name):
         var1 = nc1.variables[name]
     except:
         if not args.silent: print(f"Variable {name} not found in file 1")
-        return True
-
-    try:
-        var2 = nc2.variables[name]
-    except:
-        if not args.silent: print(f"Variable {name} not found in file 2")
-        return True
-
-    if var1.shape != var2.shape:
-        if not args.silent:
-            print(f"Variable {name}, different shapes in the two files")
-            
-        return True
-
-    if var1.size == 0:
-        if not args.silent: print(f'Variable {name}: 0 size.')
-        return False
+        difference_found = True
     else:
-        if np.any(var1[:] != var2[:]):
-            if not args.silent: print(f"Variable {name}, different content")
-            return True
+        try:
+            var2 = nc2.variables[name]
+        except:
+            if not args.silent: print(f"Variable {name} not found in file 2")
+            difference_found = True
         else:
-            return False
+            if var1.shape != var2.shape:
+                if not args.silent:
+                    print(f"Variable {name}, different shapes in the two files")
+
+                difference_found = True
+            else:
+                if var1.size == 0:
+                    if not args.silent: print(f'Variable {name}: 0 size.')
+                    difference_found = False
+                else:
+                    if np.any(var1[:] != var2[:]):
+                        if not args.silent:
+                            print(f"Variable {name}, different content")
+                        difference_found = True
+                    else:
+                        difference_found = False
+
+    return difference_found
 
 parser = argparse.ArgumentParser()
 parser.add_argument("netCDF_file", nargs = 2)
