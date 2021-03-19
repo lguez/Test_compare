@@ -24,8 +24,8 @@
 # current directory.
 
 # Non-standard utilities invoked in this script: ncdump, NCO,
-# nccmp.py, nccmp_meta.py, max_diff_nc.sh, dbfdump, ndiff by Nelson
-# Beebe, numdiff. ndiff and numdiff are not completely redundant.
+# nccmp.py, max_diff_nc.sh, dbfdump, ndiff by Nelson Beebe,
+# numdiff. ndiff and numdiff are not completely redundant.
 
 # An exit status of 0 means no differences were found, 1 means some
 # differences were found, and 2 means trouble.
@@ -73,7 +73,7 @@ function nc_over_diff
     rm ${name0}_[12].cdl diff_out
     echo
 
-    nccmp.py $1/$name $2/$name
+    nccmp.py --data $1/$name $2/$name
     return_code=$?
 
     if (($return_code == 1))
@@ -242,14 +242,8 @@ do
 	    # identical, so double-check:
 	    if [[ $suffix == nc ]]
 	    then
-		nccmp_meta.py --silent $1/$filename $2/$filename
+		nccmp.py --silent $1/$filename $2/$filename
 		return_code=$?
-
-		if (($return_code == 0))
-		then
-		    nccmp.py --brief --silent $1/$filename $2/$filename
-		    return_code=$?
-		fi
 	    elif [[ $suffix == dbf ]]
 	    then
 		name0=$(basename $filename .dbf)
