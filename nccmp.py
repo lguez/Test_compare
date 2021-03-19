@@ -8,36 +8,27 @@ import sys
 import argparse
 
 def compare_vars(nc1, nc2, name):
-    """Return True if a difference if found."""
+    """Return True if a difference if found. name must be a variable
+    common to nc1 and nc2."""
     
-    try:
-        var1 = nc1.variables[name]
-    except:
-        if not args.silent: print(f"Variable {name} not found in file 1")
+    var1 = nc1.variables[name]
+    var2 = nc2.variables[name]
+
+    if var1.shape != var2.shape:
+        if not args.silent:
+            print(f"Variable {name}, different shapes in the two files")
+
         difference_found = True
     else:
-        try:
-            var2 = nc2.variables[name]
-        except:
-            if not args.silent: print(f"Variable {name} not found in file 2")
-            difference_found = True
+        if var1.size == 0:
+            if not args.silent: print(f'Variable {name}: 0 size.')
+            difference_found = False
         else:
-            if var1.shape != var2.shape:
-                if not args.silent:
-                    print(f"Variable {name}, different shapes in the two files")
-
+            if np.any(var1[:] != var2[:]):
+                if not args.silent: print(f"Variable {name}, different content")
                 difference_found = True
             else:
-                if var1.size == 0:
-                    if not args.silent: print(f'Variable {name}: 0 size.')
-                    difference_found = False
-                else:
-                    if np.any(var1[:] != var2[:]):
-                        if not args.silent:
-                            print(f"Variable {name}, different content")
-                        difference_found = True
-                    else:
-                        difference_found = False
+                difference_found = False
 
     return difference_found
 
@@ -48,11 +39,11 @@ parser.add_argument("--silent", action="store_true")
 args = parser.parse_args()
 nc1 = netCDF4.Dataset(args.netCDF_file[0])
 nc2 = netCDF4.Dataset(args.netCDF_file[1])
-vars1 = list(nc1.variables.keys())
-vars2 = list(nc2.variables.keys())
+vars1 = nc1.variables.keys()
+vars2 = nc2.variables.keys()
 any_difference = False
 
-for name in np.unique(vars1 +  vars2):
+for name in vars1 & vars2:
     difference_found = compare_vars(nc1, nc2, name)
     any_difference = any_difference or difference_found
     if difference_found and args.brief: break
