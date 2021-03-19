@@ -50,10 +50,9 @@ nc1 = netCDF4.Dataset(args.netCDF_file[0])
 nc2 = netCDF4.Dataset(args.netCDF_file[1])
 vars1 = list(nc1.variables.keys())
 vars2 = list(nc2.variables.keys())
-variables = np.unique(vars1 +  vars2)
 any_difference = False
 
-for name in variables:
+for name in np.unique(vars1 +  vars2):
     difference_found = compare_vars(nc1, nc2, name)
     any_difference = any_difference or difference_found
     if difference_found and args.brief: break
