@@ -5,12 +5,6 @@ import sys
 import argparse
 import jumble
 
-parser = argparse.ArgumentParser()
-parser.add_argument("netCDF_file", nargs = 2)
-parser.add_argument("--silent", action="store_true")
-args = parser.parse_args()
-n_diff = 0
-
 def cmp(tag, v1, v2):
     if v1 != v2:
         if args.silent:
@@ -24,6 +18,12 @@ def cmp(tag, v1, v2):
             return 1
     else:
         return 0
+
+parser = argparse.ArgumentParser()
+parser.add_argument("netCDF_file", nargs = 2)
+parser.add_argument("--silent", action="store_true")
+args = parser.parse_args()
+n_diff = 0
 
 f1 = netCDF4.Dataset(args.netCDF_file[0])
 f2 = netCDF4.Dataset(args.netCDF_file[1])
