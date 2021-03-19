@@ -9,3 +9,31 @@ def cmp(v1, v2, silent = False, tag = None):
         print("-------------\n")
 
     return diff_found
+
+def diff_dict(d1, d2, silent = False, tag = None):
+    diff_found = dict(d1) != dict(d2)
+    
+    if diff_found and not silent:
+        if tag: print(tag, ":\n")
+        keys_1 = d1.keys()
+        keys_2 = d2.keys()
+        exclusive_keys = keys_1 ^ keys_2
+
+        for k in exclusive_keys:
+            if k in d1:
+                print(k, "in first dictionary only")
+            else:
+                 print(k, "in second dictionary only")
+
+            print("-----------\n")
+
+        for k in keys_1 & keys_2:
+            if d1[k] != d2[k]:
+                print(k)
+                print()
+                print(d1[k])
+                print()
+                print(d2[k])
+                print("-----------\n")
+
+    return diff_found
