@@ -54,7 +54,6 @@ for x in f1.variables:
                                       f2.variables[x].__dict__, args.silent,
                                       tag = f"Attributes of variable {x}") \
                                       or diff_found
-    
         if args.silent and diff_found: sys.exit(1)
 
         for attribute in ["dtype", "dimensions", "shape"]:
