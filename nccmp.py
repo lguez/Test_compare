@@ -18,19 +18,19 @@ def compare_vars(nc1, nc2, name):
         if not args.silent:
             print(f"Variable {name}, different shapes in the two files")
 
-        difference_found = True
+        diff_found = True
     else:
         if var1.size == 0:
             if not args.silent: print(f'Variable {name}: 0 size.')
-            difference_found = False
+            diff_found = False
         else:
             if np.any(var1[:] != var2[:]):
                 if not args.silent: print(f"Variable {name}, different content")
-                difference_found = True
+                diff_found = True
             else:
-                difference_found = False
+                diff_found = False
 
-    return difference_found
+    return diff_found
 
 parser = argparse.ArgumentParser()
 parser.add_argument("netCDF_file", nargs = 2)
@@ -40,12 +40,12 @@ nc1 = netCDF4.Dataset(args.netCDF_file[0])
 nc2 = netCDF4.Dataset(args.netCDF_file[1])
 vars1 = nc1.variables.keys()
 vars2 = nc2.variables.keys()
-difference_found = False
+diff_found = False
 
 for name in vars1 & vars2:
-    difference_found = compare_vars(nc1, nc2, name) or difference_found
+    diff_found = compare_vars(nc1, nc2, name) or diff_found
     # (Note: call to compare_vars first to avoid short-circuit)
     
-    if difference_found and args.silent: break
+    if diff_found and args.silent: break
 
-if difference_found: sys.exit(1)
+if diff_found: sys.exit(1)
