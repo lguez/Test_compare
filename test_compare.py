@@ -210,8 +210,8 @@ def run_tests(my_runs):
     print("Elapsed time:", time.perf_counter() - t0, "s")
     perf_report.close()
 
-parser = argparse.ArgumentParser(description = __doc__,
-                                 formatter_class = argparse.RawDescriptionHelpFormatter)
+parser = argparse.ArgumentParser(description = __doc__, formatter_class \
+                                 = argparse.RawDescriptionHelpFormatter)
 parser.add_argument("test_descr", nargs = "+",
                     help = "JSON file containing description of tests")
 parser.add_argument("-d", "--dirnames", help="JSON input file containing "
