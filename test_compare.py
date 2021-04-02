@@ -252,7 +252,9 @@ for test_descr in args.test_descr:
             json_substituted.write(line)
 
         json_substituted.seek(0)
-        my_runs += json.load(json_substituted)
+        series = json.load(json_substituted)
+        for my_run in series: my_run["test_series_file"] = test_descr
+        my_runs.extend(series)
 
 if args.title:
     for my_run in my_runs:
