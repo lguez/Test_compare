@@ -30,12 +30,12 @@ command. "stdin_filename", "stdout" and "input" apply to the main
 command only.
 
 The difference between the keys "stdin_filename" and "input" is that
-"input" must be the content of standard input and stdin_filename must
-be the name of a file that will be redirected to standard input. The
-value of "input" is passed through to the "input" keyword argument of
-"subprocess.run". If neither "stdin_filename" nor "input" is present,
-then we assume that the run does not need any input: no interaction is
-allowed.
+"input" must be the content of standard input and "stdin_filename"
+must be the name of a file that will be redirected to standard
+input. The value of "input" is passed through to the "input" keyword
+argument of "subprocess.run". If neither "stdin_filename" nor "input"
+is present, then we assume that the run does not need any input: no
+interaction is allowed.
 
 If present, "required" must be a list. Each element of "required" must
 itself be a string or a list of two strings (no tuple allowed in

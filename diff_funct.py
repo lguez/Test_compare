@@ -31,7 +31,7 @@ def diff_dict(d1, d2, silent = False, tag = None):
 
         for k in keys_1 & keys_2:
             if d1[k] != d2[k]:
-                print(k)
+                print("Different values for key", k, ":")
                 print()
                 print(d1[k])
                 print()
