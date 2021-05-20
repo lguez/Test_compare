@@ -92,7 +92,6 @@ if reader_old.numRecords != reader_new.numRecords:
     print("Comparing the first",
           min(reader_old.numRecords, reader_new.numRecords), "records...")
     
-marker = itertools.cycle(["+", "v", "^", "x"])
 print("Indices below are 0-based.\n")
 
 print("************************")
@@ -114,6 +113,7 @@ for i, (r_old, r_new) in enumerate(zip(reader_old.iterRecords(),
 print("Maximum over all records:", max_diff)
 
 my_figure = plt.figure()
+marker = itertools.cycle(["+", "v", "^", "x"])
 
 print("\n************************")
 print("Difference in vertices:")
