@@ -73,8 +73,11 @@ def compare_poly(p_old, p_new, marker, i, j = None):
 parser = argparse.ArgumentParser()
 parser.add_argument("old", help = "shapefile")
 parser.add_argument("new", help = "shapefile or directory")
-parser.add_argument("-s", "--report-identical", action = "store_true",
+group = parser.add_mutually_exclusive_group()
+group.add_argument("-s", "--report-identical", action = "store_true",
                     help = "report when attributes or vertices are the same")
+group.add_argument("-q", "--quiet", action = "store_true",
+                    help = "suppress all normal output for dbf diff")
 parser.add_argument("--dbf-only", action = "store_true")
 args = parser.parse_args()
 
@@ -91,14 +94,20 @@ diff_found = False
 
 if reader_old.numRecords != reader_new.numRecords:
     diff_found = True
-    print("Not the same number of records:", reader_old.numRecords,
-          reader_new.numRecords)
-    print("Comparing the first",
-          min(reader_old.numRecords, reader_new.numRecords), "records...")
     
-print("Indices below are 0-based.\n")
-print("************************")
-print("Difference in attributes:")
+    if args.quiet:
+        sys.exit(1)
+    else:
+        print("Not the same number of records:", reader_old.numRecords,
+              reader_new.numRecords)
+        print("Comparing the first",
+              min(reader_old.numRecords, reader_new.numRecords), "records...")
+    
+if not args.quiet:
+    print("Indices below are 0-based.\n")
+    print("************************")
+    print("Difference in attributes:")
+
 max_diff = 0.
 
 for i, (r_old, r_new) in enumerate(zip(reader_old.iterRecords(),
@@ -107,14 +116,18 @@ for i, (r_old, r_new) in enumerate(zip(reader_old.iterRecords(),
         if args.report_identical:
             print("\nAttributes for shape", i, "are identical.")
     else:
-        current_diff = abs(np.array(r_new) / np.array(r_old) - 1)
-        print("\nAttributes for shape", i,
-              "differ. Absolute value of relative difference:")
-        print(current_diff)
-        max_diff = np.maximum(max_diff, current_diff)
+        diff_found = True
 
-diff_found = diff_found or max_diff != 0
-print("Maximum over all records:", max_diff)
+        if args.quiet:
+            sys.exit(1)
+        else:
+            current_diff = abs(np.array(r_new) / np.array(r_old) - 1)
+            print("\nAttributes for shape", i,
+                  "differ. Absolute value of relative difference:")
+            print(current_diff)
+            max_diff = np.maximum(max_diff, current_diff)
+
+if not args.quiet: print("Maximum over all records:", max_diff)
 
 if not args.dbf_only:
     my_figure = plt.figure()
