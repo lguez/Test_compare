@@ -7,6 +7,7 @@ from matplotlib import pyplot as plt
 from shapely import geometry, validation
 import os.path
 import argparse
+import sys
 
 def compare_rings(r_old, r_new, marker, i, j, k = None):
     print("\nShape", i, end = "")
@@ -86,8 +87,10 @@ else:
 
 reader_old = shapefile.Reader(args.old)
 reader_new = shapefile.Reader(new)
+diff_found = False
 
 if reader_old.numRecords != reader_new.numRecords:
+    diff_found = True
     print("Not the same number of records:", reader_old.numRecords,
           reader_new.numRecords)
     print("Comparing the first",
@@ -111,6 +114,7 @@ for i, (r_old, r_new) in enumerate(zip(reader_old.iterRecords(),
         print(current_diff)
         max_diff = np.maximum(max_diff, current_diff)
 
+diff_found = diff_found or max_diff != 0
 print("Maximum over all records:", max_diff)
 
 if not args.dbf_only:
@@ -126,6 +130,7 @@ if not args.dbf_only:
             if args.report_identical:
                 print("\nVertices for shape", i, "are identical.")
         else:
+            diff_found = True
             print("\nVertices for shape", i, "differ.")
 
             if s_old.shapeType == shapefile.NULL:
@@ -161,3 +166,5 @@ if not args.dbf_only:
     if my_figure.axes:
         plt.legend()
         plt.show()
+
+if diff_found: sys.exit(1)
