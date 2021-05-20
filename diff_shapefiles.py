@@ -74,6 +74,7 @@ parser.add_argument("old", help = "shapefile")
 parser.add_argument("new", help = "shapefile or directory")
 parser.add_argument("-s", "--report-identical", action = "store_true",
                     help = "report when attributes or vertices are the same")
+parser.add_argument("--dbf-only", action = "store_true")
 args = parser.parse_args()
 
 if path.isdir(args.new):
@@ -112,48 +113,51 @@ for i, (r_old, r_new) in enumerate(zip(reader_old.iterRecords(),
 
 print("Maximum over all records:", max_diff)
 
-my_figure = plt.figure()
-marker = itertools.cycle(["+", "v", "^", "x"])
+if not args.dbf_only:
+    my_figure = plt.figure()
+    marker = itertools.cycle(["+", "v", "^", "x"])
 
-print("\n************************")
-print("Difference in vertices:")
+    print("\n************************")
+    print("Difference in vertices:")
 
-for i, (s_old, s_new) in enumerate(zip(reader_old.iterShapes(),
-                                       reader_new.iterShapes())):
-    if s_old.points == s_new.points:
-        if args.report_identical:
-            print("\nVertices for shape", i, "are identical.")
-    else:
-        print("\nVertices for shape", i, "differ.")
-        
-        if s_old.shapeType == shapefile.NULL:
-            print("Old shape is NULL.")
-        elif s_new.shapeType == shapefile.NULL:
-            print("New shape is NULL.")
+    for i, (s_old, s_new) in enumerate(zip(reader_old.iterShapes(),
+                                           reader_new.iterShapes())):
+        if s_old.points == s_new.points:
+            if args.report_identical:
+                print("\nVertices for shape", i, "are identical.")
         else:
-            nparts = len(s_old.parts)
-            
-            if nparts != len(s_new.parts):
-                print("Numbers of parts in shape", i, "differ:", nparts,
-                      len(s_new.parts))
-            else:
-                g_old = geometry.shape(s_old.__geo_interface__)
-                g_new = geometry.shape(s_new.__geo_interface__)
-                if g_old.geom_type == g_new.geom_type:
-                    if g_old.geom_type == "MultiPolygon":
-                        for j, (p_old, p_new) in enumerate(zip(g_old, g_new)):
-                            compare_poly(p_old, p_new, marker, i, j)
-                    elif g_old.geom_type == "Polygon":
-                        compare_poly(g_old, g_new, marker, i)
-                    elif g_old.geom_type == "Point":
-                        print("Absolute value of relative difference:",
-                              np.abs(np.array(g_new) / np.array(g_old) - 1))
-                    else:
-                        print("Geometry type not supported:", g_old.geom_type)
-                else:
-                    print("Geometry types differ:", g_old.geom_type,
-                          g_new.geom_type)
+            print("\nVertices for shape", i, "differ.")
 
-if my_figure.axes:
-    plt.legend()
-    plt.show()
+            if s_old.shapeType == shapefile.NULL:
+                print("Old shape is NULL.")
+            elif s_new.shapeType == shapefile.NULL:
+                print("New shape is NULL.")
+            else:
+                nparts = len(s_old.parts)
+
+                if nparts != len(s_new.parts):
+                    print("Numbers of parts in shape", i, "differ:", nparts,
+                          len(s_new.parts))
+                else:
+                    g_old = geometry.shape(s_old.__geo_interface__)
+                    g_new = geometry.shape(s_new.__geo_interface__)
+                    if g_old.geom_type == g_new.geom_type:
+                        if g_old.geom_type == "MultiPolygon":
+                            for j, (p_old, p_new) in enumerate(zip(g_old,
+                                                                   g_new)):
+                                compare_poly(p_old, p_new, marker, i, j)
+                        elif g_old.geom_type == "Polygon":
+                            compare_poly(g_old, g_new, marker, i)
+                        elif g_old.geom_type == "Point":
+                            print("Absolute value of relative difference:",
+                                  np.abs(np.array(g_new) / np.array(g_old) - 1))
+                        else:
+                            print("Geometry type not supported:",
+                                  g_old.geom_type)
+                    else:
+                        print("Geometry types differ:", g_old.geom_type,
+                              g_new.geom_type)
+
+    if my_figure.axes:
+        plt.legend()
+        plt.show()
