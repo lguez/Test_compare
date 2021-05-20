@@ -216,8 +216,11 @@ parser.add_argument("test_descr", nargs = "+",
                     help = "JSON file containing description of tests")
 parser.add_argument("-d", "--dirnames", help="JSON input file containing "
                     "abbreviations for directory names")
-parser.add_argument("-c", "--compare", help = "Directory containing old runs "
+group = parser.add_mutually_exclusive_group()
+group.add_argument("-c", "--compare", help = "Directory containing old runs "
                     "for comparison, after running the tests")
+group.add_argument("-a", "--archive", help = "Directory to which dirs will be "
+                    "copied, after running the tests")
 parser.add_argument("-b", "--brief", help = "compare briefly",
                     action = "store_true")
 parser.add_argument("-x", "--exclude", help = "exclude files that match shell "
@@ -242,9 +245,11 @@ if args.list:
 
     for my_run in my_runs: print(my_run["title"])
 else:
-    if args.compare:
-        if not path.isdir(args.compare):
-            sys.exit("Directory " + args.compare + " not found.")
+    if args.compare or args.archive:
+        my_dir = args.compare or args.archive
+        
+        if not path.isdir(my_dir):
+            sys.exit("Directory " + my_dir + " not found.")
 
     if args.dirnames:
         with open(args.dirnames) as subst_file:
@@ -347,3 +352,13 @@ else:
             os.rename("perf_report.csv", dst)
     else:
         run_tests(my_runs)
+        
+        if args.archive:
+            for my_run in my_runs:
+                archive_dir = path.join(args.archive, my_run["title"])
+                
+                try:
+                    shutil.copytree(my_run["title"], archive_dir,
+                                    symlinks = True)
+                except FileExistsError:
+                    pass
