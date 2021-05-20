@@ -70,22 +70,20 @@ def compare_poly(p_old, p_new, i, j = None):
         
 
 parser = argparse.ArgumentParser()
-parser.add_argument("old", help = "shapefile or directory")
+parser.add_argument("old", help = "shapefile")
 parser.add_argument("new", help = "shapefile or directory")
-parser.add_argument("-b", "--basename", help = "basename of shapefile, will be "
-                    "appended to old and new arguments")
 parser.add_argument("-s", "--report-identical", action = "store_true",
                     help = "report when attributes or vertices are the same")
 args = parser.parse_args()
 
-if args.basename:
-    old = os.path.join(args.old, args.basename)
-    new = os.path.join(args.new, args.basename)
+if path.isdir(args.new):
+    # Assume that basename is the same:
+    basename = path.basename(args.old)
+    new = os.path.join(args.new, basename)
 else:
-    old = args.old
     new = args.new
 
-reader_old = shapefile.Reader(old)
+reader_old = shapefile.Reader(args.old)
 reader_new = shapefile.Reader(new)
 
 if reader_old.numRecords != reader_new.numRecords:
