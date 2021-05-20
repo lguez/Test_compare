@@ -8,7 +8,7 @@ from shapely import geometry, validation
 import os.path
 import argparse
 
-def compare_rings(r_old, r_new, i, j, k = None):
+def compare_rings(r_old, r_new, marker, i, j, k = None):
     print("\nShape", i, end = "")
     if j is not None: print(", part", j, end = "")
 
@@ -57,16 +57,16 @@ def compare_rings(r_old, r_new, i, j, k = None):
             print("old:", validation.explain_validity(r_old))
             print("new:", validation.explain_validity(r_new))
 
-def compare_poly(p_old, p_new, i, j = None):
+def compare_poly(p_old, p_new, marker, i, j = None):
     """
     i: shape number
     j: polygon number for a multi-polygon
     """
 
-    compare_rings(p_old.exterior, p_new.exterior, i, j)
+    compare_rings(p_old.exterior, p_new.exterior, marker, i, j)
 
     for k, (r_old, r_new) in enumerate(zip(p_old.interiors, p_new.interiors)):
-        compare_rings(r_old, r_new, i, j, k)
+        compare_rings(r_old, r_new, marker, i, j, k)
         
 
 parser = argparse.ArgumentParser()
@@ -142,9 +142,9 @@ for i, (s_old, s_new) in enumerate(zip(reader_old.iterShapes(),
                 if g_old.geom_type == g_new.geom_type:
                     if g_old.geom_type == "MultiPolygon":
                         for j, (p_old, p_new) in enumerate(zip(g_old, g_new)):
-                            compare_poly(p_old, p_new, i, j)
+                            compare_poly(p_old, p_new, marker, i, j)
                     elif g_old.geom_type == "Polygon":
-                        compare_poly(g_old, g_new, i)
+                        compare_poly(g_old, g_new, marker, i)
                     elif g_old.geom_type == "Point":
                         print("Absolute value of relative difference:",
                               np.abs(np.array(g_new) / np.array(g_old) - 1))
