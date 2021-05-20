@@ -97,7 +97,6 @@ if reader_old.numRecords != reader_new.numRecords:
           min(reader_old.numRecords, reader_new.numRecords), "records...")
     
 print("Indices below are 0-based.\n")
-
 print("************************")
 print("Difference in attributes:")
 max_diff = 0.
