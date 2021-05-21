@@ -3,7 +3,7 @@
 import netCDF4
 import sys
 import argparse
-import diff_funct
+import util
 
 parser = argparse.ArgumentParser()
 parser.add_argument("netCDF_file", nargs = 2)
@@ -21,7 +21,7 @@ vars2 = f2.variables.keys()
 if args.data:
     diff_found = False
 else:
-    diff_found = diff_funct.diff_dict(f1.__dict__, f2.__dict__, args.silent,
+    diff_found = util.diff_dict(f1.__dict__, f2.__dict__, args.silent,
                                       tag = "All attributes of the dataset")
     if args.silent and diff_found: sys.exit(1)
 
@@ -31,12 +31,12 @@ else:
                         ("Dimension names", f1.dimensions.keys(),
                          f2.dimensions.keys()), ("Variable names", vars1,
                                                  vars2)]:
-        diff_found = diff_funct.cmp(v1, v2, args.silent, tag) or diff_found
+        diff_found = util.cmp(v1, v2, args.silent, tag) or diff_found
         if diff_found and args.silent: sys.exit(1)
 
     for x in f1.dimensions:
         if x in f2.dimensions:
-            diff_found = diff_funct.cmp(len(f1.dimensions[x]),
+            diff_found = util.cmp(len(f1.dimensions[x]),
                                         len(f2.dimensions[x]), args.silent,
                                         tag = f"Size of dimension {x}") \
                                         or diff_found
@@ -44,7 +44,7 @@ else:
 
     for x in vars1 & vars2:
             diff_found \
-                = diff_funct.diff_dict(f1[x].__dict__, f2[x].__dict__,
+                = util.diff_dict(f1[x].__dict__, f2[x].__dict__,
                                        args.silent,
                                        tag = f"Attributes of variable {x}") \
                                        or diff_found
@@ -52,7 +52,7 @@ else:
 
             for attribute in ["dtype", "dimensions", "shape"]:
                 diff_found = \
-                    diff_funct.cmp(f1[x].__getattribute__(attribute), 
+                    util.cmp(f1[x].__getattribute__(attribute), 
                                    f2[x].__getattribute__(attribute),
                                    args.silent, \
                                    tag = f"{attribute} of variable {x}") \
@@ -60,7 +60,7 @@ else:
                 if diff_found and args.silent: sys.exit(1)
 
 for x in vars1 & vars2:
-    diff_found = diff_funct.compare_vars(f1[x], f2[x], args.silent,
+    diff_found = util.compare_vars(f1[x], f2[x], args.silent,
                                          tag = f"Variable {x}") or diff_found
     # (Note: call to compare_vars first to avoid short-circuit)
     
