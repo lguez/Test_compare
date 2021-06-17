@@ -5,7 +5,7 @@ import shapefile
 import numpy as np
 from matplotlib import pyplot as plt
 from shapely import geometry, validation
-import os.path
+from os import path
 import argparse
 import sys
 
@@ -80,7 +80,7 @@ args = parser.parse_args()
 if path.isdir(args.new):
     # Assume that basename is the same:
     basename = path.basename(args.old)
-    new = os.path.join(args.new, basename)
+    new = path.join(args.new, basename)
 else:
     new = args.new
 

@@ -51,7 +51,8 @@ environment. If an environment variable in "env" was already in the
 environment, the value in "env" replaces the old value.
 
 If "stdout" is not present then the file name for standard output is
-constructed from the name of the executable file.
+constructed from the name of the main command (determined by
+"main_command").
 
 The required files and executables must be specified in the JSON input
 file with absolute paths. File arguments in commands, if any, also
