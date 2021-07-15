@@ -81,6 +81,7 @@ import sys
 import tempfile
 import time
 import string
+import pathlib
 
 def my_symlink(src, run_dir, base_dest):
     """If src does not exist, remove run_dir, else symlink src to
@@ -197,15 +198,22 @@ def run_tests(my_runs):
                 
             with open(stdout_filename, "w") as stdout, open(stderr_filename,
                                                             "w") as stderr:
-                subprocess.run(commands[main_command], stdout = stdout,
-                               stderr = stderr, check = True,
-                               universal_newlines = True, **other_kwargs)
+                cp = subprocess.run(commands[main_command], stdout = stdout,
+                                    stderr = stderr, universal_newlines = True,
+                                    **other_kwargs)
 
-            for command in commands[main_command + 1:]:
-                subprocess.run(command, check = True)
+            if cp.returncode == 0:
+                for command in commands[main_command + 1:]:
+                    subprocess.run(command, check = True)
+
+                writer.writerow([my_run["title"],
+                                 format(time.perf_counter() - t0_single_run,
+                                        ".0f")])
+            else:
+                p = pathlib.Path("failed")
+                p.touch()
+                print("failed")
                 
-            writer.writerow([my_run["title"], format(time.perf_counter()
-                                                     - t0_single_run, ".0f")])
             os.chdir("..")
 
     print("Elapsed time:", time.perf_counter() - t0, "s")
