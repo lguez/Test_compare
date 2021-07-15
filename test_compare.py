@@ -261,17 +261,22 @@ else:
     substitutions["PWD"] = os.getcwd()
 
     for test_descr in args.test_descr:
-        with tempfile.TemporaryFile(mode = "w+") as json_substituted, \
-             open(test_descr) as input_file:
-            for line in input_file:
-                line = string.Template(line).substitute(substitutions)
-                json_substituted.write(line)
+        try:
+            input_file = open(test_descr)
+        except FileNotFoundError:
+            print("Skipping", test_descr, ", not found")
+        else:
+            with tempfile.TemporaryFile(mode = "w+") as json_substituted:
+                for line in input_file:
+                    line = string.Template(line).substitute(substitutions)
+                    json_substituted.write(line)
 
-            json_substituted.seek(0)
-            series = json.load(json_substituted)
+                json_substituted.seek(0)
+                series = json.load(json_substituted)
 
-        for my_run in series: my_run["test_series_file"] = test_descr
-        my_runs.extend(series)
+            input_file.close()
+            for my_run in series: my_run["test_series_file"] = test_descr
+            my_runs.extend(series)
 
     if args.title:
         for my_run in my_runs:
