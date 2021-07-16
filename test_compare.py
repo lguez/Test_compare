@@ -83,18 +83,19 @@ import time
 import string
 import pathlib
 
-def my_symlink(src, run_dir, base_dest):
-    """If src does not exist, remove run_dir, else symlink src to
-    run_dir/base_dest.
+def my_symlink(src, my_run, base_dest):
+    """If src does not exist, remove my_run["title"], else symlink src to
+    my_run["title"]/base_dest.
 
     """
     
     if not path.exists(src):
-        shutil.rmtree(run_dir)
+        shutil.rmtree(my_run["title"])
         print()
+        print("In", my_run["test_series_file"])
         sys.exit(sys.argv[0] + ": required " + src + " does not exist.")
 
-    dst = path.join(run_dir, base_dest)
+    dst = path.join(my_run["title"], base_dest)
     os.symlink(src, dst)
     
 def run_tests(my_runs):
@@ -120,8 +121,7 @@ def run_tests(my_runs):
                 
                 for required_item in my_run["required"]:
                     if isinstance(required_item, list):
-                        my_symlink(required_item[0], my_run["title"],
-                                   required_item[1])
+                        my_symlink(required_item[0], my_run, required_item[1])
                     else:
                         # Wildcards allowed
                         expanded_list = glob.glob(required_item)
@@ -134,8 +134,7 @@ def run_tests(my_runs):
                         else:
                             for expanded_item in expanded_list:
                                 base_dest = path.basename(expanded_item)
-                                my_symlink(expanded_item, my_run["title"],
-                                           base_dest)
+                                my_symlink(expanded_item, my_run, base_dest)
 
             if "command" in my_run:
                 commands = [my_run["command"]]
