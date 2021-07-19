@@ -209,7 +209,6 @@ def run_tests(my_runs):
                                  format(time.perf_counter() - t0_single_run,
                                         ".0f")])
             else:
-                p_failed = pathlib.Path("failed")
                 p_failed.touch()
                 print("failed")
                 
@@ -294,6 +293,7 @@ else:
         my_runs = [my_run]
 
     print("Number of runs:", len(my_runs))
+    p_failed = pathlib.Path("failed")
 
     if args.clean:
         for my_run in my_runs:
