@@ -318,6 +318,10 @@ else:
                         for pat in args.exclude:
                             subprocess_args[1:1] = ["-x",  pat]
 
+                    if "exclude_cmp" in my_run:
+                        for pat in my_run["exclude_cmp"]:
+                            subprocess_args[1:1] = ["-x",  pat]
+
                     if args.brief: subprocess_args.insert(1, "-b")
                     cp = subprocess.run(subprocess_args,
                                         stdout = comparison_file,
