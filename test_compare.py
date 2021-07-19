@@ -209,8 +209,8 @@ def run_tests(my_runs):
                                  format(time.perf_counter() - t0_single_run,
                                         ".0f")])
             else:
-                p = pathlib.Path("failed")
-                p.touch()
+                p_failed = pathlib.Path("failed")
+                p_failed.touch()
                 print("failed")
                 
             os.chdir("..")
