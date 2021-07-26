@@ -110,11 +110,18 @@ def run_tests(my_runs):
     for i, my_run in enumerate(my_runs):
         print(i, end = ": ")
         p_failed = pathlib.Path(my_run["title"], "failed")
+        previous_failed = p_failed.exists()
         
-        if path.exists(my_run["title"]):
+        if path.exists(my_run["title"]) and not previous_failed:
             print("Skipping", my_run["title"], "(already exists)") 
         else:
-            print("Creating", my_run["title"] + "...", flush = True)
+            if previous_failed:
+                print("Replacing", my_run["title"],
+                      "because previous run failed...")
+                shutil.rmtree(my_run["title"])
+            else:
+                print("Creating", my_run["title"] + "...", flush = True)
+
             os.mkdir(my_run["title"])
 
             if "required" in my_run:
