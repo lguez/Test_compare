@@ -364,6 +364,11 @@ then
 			cat_not_too_many ndiff_out
 			
 			rm ndiff_out
+			echo "Comparison with max_diff_rect:"
+			max_diff_rect $1/$name $2/$name <<EOF
+c
+q
+EOF
 			echo
 		    else
 			nc_over_diff $*
