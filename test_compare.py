@@ -109,6 +109,7 @@ def run_tests(my_runs):
     
     for i, my_run in enumerate(my_runs):
         print(i, end = ": ")
+        p_failed = pathlib.Path(my_run["title"], "failed")
         
         if path.exists(my_run["title"]):
             print("Skipping", my_run["title"], "(already exists)") 
@@ -208,11 +209,11 @@ def run_tests(my_runs):
                 writer.writerow([my_run["title"],
                                  format(time.perf_counter() - t0_single_run,
                                         ".0f")])
+                os.chdir("..")
             else:
+                os.chdir("..")
                 p_failed.touch()
                 print("failed")
-                
-            os.chdir("..")
 
     print("Elapsed time:", time.perf_counter() - t0, "s")
     perf_report.close()
@@ -293,7 +294,6 @@ else:
         my_runs = [my_run]
 
     print("Number of runs:", len(my_runs))
-    p_failed = pathlib.Path("failed")
 
     if args.clean:
         for my_run in my_runs:
