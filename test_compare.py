@@ -100,8 +100,7 @@ def my_symlink(src, my_run, base_dest):
     
 def run_single_test(previous_failed, my_run, writer, p_failed):
     if previous_failed:
-        print("Replacing", my_run["title"],
-              "because previous run failed...")
+        print("Replacing", my_run["title"], "because previous run failed...")
         shutil.rmtree(my_run["title"])
     else:
         print("Creating", my_run["title"] + "...", flush = True)
@@ -121,8 +120,8 @@ def run_single_test(previous_failed, my_run, writer, p_failed):
                 if len(expanded_list) == 0:
                     shutil.rmtree(my_run["title"])
                     print()
-                    sys.exit(sys.argv[0] + ": required "
-                             + required_item + " does not exist.")
+                    sys.exit(f"{sys.argv[0]}: required {required_item} "
+                             "does not exist.")
                 else:
                     for expanded_item in expanded_list:
                         base_dest = path.basename(expanded_item)
@@ -148,15 +147,12 @@ def run_single_test(previous_failed, my_run, writer, p_failed):
              stdout_filename = commands[main_command]
 
         stdout_filename = path.basename(stdout_filename)
-        stdout_filename = path.splitext(stdout_filename)[0] \
-                          + "_stdout.txt"
+        stdout_filename = path.splitext(stdout_filename)[0] + "_stdout.txt"
 
-    stderr_filename = stdout_filename.replace("_stdout.txt",
-                                              "_stderr.txt")
+    stderr_filename = stdout_filename.replace("_stdout.txt", "_stderr.txt")
 
     if "stdin_filename" in my_run and "input" in my_run:
-        print(my_run["title"],
-              ": stdin_filename and input are exclusive.")
+        print(my_run["title"], ": stdin_filename and input are exclusive.")
         shutil.rmtree(my_run["title"])
         sys.exit(1)
 
@@ -187,8 +183,8 @@ def run_single_test(previous_failed, my_run, writer, p_failed):
     for command in commands[:main_command]:
         subprocess.run(command, check = True)
 
-    with open(stdout_filename, "w") as stdout, open(stderr_filename,
-                                                    "w") as stderr:
+    with open(stdout_filename, "w") as stdout, open(stderr_filename, "w") \
+         as stderr:
         cp = subprocess.run(commands[main_command], stdout = stdout,
                             stderr = stderr, universal_newlines = True,
                             **other_kwargs)
@@ -198,8 +194,7 @@ def run_single_test(previous_failed, my_run, writer, p_failed):
             subprocess.run(command, check = True)
 
         writer.writerow([my_run["title"],
-                         format(time.perf_counter() - t0_single_run,
-                                ".0f")])
+                         format(time.perf_counter() - t0_single_run, ".0f")])
         os.chdir("..")
     else:
         os.chdir("..")
