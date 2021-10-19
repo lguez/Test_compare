@@ -386,3 +386,5 @@ else:
                                     symlinks = True)
                 except FileExistsError:
                     pass
+                else:
+                    print("Archived", my_run["title"])
