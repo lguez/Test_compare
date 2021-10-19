@@ -174,6 +174,10 @@ def run_single_test(previous_failed, my_run, writer, p_failed):
 
     os.chdir(my_run["title"])
 
+    if "create_file" in my_run:
+        with open(my_run["create_file"][0], "w") as f:
+            f.write(my_run["create_file"][1])
+        
     with open("test.json", "w") as f:
         json.dump(my_run, f, indent = 3, sort_keys = True)
         f.write("\n")
