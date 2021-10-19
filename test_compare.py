@@ -98,6 +98,114 @@ def my_symlink(src, my_run, base_dest):
     dst = path.join(my_run["title"], base_dest)
     os.symlink(src, dst)
     
+def run_single_test(previous_failed, my_run, writer, p_failed):
+    if previous_failed:
+        print("Replacing", my_run["title"],
+              "because previous run failed...")
+        shutil.rmtree(my_run["title"])
+    else:
+        print("Creating", my_run["title"] + "...", flush = True)
+
+    os.mkdir(my_run["title"])
+
+    if "required" in my_run:
+        assert isinstance(my_run["required"], list)
+
+        for required_item in my_run["required"]:
+            if isinstance(required_item, list):
+                my_symlink(required_item[0], my_run, required_item[1])
+            else:
+                # Wildcards allowed
+                expanded_list = glob.glob(required_item)
+
+                if len(expanded_list) == 0:
+                    shutil.rmtree(my_run["title"])
+                    print()
+                    sys.exit(sys.argv[0] + ": required "
+                             + required_item + " does not exist.")
+                else:
+                    for expanded_item in expanded_list:
+                        base_dest = path.basename(expanded_item)
+                        my_symlink(expanded_item, my_run, base_dest)
+
+    if "command" in my_run:
+        commands = [my_run["command"]]
+        main_command = 0
+    else:
+        commands = my_run["commands"]
+
+        if "main_command" in my_run:
+            main_command = my_run["main_command"]
+        else:
+            main_command = len(commands) - 1
+
+    if "stdout" in my_run:
+        stdout_filename = my_run["stdout"]
+    else:
+        if isinstance(commands[main_command], list):
+             stdout_filename = commands[main_command][0]
+        else:
+             stdout_filename = commands[main_command]
+
+        stdout_filename = path.basename(stdout_filename)
+        stdout_filename = path.splitext(stdout_filename)[0] \
+                          + "_stdout.txt"
+
+    stderr_filename = stdout_filename.replace("_stdout.txt",
+                                              "_stderr.txt")
+
+    if "stdin_filename" in my_run and "input" in my_run:
+        print(my_run["title"],
+              ": stdin_filename and input are exclusive.")
+        shutil.rmtree(my_run["title"])
+        sys.exit(1)
+
+    other_kwargs = {}
+
+    if "stdin_filename" in my_run:
+        try:
+            other_kwargs["stdin"] = open(my_run["stdin_filename"])
+        except FileNotFoundError:
+            shutil.rmtree(my_run["title"])
+            raise
+    elif "input" in my_run:
+        other_kwargs["input"] = my_run["input"]
+    else:
+        other_kwargs["stdin"] = subprocess.DEVNULL
+
+    if "env" in my_run:
+        other_kwargs["env"] = dict(os.environ, **my_run["env"])
+
+    os.chdir(my_run["title"])
+
+    with open("test.json", "w") as f:
+        json.dump(my_run, f, indent = 3, sort_keys = True)
+        f.write("\n")
+
+    t0_single_run = time.perf_counter()
+
+    for command in commands[:main_command]:
+        subprocess.run(command, check = True)
+
+    with open(stdout_filename, "w") as stdout, open(stderr_filename,
+                                                    "w") as stderr:
+        cp = subprocess.run(commands[main_command], stdout = stdout,
+                            stderr = stderr, universal_newlines = True,
+                            **other_kwargs)
+
+    if cp.returncode == 0:
+        for command in commands[main_command + 1:]:
+            subprocess.run(command, check = True)
+
+        writer.writerow([my_run["title"],
+                         format(time.perf_counter() - t0_single_run,
+                                ".0f")])
+        os.chdir("..")
+    else:
+        os.chdir("..")
+        p_failed.touch()
+        print("failed")
+
 def run_tests(my_runs):
     """my_runs should be a list of dictionaries."""
 
@@ -115,112 +223,7 @@ def run_tests(my_runs):
         if path.exists(my_run["title"]) and not previous_failed:
             print("Skipping", my_run["title"], "(already exists)") 
         else:
-            if previous_failed:
-                print("Replacing", my_run["title"],
-                      "because previous run failed...")
-                shutil.rmtree(my_run["title"])
-            else:
-                print("Creating", my_run["title"] + "...", flush = True)
-
-            os.mkdir(my_run["title"])
-
-            if "required" in my_run:
-                assert isinstance(my_run["required"], list)
-                
-                for required_item in my_run["required"]:
-                    if isinstance(required_item, list):
-                        my_symlink(required_item[0], my_run, required_item[1])
-                    else:
-                        # Wildcards allowed
-                        expanded_list = glob.glob(required_item)
-                        
-                        if len(expanded_list) == 0:
-                            shutil.rmtree(my_run["title"])
-                            print()
-                            sys.exit(sys.argv[0] + ": required "
-                                     + required_item + " does not exist.")
-                        else:
-                            for expanded_item in expanded_list:
-                                base_dest = path.basename(expanded_item)
-                                my_symlink(expanded_item, my_run, base_dest)
-
-            if "command" in my_run:
-                commands = [my_run["command"]]
-                main_command = 0
-            else:
-                commands = my_run["commands"]
-
-                if "main_command" in my_run:
-                    main_command = my_run["main_command"]
-                else:
-                    main_command = len(commands) - 1
-                
-            if "stdout" in my_run:
-                stdout_filename = my_run["stdout"]
-            else:
-                if isinstance(commands[main_command], list):
-                     stdout_filename = commands[main_command][0]
-                else:
-                     stdout_filename = commands[main_command]
-
-                stdout_filename = path.basename(stdout_filename)
-                stdout_filename = path.splitext(stdout_filename)[0] \
-                                  + "_stdout.txt"
-
-            stderr_filename = stdout_filename.replace("_stdout.txt",
-                                                      "_stderr.txt")
-
-            if "stdin_filename" in my_run and "input" in my_run:
-                print(my_run["title"],
-                      ": stdin_filename and input are exclusive.")
-                shutil.rmtree(my_run["title"])
-                sys.exit(1)
-
-            other_kwargs = {}
-
-            if "stdin_filename" in my_run:
-                try:
-                    other_kwargs["stdin"] = open(my_run["stdin_filename"])
-                except FileNotFoundError:
-                    shutil.rmtree(my_run["title"])
-                    raise
-            elif "input" in my_run:
-                other_kwargs["input"] = my_run["input"]
-            else:
-                other_kwargs["stdin"] = subprocess.DEVNULL
-
-            if "env" in my_run:
-                other_kwargs["env"] = dict(os.environ, **my_run["env"])
-
-            os.chdir(my_run["title"])
-
-            with open("test.json", "w") as f:
-                json.dump(my_run, f, indent = 3, sort_keys = True)
-                f.write("\n")
-
-            t0_single_run = time.perf_counter()
-
-            for command in commands[:main_command]:
-                subprocess.run(command, check = True)
-                
-            with open(stdout_filename, "w") as stdout, open(stderr_filename,
-                                                            "w") as stderr:
-                cp = subprocess.run(commands[main_command], stdout = stdout,
-                                    stderr = stderr, universal_newlines = True,
-                                    **other_kwargs)
-
-            if cp.returncode == 0:
-                for command in commands[main_command + 1:]:
-                    subprocess.run(command, check = True)
-
-                writer.writerow([my_run["title"],
-                                 format(time.perf_counter() - t0_single_run,
-                                        ".0f")])
-                os.chdir("..")
-            else:
-                os.chdir("..")
-                p_failed.touch()
-                print("failed")
+            run_single_test(previous_failed, my_run, writer, p_failed)
 
     print("Elapsed time:", time.perf_counter() - t0, "s")
     perf_report.close()
