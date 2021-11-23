@@ -351,8 +351,19 @@ then
 			     "tolerance 1e-7:"
 			numdiff -r 1e-7 ${name0}_[12]_dbfdump.txt >ndiff_out
 			cat_not_too_many ndiff_out
-			
-			rm ${name0}_[12]_dbfdump.txt ndiff_out
+			rm ndiff_out
+
+			echo "dbfdumps of \"$name\" compared with " \
+			     "max_diff_rect:"
+			rm max_diff_rect_nml
+			max_diff_rect ${name0}_[12]_dbfdump.txt <<EOF
+&RECTANGLE FIRST_R = 2 /
+&RECTANGLE /
+c
+q
+EOF
+
+			rm ${name0}_[12]_dbfdump.txt
 		    elif [[ $suffix == csv ]]
 		    then
 			echo "Comparison with ndiff, tolerance 1e-7::"
