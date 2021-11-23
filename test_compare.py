@@ -231,7 +231,7 @@ parser = argparse.ArgumentParser(description = __doc__, formatter_class \
                                  = argparse.RawDescriptionHelpFormatter)
 parser.add_argument("test_descr", nargs = "+",
                     help = "JSON file containing description of tests")
-parser.add_argument("-d", "--dirnames", help="JSON input file containing "
+parser.add_argument("-s", "--substitutions", help="JSON input file containing "
                     "abbreviations for directory names")
 group = parser.add_mutually_exclusive_group()
 group.add_argument("-c", "--compare", help = "Directory containing old runs "
@@ -268,8 +268,8 @@ else:
         if not path.isdir(my_dir):
             sys.exit("Directory " + my_dir + " not found.")
 
-    if args.dirnames:
-        with open(args.dirnames) as subst_file:
+    if args.substitutions:
+        with open(args.substitutions) as subst_file:
             substitutions = json.load(subst_file)
     else:
         substitutions = {}
