@@ -3,7 +3,6 @@
 import shapefile
 import numpy as np
 from os import path
-import argparse
 import sys
 
 def diff_dbf(old, new, report_identical, quiet):
@@ -56,14 +55,17 @@ def diff_dbf(old, new, report_identical, quiet):
     if not quiet: print("Maximum over all records:", max_diff)
     if diff_found: sys.exit(1)
 
-parser = argparse.ArgumentParser()
-parser.add_argument("old", help = "dbf-file")
-parser.add_argument("new", help = "dbf-file or directory")
-group = parser.add_mutually_exclusive_group()
-group.add_argument("-s", "--report-identical", action = "store_true",
-                    help = "report when attributes are the same")
-group.add_argument("-q", "--quiet", action = "store_true",
-                    help = "suppress all normal output")
-args = parser.parse_args()
+if __name__ == "__main__":
+    import argparse
+    
+    parser = argparse.ArgumentParser()
+    parser.add_argument("old", help = "dbf-file")
+    parser.add_argument("new", help = "dbf-file or directory")
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("-s", "--report-identical", action = "store_true",
+                        help = "report when attributes are the same")
+    group.add_argument("-q", "--quiet", action = "store_true",
+                        help = "suppress all normal output")
+    args = parser.parse_args()
 
-diff_dbf(args.old, args.new, args.report_identical, args.quiet)
+    diff_dbf(args.old, args.new, args.report_identical, args.quiet)
