@@ -18,7 +18,8 @@ def nccmp(netCDF_file, silent, data):
         diff_found = False
     else:
         diff_found = compare_util.diff_dict(f1.__dict__, f2.__dict__, silent,
-                                            tag = "All attributes of the dataset")
+                                            tag = "All attributes of the "
+                                            "dataset")
         if silent and diff_found: sys.exit(1)
 
         for tag, v1, v2 in [("Data_model", f1.data_model, f2.data_model),
@@ -42,8 +43,8 @@ def nccmp(netCDF_file, silent, data):
                 diff_found \
                     = compare_util.diff_dict(f1[x].__dict__, f2[x].__dict__,
                                              silent,
-                                             tag = f"Attributes of variable {x}") \
-                    or diff_found
+                                             tag = "Attributes of variable "
+                                             f"{x}") or diff_found
                 if silent and diff_found: sys.exit(1)
 
                 for attribute in ["dtype", "dimensions", "shape"]:
@@ -57,7 +58,8 @@ def nccmp(netCDF_file, silent, data):
 
     for x in vars1 & vars2:
         diff_found = compare_util.compare_vars(f1[x], f2[x], silent,
-                                               tag = f"Variable {x}") or diff_found
+                                               tag = f"Variable {x}") \
+                                               or diff_found
         # (Note: call to compare_vars first to avoid short-circuit)
 
         if diff_found and silent: break
