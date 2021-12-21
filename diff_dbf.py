@@ -6,22 +6,22 @@ from os import path
 import argparse
 import sys
 
-def diff_dbf():
-    if path.isdir(args.new):
+def diff_dbf(old, new, report_identical, quiet):
+    if path.isdir(new):
         # Assume that basename is the same:
-        basename = path.basename(args.old)
-        new = path.join(args.new, basename)
+        basename = path.basename(old)
+        new = path.join(new, basename)
     else:
-        new = args.new
+        new = new
 
-    reader_old = shapefile.Reader(args.old)
+    reader_old = shapefile.Reader(old)
     reader_new = shapefile.Reader(new)
     diff_found = False
 
     if reader_old.numRecords != reader_new.numRecords:
         diff_found = True
 
-        if args.quiet:
+        if quiet:
             sys.exit(1)
         else:
             print("Not the same number of records:", reader_old.numRecords,
@@ -30,7 +30,7 @@ def diff_dbf():
                   min(reader_old.numRecords, reader_new.numRecords),
                   "records...")
 
-    if not args.quiet:
+    if not quiet:
         print("Indices below are 0-based.\n")
         print("************************")
 
@@ -39,12 +39,12 @@ def diff_dbf():
     for i, (r_old, r_new) in enumerate(zip(reader_old.iterRecords(),
                                            reader_new.iterRecords())):
         if r_new == r_old:
-            if args.report_identical:
+            if report_identical:
                 print("\nAttributes for shape", i, "are identical.")
         else:
             diff_found = True
 
-            if args.quiet:
+            if quiet:
                 sys.exit(1)
             else:
                 current_diff = abs(np.array(r_new) / np.array(r_old) - 1)
@@ -53,7 +53,7 @@ def diff_dbf():
                 print(current_diff)
                 max_diff = np.maximum(max_diff, current_diff)
 
-    if not args.quiet: print("Maximum over all records:", max_diff)
+    if not quiet: print("Maximum over all records:", max_diff)
     if diff_found: sys.exit(1)
 
 parser = argparse.ArgumentParser()
@@ -66,4 +66,4 @@ group.add_argument("-q", "--quiet", action = "store_true",
                     help = "suppress all normal output")
 args = parser.parse_args()
 
-diff_dbf()
+diff_dbf(args.old, args.new, args.report_identical, args.quiet)
