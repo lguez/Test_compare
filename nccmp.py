@@ -6,9 +6,9 @@ import netCDF4
 import sys
 import compare_util
 
-def nccmp(netCDF_file, silent, data):
-    f1 = netCDF4.Dataset(netCDF_file[0])
-    f2 = netCDF4.Dataset(netCDF_file[1])
+def nccmp(netCDF_files, silent, data):
+    f1 = netCDF4.Dataset(netCDF_files[0])
+    f2 = netCDF4.Dataset(netCDF_files[1])
 
     vars1 = f1.variables.keys()
     vars2 = f2.variables.keys()
