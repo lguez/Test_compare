@@ -27,7 +27,8 @@ def diff_dbf():
             print("Not the same number of records:", reader_old.numRecords,
                   reader_new.numRecords)
             print("Comparing the first",
-                  min(reader_old.numRecords, reader_new.numRecords), "records...")
+                  min(reader_old.numRecords, reader_new.numRecords),
+                  "records...")
 
     if not args.quiet:
         print("Indices below are 0-based.\n")
