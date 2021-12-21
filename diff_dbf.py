@@ -5,7 +5,7 @@ import numpy as np
 from os import path
 import sys
 
-def diff_dbf(old, new, report_identical, quiet):
+def diff_dbf(old, new, report_identical = False, quiet = False):
     if path.isdir(new):
         # Assume that basename is the same:
         basename = path.basename(old)
