@@ -4,7 +4,6 @@
 
 import netCDF4
 import sys
-import argparse
 import compare_util
 
 def nccmp(netCDF_file, silent, data):
@@ -66,11 +65,14 @@ def nccmp(netCDF_file, silent, data):
 
     if diff_found: sys.exit(1)
 
-parser = argparse.ArgumentParser()
-parser.add_argument("netCDF_file", nargs = 2)
-parser.add_argument("-s", "--silent", action = "store_true")
-parser.add_argument("-d", "--data", action = "store_true",
-                    help = "compare only data")
-args = parser.parse_args()
+if __name__ == "__main__":
+    import argparse
+    
+    parser = argparse.ArgumentParser()
+    parser.add_argument("netCDF_file", nargs = 2)
+    parser.add_argument("-s", "--silent", action = "store_true")
+    parser.add_argument("-d", "--data", action = "store_true",
+                        help = "compare only data")
+    args = parser.parse_args()
 
-nccmp(args.netCDF_file, args.silent, args.data)
+    nccmp(args.netCDF_file, args.silent, args.data)
