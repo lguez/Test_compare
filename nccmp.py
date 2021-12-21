@@ -6,14 +6,14 @@ import netCDF4
 import sys
 import compare_util
 
-def nccmp(netCDF_files, silent, data):
+def nccmp(netCDF_files, silent, data_only):
     f1 = netCDF4.Dataset(netCDF_files[0])
     f2 = netCDF4.Dataset(netCDF_files[1])
 
     vars1 = f1.variables.keys()
     vars2 = f2.variables.keys()
 
-    if data:
+    if data_only:
         diff_found = False
     else:
         diff_found = compare_util.diff_dict(f1.__dict__, f2.__dict__, silent,
@@ -71,8 +71,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("netCDF_file", nargs = 2)
     parser.add_argument("-s", "--silent", action = "store_true")
-    parser.add_argument("-d", "--data", action = "store_true",
+    parser.add_argument("-d", "--data-only", action = "store_true",
                         help = "compare only data")
     args = parser.parse_args()
 
-    nccmp(args.netCDF_file, args.silent, args.data)
+    nccmp(args.netCDF_file, args.silent, args.data_only)
