@@ -320,7 +320,7 @@ else:
             with open("comparison.txt", "w") as comparison_file:
                 for my_run in my_runs:
                     old_dir = path.join(args.compare, my_run["title"])
-                    subprocess_args = ["selective_diff.sh", old_dir,
+                    subprocess_args = ["selective_diff.py", old_dir,
                                        my_run["title"]]
 
                     if args.exclude:
@@ -343,7 +343,7 @@ else:
                             comparison_file.write('****************\n' * 2)
                             comparison_file.flush()
                     else:
-                        print("Problem in selective_diff.sh, return code "
+                        print("Problem in selective_diff.py, return code "
                               "should be 0 or 1.\nSee \"comparison.txt\".")
                         cp.check_returncode()
 
