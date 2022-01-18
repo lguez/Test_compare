@@ -129,11 +129,12 @@ diff_file = []
 id_file = []
 
 for filename in file_list:
-    if os.access(path.join(dir2, filename), os.F_OK):
-        # We have a file with the same name in the two directories
+    path_2 = path.join(dir2, filename)
 
-        equal = filecmp.cmp(path.join(dir1, filename),
-                            path.join(dir2, filename), shallow = False)
+    if os.access(path_2, os.F_OK):
+        # We have a file with the same name in the two directories
+        path_1 = path.join(dir1, filename)
+        equal = filecmp.cmp(path_1, path_2, shallow = False)
         
         if not equal:
             # Different content
@@ -165,15 +166,17 @@ if args.report_identical or len(completed_process.stdout) != 0 or n_diff != 0:
     if not args.brief:
         # Analyse each file
         for name in diff_file:
-            if not os.access(path.join(dir1, name), os.F_OK):
-                print("Broken link:", path.join(dir1, name))
-            elif not os.access(path.join(dir2, name), os.F_OK):
-                print("Broken link:", path.join(dir2, name))
+            path_1 = path.join(dir1, name)
+            path_2 = path.join(dir2, name)
+            if not os.access(path_1, os.F_OK):
+                print("Broken link:", path_1)
+            elif not os.access(path_2, os.F_OK):
+                print("Broken link:", path_2)
             else:
                 suffix = pathlib.PurePath(name).suffix
                 text_file = suffix == ".txt" or suffix == ".json" \
                     or (suffix != ".nc" and suffix != ".csv"
-                        and "text" in magic.from_file(path.join(dir1, name)))
+                        and "text" in magic.from_file(path_1))
 
                 if text_file or re.fullmatch(".nc|.dbf|.csv", suffix):
                     # We have a text, NetCDF, DBF or CSV file
@@ -186,8 +189,7 @@ if args.report_identical or len(completed_process.stdout) != 0 or n_diff != 0:
                     if text_file:
                         with open("diff_out", "w") as f:
                             subprocess.run(["diff", "--ignore-all-space",
-                                            path.join(dir1, name),
-                                            path.join(dir2, name)], stdout = f,
+                                            path_1, path_2], stdout = f,
                                            text = True)
                         
                         if path.getsize("diff_out") == 0:
@@ -198,18 +200,15 @@ if args.report_identical or len(completed_process.stdout) != 0 or n_diff != 0:
                         print()
                         os.remove("diff_out")
                     elif suffix == ".dbf":
-                        diff_dbf.diff_dbf(path.join(dir1, name),
-                                          path.join(dir2, name))
+                        diff_dbf.diff_dbf(path_1, path_2)
                     elif suffix == ".csv":
                         with open("ndiff_out", "w") as f:
-                            subprocess.run(["ndiff", "-relerr", "1e-7",
-                                            path.join(dir1, name),
-                                            path.join(dir2, name)], stdout = f,
-                                           text = True)
+                            subprocess.run(["ndiff", "-relerr", "1e-7", path_1,
+                                            path_2], stdout = f, text = True)
                         
                         cat_not_too_many("ndiff_out", args.limit)
                         print()
                     else:
-                        nccmp(path.join(dir1, name), path.join(dir2, name))
+                        nccmp(path_1, path_2)
 
 if n_diff != 0 or len(completed_process.stdout) != 0: sys.exit(1)
