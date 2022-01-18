@@ -232,7 +232,6 @@ do
     then
 	# We have a file with the same name in the two directories
 
-	suffix=${filename##*.}
 	cmp --silent $1/$filename $2/$filename
 	return_code=$?
 	
@@ -240,6 +239,8 @@ do
 	then
 	    # Sometimes the files have the same content but are not
 	    # identical, so double-check:
+	    suffix=${filename##*.}
+
 	    if [[ $suffix == nc ]]
 	    then
 		nccmp.py --silent $1/$filename $2/$filename
