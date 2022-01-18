@@ -29,7 +29,6 @@ def diff_dbf(old, new, report_identical = False, quiet = False):
 
     if not quiet:
         print("Indices below are 0-based.\n")
-        print("************************")
 
     max_diff = 0.
 
