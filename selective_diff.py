@@ -89,7 +89,7 @@ dir2 = pathlib.Path(args.directory[1])
 
 if not dir1.is_dir() or not dir2.is_dir():
     print()
-    print("Directories: ", args.directory)
+    print("Directories: ", *args.directory)
     sys.exit("Bad directories")
 
 # Compare directories briefly:

@@ -41,7 +41,8 @@ def diff_dict(d1, d2, silent = False, tag = None):
     return diff_found
 
 def compare_vars(v1, v2, silent = False, tag = None):
-    """Return True if a difference if found."""
+    """v1 and v2 are numpy arrays. Return True if a difference if
+    found."""
     
     if v1.shape != v2.shape:
         if not silent:
@@ -54,7 +55,7 @@ def compare_vars(v1, v2, silent = False, tag = None):
         if v1.size == 0:
             if not silent:
                 if tag: print(tag, ":")
-                print('0 size')
+                print('Zero-sized array')
                 print("-------------\n")
                 
             diff_found = False
