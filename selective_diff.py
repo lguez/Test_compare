@@ -136,6 +136,16 @@ for filename in file_list:
         path_1 = path.join(dir1, filename)
         equal = filecmp.cmp(path_1, path_2, shallow = False)
         
+        if not equal and not args.brief:
+            # Sometimes the files have the same content but are not
+            # identical, so double-check:
+            suffix = pathlib.PurePath(filename).suffix
+
+            if suffix == ".nc":
+                equal = nccmp.nccmp(path_1, path_2, silent = True) == 0
+            elif suffix == ".dbf":
+                equal = diff_dbf.diff_dbf(path_1, path_2, quiet = True) == 0
+
         if not equal:
             # Different content
             n_diff += 1
