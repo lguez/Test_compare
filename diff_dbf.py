@@ -27,9 +27,6 @@ def diff_dbf(old, new, report_identical = False, quiet = False):
                   min(reader_old.numRecords, reader_new.numRecords),
                   "records...")
 
-    if not quiet:
-        print("Indices below are 0-based.\n")
-
     max_diff = 0.
 
     for i, (r_old, r_new) in enumerate(zip(reader_old.iterRecords(),
@@ -47,7 +44,9 @@ def diff_dbf(old, new, report_identical = False, quiet = False):
                 print(current_diff)
                 max_diff = np.maximum(max_diff, current_diff)
 
-    if not quiet: print("Maximum over all records:", max_diff)
+    if not quiet and diff_found:
+        print("Indices above are 0-based.\n")
+        print("Maximum over all records:", max_diff)
 
     if diff_found:
         return 1
