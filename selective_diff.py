@@ -116,10 +116,13 @@ file_list = []
 
 for dirpath, dirnames, filenames in os.walk(os.curdir):
     for filename in filenames:
-        for p in args.x:
-            if fnmatch.fnmatch(filename, p): break
-        else:
-            file_list.append(path.join(dirpath, filename))
+        my_path = path.join(dirpath, filename)
+
+        if not path.islink(my_path):
+            for p in args.x:
+                if fnmatch.fnmatch(filename, p): break
+            else:
+                file_list.append(my_path)
 
 os.chdir(initial_dir)
 diff_file = []
