@@ -46,7 +46,7 @@ def compare_vars(v1, v2, silent = False, tag = None):
     if v1.shape != v2.shape:
         if not silent:
             if tag: print(tag, ":")
-            print("Different shapes in the two files")
+            print("Different shapes of the two variables")
             print("-------------\n")
 
         diff_found = True
