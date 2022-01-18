@@ -20,9 +20,7 @@ def diff_dbf(old, new, report_identical = False, quiet = False):
     if reader_old.numRecords != reader_new.numRecords:
         diff_found = True
 
-        if quiet:
-            sys.exit(1)
-        else:
+        if not quiet:
             print("Not the same number of records:", reader_old.numRecords,
                   reader_new.numRecords)
             print("Comparing the first",
@@ -43,9 +41,7 @@ def diff_dbf(old, new, report_identical = False, quiet = False):
         else:
             diff_found = True
 
-            if quiet:
-                sys.exit(1)
-            else:
+            if not quiet:
                 current_diff = abs(np.array(r_new) / np.array(r_old) - 1)
                 print("\nAttributes for shape", i,
                       "differ. Absolute value of relative difference:")
@@ -53,7 +49,11 @@ def diff_dbf(old, new, report_identical = False, quiet = False):
                 max_diff = np.maximum(max_diff, current_diff)
 
     if not quiet: print("Maximum over all records:", max_diff)
-    if diff_found: sys.exit(1)
+
+    if diff_found:
+        return 1
+    else:
+        return 0
 
 if __name__ == "__main__":
     import argparse
@@ -68,4 +68,6 @@ if __name__ == "__main__":
                         help = "suppress all normal output")
     args = parser.parse_args()
 
-    diff_dbf(args.old, args.new, args.report_identical, args.quiet)
+    return_diff_dbf = diff_dbf(args.old, args.new, args.report_identical,
+                               args.quiet)
+    sys.exit(return_diff_dbf)
