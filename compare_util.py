@@ -65,7 +65,7 @@ def compare_vars(v1, v2, silent = False, tag = None):
     else:
         if not silent:
             if tag: print(tag, ":")
-            print("Different shapes of the two variables")
+            print("compare_vars: shapes differ")
             print("-------------\n")
 
         diff_found = True
