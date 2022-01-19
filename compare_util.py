@@ -44,14 +44,7 @@ def compare_vars(v1, v2, silent = False, tag = None):
     """v1 and v2 are numpy arrays. Return True if a difference if
     found."""
     
-    if v1.shape != v2.shape:
-        if not silent:
-            if tag: print(tag, ":")
-            print("Different shapes of the two variables")
-            print("-------------\n")
-
-        diff_found = True
-    else:
+    if v1.shape == v2.shape:
         if v1.size == 0:
             if not silent:
                 if tag: print(tag, ":")
@@ -60,14 +53,21 @@ def compare_vars(v1, v2, silent = False, tag = None):
                 
             diff_found = False
         else:
-            if np.any(v1[:] != v2[:]):
+            if np.all(v1[:] == v2[:]):
+                diff_found = False
+            else:
                 if not silent:
                     if tag: print(tag, ":")
                     print("Different content")
                     print("-------------\n")
                     
                 diff_found = True
-            else:
-                diff_found = False
+    else:
+        if not silent:
+            if tag: print(tag, ":")
+            print("Different shapes of the two variables")
+            print("-------------\n")
+
+        diff_found = True
 
     return diff_found
