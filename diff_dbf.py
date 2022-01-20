@@ -3,9 +3,13 @@
 import shapefile
 import numpy as np
 from os import path
-import sys
 
 def diff_dbf(old, new, report_identical = False, quiet = False):
+    """old is the path to a shapefile. new may be the path to a shapefile
+    or to a directory containing a shapefile.
+
+    """
+
     if path.isdir(new):
         # Assume that basename is the same:
         basename = path.basename(old)
@@ -39,6 +43,9 @@ def diff_dbf(old, new, report_identical = False, quiet = False):
 
             if not quiet:
                 current_diff = abs(np.array(r_new) / np.array(r_old) - 1)
+                # (Note that a mixture of int and float in a record
+                # will create a float array.)
+
                 print("\nAttributes for shape", i,
                       "differ. Absolute value of relative difference:")
                 print(current_diff)
@@ -55,6 +62,7 @@ def diff_dbf(old, new, report_identical = False, quiet = False):
 
 if __name__ == "__main__":
     import argparse
+    import sys
     
     parser = argparse.ArgumentParser()
     parser.add_argument("old", help = "dbf-file")

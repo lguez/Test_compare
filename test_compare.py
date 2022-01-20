@@ -49,7 +49,8 @@ second string as basename.
 If present, "env" must be a dictionary of environment variables and
 values. This dictionary will be added to, not replace, the inherited
 environment. If an environment variable in "env" was already in the
-environment, the value in "env" replaces the old value.
+environment, the value in "env" replaces the old value. This
+environment is applied only to the main command.
 
 If "stdout" is not present then the file name for standard output is
 constructed from the name of the main command (determined by
