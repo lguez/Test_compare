@@ -229,6 +229,46 @@ def run_tests(my_runs):
     print("Elapsed time:", time.perf_counter() - t0, "s")
     perf_report.close()
 
+def compare(my_runs, compare_dir, exclude_list, brief):
+    cumul_return = 0
+    print("Comparing...")
+    t0 = time.perf_counter()
+
+    with open("comparison.txt", "w") as comparison_file:
+        for my_run in my_runs:
+            old_dir = path.join(compare_dir, my_run["title"])
+            subprocess_args = ["selective_diff.py", old_dir,
+                               my_run["title"]]
+
+            if exclude_list:
+                for pat in exclude_list:
+                    subprocess_args[1:1] = ["-x",  pat]
+
+            if "exclude_cmp" in my_run:
+                for pat in my_run["exclude_cmp"]:
+                    subprocess_args[1:1] = ["-x",  pat]
+
+            if brief: subprocess_args.insert(1, "-b")
+            cp = subprocess.run(subprocess_args,
+                                stdout = comparison_file,
+                                stderr = subprocess.STDOUT)
+
+            if cp.returncode in [0, 1]:
+                cumul_return += cp.returncode
+
+                if cp.returncode == 1:
+                    comparison_file.write('****************\n' * 2)
+                    comparison_file.flush()
+            else:
+                print("Problem in selective_diff.py, return code "
+                      "should be 0 or 1.\nSee \"comparison.txt\".")
+                cp.check_returncode()
+
+    print("Elapsed time for comparisons:", time.perf_counter() - t0,
+          "s")
+    print("Created file \"comparison.txt\".")
+    print("cumul_return =", cumul_return)
+
 parser = argparse.ArgumentParser(description = __doc__, formatter_class \
                                  = argparse.RawDescriptionHelpFormatter)
 parser.add_argument("test_descr", nargs = "+",
@@ -314,44 +354,7 @@ else:
         if args.compare:
             while True:
                 run_tests(my_runs)
-                cumul_return = 0
-                print("Comparing...")
-                t0 = time.perf_counter()
-
-                with open("comparison.txt", "w") as comparison_file:
-                    for my_run in my_runs:
-                        old_dir = path.join(args.compare, my_run["title"])
-                        subprocess_args = ["selective_diff.py", old_dir,
-                                           my_run["title"]]
-
-                        if args.exclude:
-                            for pat in args.exclude:
-                                subprocess_args[1:1] = ["-x",  pat]
-
-                        if "exclude_cmp" in my_run:
-                            for pat in my_run["exclude_cmp"]:
-                                subprocess_args[1:1] = ["-x",  pat]
-
-                        if args.brief: subprocess_args.insert(1, "-b")
-                        cp = subprocess.run(subprocess_args,
-                                            stdout = comparison_file,
-                                            stderr = subprocess.STDOUT)
-
-                        if cp.returncode in [0, 1]:
-                            cumul_return += cp.returncode
-
-                            if cp.returncode == 1:
-                                comparison_file.write('****************\n' * 2)
-                                comparison_file.flush()
-                        else:
-                            print("Problem in selective_diff.py, return code "
-                                  "should be 0 or 1.\nSee \"comparison.txt\".")
-                            cp.check_returncode()
-
-                print("Elapsed time for comparisons:", time.perf_counter() - t0,
-                      "s")
-                print("Created file \"comparison.txt\".")
-                print("cumul_return =", cumul_return)
+                compare(my_runs, args.compare, args.exclude, args.brief)
                 reply = input("Remove old runs? ")
                 reply = reply.casefold()
 
