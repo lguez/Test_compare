@@ -383,12 +383,13 @@ else:
         
         if args.archive:
             for my_run in my_runs:
-                archive_dir = path.join(args.archive, my_run["title"])
-                
-                try:
-                    shutil.copytree(my_run["title"], archive_dir,
-                                    symlinks = True)
-                except FileExistsError:
-                    pass
-                else:
-                    print("Archived", my_run["title"])
+                if not pathlib.Path(my_run["title"], "failed").exists():
+                    archive_dir = path.join(args.archive, my_run["title"])
+
+                    try:
+                        shutil.copytree(my_run["title"], archive_dir,
+                                        symlinks = True)
+                    except FileExistsError:
+                        pass
+                    else:
+                        print("Archived", my_run["title"])
