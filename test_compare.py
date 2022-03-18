@@ -100,7 +100,7 @@ def my_symlink(src, my_run, base_dest):
     dst = path.join(my_run["title"], base_dest)
     os.symlink(src, dst)
     
-def run_single_test(previous_failed, my_run, writer, p_failed):
+def run_single_test(previous_failed, my_run, writer, path_failed):
     if previous_failed:
         print("Replacing", my_run["title"], "because previous run failed...")
         shutil.rmtree(my_run["title"])
@@ -204,7 +204,7 @@ def run_single_test(previous_failed, my_run, writer, p_failed):
         os.chdir("..")
     else:
         os.chdir("..")
-        p_failed.touch()
+        path_failed.touch()
         print("failed")
 
 def run_tests(my_runs):
@@ -218,13 +218,13 @@ def run_tests(my_runs):
     
     for i, my_run in enumerate(my_runs):
         print(i, end = ": ")
-        p_failed = pathlib.Path(my_run["title"], "failed")
-        previous_failed = p_failed.exists()
+        path_failed = pathlib.Path(my_run["title"], "failed")
+        previous_failed = path_failed.exists()
         
         if path.exists(my_run["title"]) and not previous_failed:
             print("Skipping", my_run["title"], "(already exists)") 
         else:
-            run_single_test(previous_failed, my_run, writer, p_failed)
+            run_single_test(previous_failed, my_run, writer, path_failed)
 
     print("Elapsed time:", time.perf_counter() - t0, "s")
     perf_report.close()
