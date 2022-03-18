@@ -246,9 +246,8 @@ parser.add_argument("-x", "--exclude", help = "exclude files that match shell "
                     "pattern PAT from comparison, after running the tests",
                     metavar = "PAT", action = "append")
 parser.add_argument("--clean", help = """
-Remove any existing run directories in the current directory before
-new runs. With -t, remove only the selected run directory, if it
-exists, before running.""",
+Remove any existing run directories in the current directory. With -t, remove 
+only the selected run directory, if it exists.""",
                     action = "store_true")
 parser.add_argument("-l", "--list", help = "just list the titles",
                     action = "store_true")
@@ -311,85 +310,85 @@ else:
             if path.exists(my_run["title"]):
                 print("Removing", my_run["title"] + "...")
                 shutil.rmtree(my_run["title"])
+    else:
+        if args.compare:
+            while True:
+                run_tests(my_runs)
+                cumul_return = 0
+                print("Comparing...")
+                t0 = time.perf_counter()
 
-    if args.compare:
-        while True:
-            run_tests(my_runs)
-            cumul_return = 0
-            print("Comparing...")
-            t0 = time.perf_counter()
+                with open("comparison.txt", "w") as comparison_file:
+                    for my_run in my_runs:
+                        old_dir = path.join(args.compare, my_run["title"])
+                        subprocess_args = ["selective_diff.py", old_dir,
+                                           my_run["title"]]
 
-            with open("comparison.txt", "w") as comparison_file:
+                        if args.exclude:
+                            for pat in args.exclude:
+                                subprocess_args[1:1] = ["-x",  pat]
+
+                        if "exclude_cmp" in my_run:
+                            for pat in my_run["exclude_cmp"]:
+                                subprocess_args[1:1] = ["-x",  pat]
+
+                        if args.brief: subprocess_args.insert(1, "-b")
+                        cp = subprocess.run(subprocess_args,
+                                            stdout = comparison_file,
+                                            stderr = subprocess.STDOUT)
+
+                        if cp.returncode in [0, 1]:
+                            cumul_return += cp.returncode
+
+                            if cp.returncode == 1:
+                                comparison_file.write('****************\n' * 2)
+                                comparison_file.flush()
+                        else:
+                            print("Problem in selective_diff.py, return code "
+                                  "should be 0 or 1.\nSee \"comparison.txt\".")
+                            cp.check_returncode()
+
+                print("Elapsed time for comparisons:", time.perf_counter() - t0,
+                      "s")
+                print("Created file \"comparison.txt\".")
+                print("cumul_return =", cumul_return)
+                reply = input("Remove old runs? ")
+                reply = reply.casefold()
+
+                if not reply.startswith("y"): break
+
                 for my_run in my_runs:
                     old_dir = path.join(args.compare, my_run["title"])
-                    subprocess_args = ["selective_diff.py", old_dir,
-                                       my_run["title"]]
+                    if path.exists(old_dir): shutil.rmtree(old_dir)
+                    shutil.move(my_run["title"], old_dir)
 
-                    if args.exclude:
-                        for pat in args.exclude:
-                            subprocess_args[1:1] = ["-x",  pat]
+                dst = path.join(args.compare, "perf_report.csv")
+                os.rename("perf_report.csv", dst)
 
-                    if "exclude_cmp" in my_run:
-                        for pat in my_run["exclude_cmp"]:
-                            subprocess_args[1:1] = ["-x",  pat]
-
-                    if args.brief: subprocess_args.insert(1, "-b")
-                    cp = subprocess.run(subprocess_args,
-                                        stdout = comparison_file,
-                                        stderr = subprocess.STDOUT)
-
-                    if cp.returncode in [0, 1]:
-                        cumul_return += cp.returncode
-
-                        if cp.returncode == 1:
-                            comparison_file.write('****************\n' * 2)
-                            comparison_file.flush()
-                    else:
-                        print("Problem in selective_diff.py, return code "
-                              "should be 0 or 1.\nSee \"comparison.txt\".")
-                        cp.check_returncode()
-
-            print("Elapsed time for comparisons:", time.perf_counter() - t0,
-                  "s")
-            print("Created file \"comparison.txt\".")
-            print("cumul_return =", cumul_return)
-            reply = input("Remove old runs? ")
+            reply = input("Remove new runs? ")
             reply = reply.casefold()
 
-            if not reply.startswith("y"): break
+            if reply.startswith("y"): 
+                for my_run in my_runs: shutil.rmtree(my_run["title"])
 
-            for my_run in my_runs:
-                old_dir = path.join(args.compare, my_run["title"])
-                if path.exists(old_dir): shutil.rmtree(old_dir)
-                shutil.move(my_run["title"], old_dir)
+            reply = input("Replace old performance report? ")
+            reply = reply.casefold()
 
-            dst = path.join(args.compare, "perf_report.csv")
-            os.rename("perf_report.csv", dst)
+            if reply.startswith("y"):
+                dst = path.join(args.compare, "perf_report.csv")
+                os.rename("perf_report.csv", dst)
+        else:
+            run_tests(my_runs)
 
-        reply = input("Remove new runs? ")
-        reply = reply.casefold()
+            if args.archive:
+                for my_run in my_runs:
+                    if not pathlib.Path(my_run["title"], "failed").exists():
+                        archive_dir = path.join(args.archive, my_run["title"])
 
-        if reply.startswith("y"): 
-            for my_run in my_runs: shutil.rmtree(my_run["title"])
-
-        reply = input("Replace old performance report? ")
-        reply = reply.casefold()
-
-        if reply.startswith("y"):
-            dst = path.join(args.compare, "perf_report.csv")
-            os.rename("perf_report.csv", dst)
-    else:
-        run_tests(my_runs)
-        
-        if args.archive:
-            for my_run in my_runs:
-                if not pathlib.Path(my_run["title"], "failed").exists():
-                    archive_dir = path.join(args.archive, my_run["title"])
-
-                    try:
-                        shutil.copytree(my_run["title"], archive_dir,
-                                        symlinks = True)
-                    except FileExistsError:
-                        pass
-                    else:
-                        print("Archived", my_run["title"])
+                        try:
+                            shutil.copytree(my_run["title"], archive_dir,
+                                            symlinks = True)
+                        except FileExistsError:
+                            pass
+                        else:
+                            print("Archived", my_run["title"])
