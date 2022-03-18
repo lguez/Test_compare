@@ -126,6 +126,9 @@ function nc_over_diff
     fi
 }
 
+##module purge
+##module load --silent ...
+
 USAGE="Usage:
 `basename $0` [-d] [-l limit] [-s] [-b] [-r] [-x PAT] directory directory
 
