@@ -108,7 +108,12 @@ def get_required(src, my_run, base_dest, required_type):
     else:
         shutil.copyfile(src, dst)
 
-def run_single_test(previous_failed, my_run, writer, path_failed):
+def run_single_test(previous_failed, my_run, writer, path_failed, allowed_keys):
+    if not set(my_run) <= allowed_keys:
+        print("bad keys:")
+        print(set(my_run) - allowed_keys)
+        sys.exit(1)
+
     if previous_failed:
         print("Replacing", my_run["title"], "because previous run failed...")
         shutil.rmtree(my_run["title"])
@@ -218,8 +223,8 @@ def run_single_test(previous_failed, my_run, writer, path_failed):
         path_failed.touch()
         print("failed")
 
-def run_tests(my_runs):
-    """my_runs should be a list of dictionaries."""
+def run_tests(my_runs, allowed_keys):
+    """my_runs should be a list of dictionaries, allowed_keys a set."""
 
     perf_report = open("perf_report.csv", "w", newline='')
     writer = csv.writer(perf_report, lineterminator = "\n")
@@ -235,7 +240,8 @@ def run_tests(my_runs):
         if path.exists(my_run["title"]) and not previous_failed:
             print("Skipping", my_run["title"], "(already exists)") 
         else:
-            run_single_test(previous_failed, my_run, writer, path_failed)
+            run_single_test(previous_failed, my_run, writer, path_failed,
+                            allowed_keys)
 
     print("Elapsed time:", time.perf_counter() - t0, "s")
     perf_report.close()
@@ -362,9 +368,13 @@ else:
                 print("Removing", my_run["title"] + "...")
                 shutil.rmtree(my_run["title"])
     else:
+        allowed_keys = {"title", "command", "commands", "main_command",
+                        "description", "stdout", "symlink", "copy", "env",
+                        "stdin_filename", "input", "test_series_file"}
+
         if args.compare:
             while True:
-                run_tests(my_runs)
+                run_tests(my_runs, allowed_keys)
                 compare(my_runs, args.compare, args.exclude, args.brief)
                 reply = input("Remove old runs? ")
                 reply = reply.casefold()
@@ -392,7 +402,7 @@ else:
                 dst = path.join(args.compare, "perf_report.csv")
                 os.rename("perf_report.csv", dst)
         else:
-            run_tests(my_runs)
+            run_tests(my_runs, allowed_keys)
 
             if args.archive:
                 for my_run in my_runs:
