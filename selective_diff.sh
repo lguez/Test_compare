@@ -140,7 +140,7 @@ USAGE="Usage:
              (default: do not compute)
    -b      : only compare directories briefly (default: analyse each file
              after brief comparison of directories)
-   -r      : report indentical directories
+   -r      : report identical directories
    -x PAT  : exclude files that match shell pattern PAT"
 
 while getopts :dl:sbrx: argument
