@@ -86,7 +86,7 @@ import time
 import string
 import pathlib
 
-def get_required(src, my_run, base_dest):
+def get_required(src, my_run, base_dest, required_type):
     """If src does not exist, remove my_run["title"], else symlink src to
     my_run["title"]/base_dest.
 
@@ -99,8 +99,12 @@ def get_required(src, my_run, base_dest):
         sys.exit(sys.argv[0] + ": required " + src + " does not exist.")
 
     dst = path.join(my_run["title"], base_dest)
-    os.symlink(src, dst)
     
+    if required_type == "symlink":
+        os.symlink(src, dst)
+    else:
+        shutil.copyfile(src, dst)
+
 def run_single_test(previous_failed, my_run, writer, path_failed):
     if previous_failed:
         print("Replacing", my_run["title"], "because previous run failed...")
@@ -116,7 +120,8 @@ def run_single_test(previous_failed, my_run, writer, path_failed):
 
             for required_item in my_run[required_type]:
                 if isinstance(required_item, list):
-                    get_required(required_item[0], my_run, required_item[1])
+                    get_required(required_item[0], my_run, required_item[1],
+                                 required_type)
                 else:
                     # Wildcards allowed
                     expanded_list = glob.glob(required_item)
@@ -129,7 +134,8 @@ def run_single_test(previous_failed, my_run, writer, path_failed):
                     else:
                         for expanded_item in expanded_list:
                             base_dest = path.basename(expanded_item)
-                            get_required(expanded_item, my_run, base_dest)
+                            get_required(expanded_item, my_run, base_dest,
+                                         required_type)
 
     if "command" in my_run:
         commands = [my_run["command"]]
