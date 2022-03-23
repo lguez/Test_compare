@@ -33,9 +33,10 @@ The difference between the keys "stdin_filename" and "input" is that
 "input" must be the content of standard input and "stdin_filename"
 must be the name of a file that will be redirected to standard
 input. The value of "input" is passed through to the "input" keyword
-argument of "subprocess.run". If neither "stdin_filename" nor "input"
-is present, then we assume that the run does not need any input: no
-interaction is allowed.
+argument of "subprocess.run". Usually, the value of "input" should end
+with "\n". If neither "stdin_filename" nor "input" is present, then we
+assume that the run does not need any input: no interaction is
+allowed.
 
 If present, "required" must be a list. Each element of "required" must
 itself be a string or a list of two strings (no tuple allowed in
@@ -278,8 +279,8 @@ parser.add_argument("-s", "--substitutions", help="JSON input file containing "
 group = parser.add_mutually_exclusive_group()
 group.add_argument("-c", "--compare", help = "Directory containing old runs "
                     "for comparison, after running the tests")
-group.add_argument("-a", "--archive", help = "Directory to which dirs will be "
-                    "copied, after running the tests")
+group.add_argument("-a", "--archive", help = "Directory to which test dirs "
+                    "will be copied, after running the tests")
 parser.add_argument("-b", "--brief", help = "compare briefly",
                     action = "store_true")
 parser.add_argument("-x", "--exclude", help = "exclude files that match shell "
