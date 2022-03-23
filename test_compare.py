@@ -110,25 +110,26 @@ def run_single_test(previous_failed, my_run, writer, path_failed):
 
     os.mkdir(my_run["title"])
 
-    if "required" in my_run:
-        assert isinstance(my_run["required"], list)
+    for required_type in ["symlink", "copy"]:
+        if required_type in my_run:
+            assert isinstance(my_run[required_type], list)
 
-        for required_item in my_run["required"]:
-            if isinstance(required_item, list):
-                get_required(required_item[0], my_run, required_item[1])
-            else:
-                # Wildcards allowed
-                expanded_list = glob.glob(required_item)
-
-                if len(expanded_list) == 0:
-                    shutil.rmtree(my_run["title"])
-                    print()
-                    sys.exit(f"{sys.argv[0]}: required {required_item} "
-                             "does not exist.")
+            for required_item in my_run[required_type]:
+                if isinstance(required_item, list):
+                    get_required(required_item[0], my_run, required_item[1])
                 else:
-                    for expanded_item in expanded_list:
-                        base_dest = path.basename(expanded_item)
-                        get_required(expanded_item, my_run, base_dest)
+                    # Wildcards allowed
+                    expanded_list = glob.glob(required_item)
+
+                    if len(expanded_list) == 0:
+                        shutil.rmtree(my_run["title"])
+                        print()
+                        sys.exit(f"{sys.argv[0]}: required {required_item} "
+                                 "does not exist.")
+                    else:
+                        for expanded_item in expanded_list:
+                            base_dest = path.basename(expanded_item)
+                            get_required(expanded_item, my_run, base_dest)
 
     if "command" in my_run:
         commands = [my_run["command"]]
