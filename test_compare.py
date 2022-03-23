@@ -16,7 +16,7 @@ dictionary must thus include the keys:
 
 and may also include the keys:
 
-"main_command", "description", "stdout", "required", "env", either
+"main_command", "description", "stdout", "symlink", "copy", "env", either
 "stdin_filename" or "input"
 
 "commands" is a list of commands, "command" is a single command. A
@@ -38,14 +38,17 @@ with "\n". If neither "stdin_filename" nor "input" is present, then we
 assume that the run does not need any input: no interaction is
 allowed.
 
-If present, "required" must be a list. Each element of "required" must
-itself be a string or a list of two strings (no tuple allowed in
-JSON). If a required element is a string then it must be the absolute
-path to a file that will be sym-linked to the test directory, with the
-same basename. It may contain a shell pattern. If a required element
-is a list of two strings then the first string must be the absolute
-path to a file that will be sym-linked to the test directory, with the
-second string as basename.
+If present, "symlink" or "copy" must be a list. Each element of
+"symlink" or "copy" must itself be a string or a list of two strings
+(no tuple allowed in JSON). If a required element is a string then it
+must be the absolute path to a file that will be sym-linked or copied
+to the test directory, with the same basename. It may contain a shell
+pattern. If a required element is a list of two strings then the first
+string must be the absolute path to a file that will be sym-linked or
+copied to the test directory, with the second string as
+basename. "symlink" and "copy" can both be present in a given test
+description. Generally, files which will not be modified by the test
+should be symlinked.
 
 If present, "env" must be a dictionary of environment variables and
 values. This dictionary will be added to, not replace, the inherited
@@ -87,8 +90,8 @@ import string
 import pathlib
 
 def get_required(src, my_run, base_dest, required_type):
-    """If src does not exist, remove my_run["title"], else symlink src to
-    my_run["title"]/base_dest.
+    """If src does not exist, remove my_run["title"], else symlink or copy
+    src to my_run["title"]/base_dest.
 
     """
     
