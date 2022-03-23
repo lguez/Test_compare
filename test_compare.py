@@ -86,7 +86,7 @@ import time
 import string
 import pathlib
 
-def my_symlink(src, my_run, base_dest):
+def get_required(src, my_run, base_dest):
     """If src does not exist, remove my_run["title"], else symlink src to
     my_run["title"]/base_dest.
 
@@ -115,7 +115,7 @@ def run_single_test(previous_failed, my_run, writer, path_failed):
 
         for required_item in my_run["required"]:
             if isinstance(required_item, list):
-                my_symlink(required_item[0], my_run, required_item[1])
+                get_required(required_item[0], my_run, required_item[1])
             else:
                 # Wildcards allowed
                 expanded_list = glob.glob(required_item)
@@ -128,7 +128,7 @@ def run_single_test(previous_failed, my_run, writer, path_failed):
                 else:
                     for expanded_item in expanded_list:
                         base_dest = path.basename(expanded_item)
-                        my_symlink(expanded_item, my_run, base_dest)
+                        get_required(expanded_item, my_run, base_dest)
 
     if "command" in my_run:
         commands = [my_run["command"]]
