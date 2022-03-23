@@ -106,7 +106,11 @@ def get_required(src, my_run, base_dest, required_type):
     if required_type == "symlink":
         os.symlink(src, dst)
     else:
-        shutil.copyfile(src, dst)
+        # required_type == "copy"
+        if path.isfile(src):
+            shutil.copyfile(src, dst)
+        else:
+            shutil.copytree(src, dst)
 
 def run_single_test(previous_failed, my_run, writer, path_failed, allowed_keys):
     if not set(my_run) <= allowed_keys:
