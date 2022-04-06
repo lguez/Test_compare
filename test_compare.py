@@ -17,7 +17,7 @@ dictionary must thus include the keys:
 and may also include the keys:
 
 "main_command", "description", "stdout", "symlink", "copy", "env", either
-"stdin_filename" or "input"
+"stdin_filename" or "input", "create_file"
 
 "commands" is a list of commands, "command" is a single command. A
 command is a list of strings or a single string. (The command includes
@@ -375,7 +375,8 @@ else:
     else:
         allowed_keys = {"title", "command", "commands", "main_command",
                         "description", "stdout", "symlink", "copy", "env",
-                        "stdin_filename", "input", "test_series_file"}
+                        "stdin_filename", "input", "test_series_file",
+                        "create_file"}
 
         if args.compare:
             while True:
