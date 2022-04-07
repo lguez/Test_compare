@@ -64,6 +64,18 @@ def diff_csv_numdiff(path_1, path_2, size_lim):
     print()
     return cp.returncode
 
+def max_diff_rect(path_1, path_2, size_lim = None):
+    """Argument size_lim must be present so max_diff_rect can be called by
+    detailed_diff, but size_lim is ignored below.
+
+    """
+
+    if os.access("max_diff_rect_nml", os.F_OK): os.remove("max_diff_rect_nml")
+    subprocess.run(["max_diff_rect", path_1, path_2],
+                   input = "&RECTANGLE FIRST_R=2/\n&RECTANGLE /\nc\nq\n",
+                   text = True)
+    return 1
+
 def my_report(dcmp, detailed_diff_instance):
     print()
     dcmp.report()
