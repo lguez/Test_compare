@@ -137,6 +137,7 @@ class detailed_diff:
 parser = argparse.ArgumentParser()
 parser.add_argument("directory", nargs = 2)
 parser.add_argument("--pyshp", action = "store_true")
+parser.add_argument("--numdiff", action = "store_true")
 parser.add_argument("-l", "--limit", help = "maximum number of lines for "
                     "printing detailed differences (default 50)", type = int,
                     default = 50)
@@ -170,10 +171,16 @@ if args.brief:
     detailed_diff_instance = None
 else:
     if args.pyshp:
-        detailed_diff_instance = detailed_diff(args.limit,
-                                               diff_dbf = diff_dbf.diff_dbf)
+        diff_dbf = diff_dbf.diff_dbf
     else:
-        detailed_diff_instance = detailed_diff(args.limit)
+        diff_dbf = None
+
+    if args.numdiff:
+        diff_csv = diff_csv_numdiff
+    else:
+        diff_csv = diff_csv_ndiff
+
+    detailed_diff_instance = detailed_diff(args.limit, diff_dbf, diff_csv)
 
 n_diff = my_report(dcmp, detailed_diff_instance)
 print("\nNumber of differences:", n_diff)
