@@ -56,6 +56,16 @@ def diff_csv_ndiff(path_1, path_2, size_lim):
     print()
     return cp.returncode
 
+def diff_csv_numdiff(path_1, path_2, size_lim):
+
+    with tempfile.TemporaryFile("w+") as numdiff_out:
+        cp = subprocess.run(["numdiff", "-r", "1e-7", path_1, path_2],
+                            stdout = numdiff_out, text = True)
+        cat_not_too_many(numdiff_out, size_lim)
+
+    print()
+    return cp.returncode
+
 def my_report(dcmp, detailed_diff_instance):
     print()
     dcmp.report()
