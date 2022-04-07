@@ -47,7 +47,6 @@ def diff_txt(path_1, path_2, size_lim):
     return 1
 
 def diff_csv_ndiff(path_1, path_2, size_lim):
-
     with tempfile.TemporaryFile("w+") as ndiff_out:
         cp = subprocess.run(["ndiff", "-relerr", "1e-7", path_1, path_2],
                             stdout = ndiff_out, text = True)
@@ -57,7 +56,6 @@ def diff_csv_ndiff(path_1, path_2, size_lim):
     return cp.returncode
 
 def diff_csv_numdiff(path_1, path_2, size_lim):
-
     with tempfile.TemporaryFile("w+") as numdiff_out:
         cp = subprocess.run(["numdiff", "-r", "1e-7", path_1, path_2],
                             stdout = numdiff_out, text = True)
