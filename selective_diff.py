@@ -76,13 +76,14 @@ def my_report(dcmp, detailed_diff_instance):
     return n_diff
 
 class detailed_diff:
-    def __init__(self, size_lim, diff_dbf = None):
+    def __init__(self, size_lim, diff_dbf = None, diff_csv = diff_csv_ndiff):
         if diff_dbf is None:
             self.diff_dbf = self.diff_dbf_dbfdump
         else:
             self.diff_dbf = diff_dbf
 
         self.size_lim = size_lim
+        self.diff_csv = diff_csv
 
     def diff(self, path_1, path_2):
         print('\n*******************************************\n')
@@ -97,7 +98,7 @@ class detailed_diff:
         elif suffix == ".dbf":
             n_diff = self.diff_dbf(path_1, path_2)
         elif suffix == ".csv":
-            n_diff = diff_csv_ndiff(path_1, path_2, self.size_lim)
+            n_diff = self.diff_csv(path_1, path_2, self.size_lim)
         elif suffix == ".nc":
             n_diff = nccmp.nccmp(path_1, path_2)
         else:
@@ -117,8 +118,8 @@ class detailed_diff:
             print(f"dbfdumps of {path_1} and {path_2} are identical")
             n_diff = 0
         else:
-            n_diff = diff_csv_ndiff(f1_dbfdump.name, f2_dbfdump.name,
-                              self.size_lim)
+            n_diff = self.diff_csv(f1_dbfdump.name, f2_dbfdump.name,
+                                   self.size_lim)
         f1_dbfdump.close()
         f2_dbfdump.close()
         return n_diff
