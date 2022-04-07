@@ -147,7 +147,9 @@ class detailed_diff:
 parser = argparse.ArgumentParser()
 parser.add_argument("directory", nargs = 2)
 parser.add_argument("--pyshp", action = "store_true")
-parser.add_argument("--numdiff", action = "store_true")
+group = parser.add_mutually_exclusive_group()
+group.add_argument("--numdiff", action = "store_true")
+group.add_argument("--max_diff_rect", action = "store_true")
 parser.add_argument("-l", "--limit", help = "maximum number of lines for "
                     "printing detailed differences (default 50)", type = int,
                     default = 50)
@@ -187,6 +189,8 @@ else:
 
     if args.numdiff:
         diff_csv = diff_csv_numdiff
+    elif args.max_diff_rect:
+        diff_csv = max_diff_rect
     else:
         diff_csv = diff_csv_ndiff
 
