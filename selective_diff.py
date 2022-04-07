@@ -46,7 +46,7 @@ def diff_txt(path_1, path_2, size_lim):
     print()
     return 1
 
-def diff_csv(path_1, path_2, size_lim):
+def diff_csv_ndiff(path_1, path_2, size_lim):
 
     with tempfile.TemporaryFile("w+") as ndiff_out:
         cp = subprocess.run(["ndiff", "-relerr", "1e-7", path_1, path_2],
@@ -97,7 +97,7 @@ class detailed_diff:
         elif suffix == ".dbf":
             n_diff = self.diff_dbf(path_1, path_2)
         elif suffix == ".csv":
-            n_diff = diff_csv(path_1, path_2, self.size_lim)
+            n_diff = diff_csv_ndiff(path_1, path_2, self.size_lim)
         elif suffix == ".nc":
             n_diff = nccmp.nccmp(path_1, path_2)
         else:
@@ -117,7 +117,7 @@ class detailed_diff:
             print(f"dbfdumps of {path_1} and {path_2} are identical")
             n_diff = 0
         else:
-            n_diff = diff_csv(f1_dbfdump.name, f2_dbfdump.name,
+            n_diff = diff_csv_ndiff(f1_dbfdump.name, f2_dbfdump.name,
                               self.size_lim)
         f1_dbfdump.close()
         f2_dbfdump.close()
