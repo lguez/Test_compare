@@ -177,8 +177,11 @@ for my_dir in args.directory:
             list_match = fnmatch.filter(filenames, pattern)
             ignore.update(list_match)
 
+# done
+
 dcmp = filecmp.dircmp(*args.directory, list(ignore))
 
+# Use command-line options do define a detailed_diff instance:
 if args.brief:
     detailed_diff_instance = None
 else:
