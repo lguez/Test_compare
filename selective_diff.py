@@ -46,24 +46,6 @@ def diff_txt(path_1, path_2, size_lim):
     print()
     return 1
 
-def diff_csv_ndiff(path_1, path_2, size_lim):
-    with tempfile.TemporaryFile("w+") as ndiff_out:
-        cp = subprocess.run(["ndiff", "-relerr", "1e-7", path_1, path_2],
-                            stdout = ndiff_out, text = True)
-        cat_not_too_many(ndiff_out, size_lim)
-
-    print()
-    return cp.returncode
-
-def diff_csv_numdiff(path_1, path_2, size_lim):
-    with tempfile.TemporaryFile("w+") as numdiff_out:
-        cp = subprocess.run(["numdiff", "-r", "1e-7", path_1, path_2],
-                            stdout = numdiff_out, text = True)
-        cat_not_too_many(numdiff_out, size_lim)
-
-    print()
-    return cp.returncode
-
 def max_diff_rect(path_1, path_2, size_lim = None):
     """Argument size_lim must be present so max_diff_rect can be called by
     detailed_diff, but size_lim is ignored below.
@@ -143,6 +125,24 @@ class detailed_diff:
         f1_dbfdump.close()
         f2_dbfdump.close()
         return n_diff
+
+    def diff_csv_ndiff(self, path_1, path_2, size_lim):
+        with tempfile.TemporaryFile("w+") as ndiff_out:
+            cp = subprocess.run(["ndiff", "-relerr", "1e-7", path_1, path_2],
+                                stdout = ndiff_out, text = True)
+            cat_not_too_many(ndiff_out, size_lim)
+
+        print()
+        return cp.returncode
+
+    def diff_csv_numdiff(self, path_1, path_2, size_lim):
+        with tempfile.TemporaryFile("w+") as numdiff_out:
+            cp = subprocess.run(["numdiff", "-r", "1e-7", path_1, path_2],
+                                stdout = numdiff_out, text = True)
+            cat_not_too_many(numdiff_out, size_lim)
+
+        print()
+        return cp.returncode
 
 parser = argparse.ArgumentParser()
 parser.add_argument("directory", nargs = 2)
