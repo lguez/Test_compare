@@ -175,7 +175,7 @@ for my_dir in args.directory:
 
 dcmp = filecmp.dircmp(*args.directory, list(ignore))
 
-# Use command-line options do define a detailed_diff instance:
+# Use command-line options to define a detailed_diff instance:
 if args.brief:
     detailed_diff_instance = None
 else:
