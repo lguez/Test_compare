@@ -74,12 +74,13 @@ def my_report(dcmp, detailed_diff_instance):
 
 class detailed_diff:
     def __init__(self, size_lim, diff_dbf_pyshp, diff_csv):
+        self.size_lim = size_lim
+
         if diff_dbf_pyshp:
             self.diff_dbf = diff_dbf.diff_dbf
         else:
             self.diff_dbf = self.diff_dbf_dbfdump
 
-        self.size_lim = size_lim
         if diff_csv == "numdiff":
             self.diff_csv = self.diff_csv_numdiff
         elif diff_csv == "max_diff_rect":
