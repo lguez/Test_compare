@@ -73,14 +73,19 @@ def my_report(dcmp, detailed_diff_instance):
     return n_diff
 
 class detailed_diff:
-    def __init__(self, size_lim, diff_dbf = None, diff_csv = diff_csv_ndiff):
-        if diff_dbf is None:
-            self.diff_dbf = self.diff_dbf_dbfdump
+    def __init__(self, size_lim, diff_dbf_pyshp, diff_csv):
+        if diff_dbf_pyshp:
+            self.diff_dbf = diff_dbf.diff_dbf
         else:
-            self.diff_dbf = diff_dbf
+            self.diff_dbf = self.diff_dbf_dbfdump
 
         self.size_lim = size_lim
-        self.diff_csv = diff_csv
+        if diff_csv == "numdiff":
+            self.diff_csv = self.diff_csv_numdiff
+        elif diff_csv == "max_diff_rect":
+            self.diff_csv = max_diff_rect
+        else:
+            self.diff_csv = self.diff_csv_ndiff
 
     def diff(self, path_1, path_2):
         print('\n*******************************************\n')
@@ -179,19 +184,15 @@ dcmp = filecmp.dircmp(*args.directory, list(ignore))
 if args.brief:
     detailed_diff_instance = None
 else:
-    if args.pyshp:
-        diff_dbf = diff_dbf.diff_dbf
-    else:
-        diff_dbf = None
-
     if args.numdiff:
-        diff_csv = diff_csv_numdiff
+        diff_csv = "numdiff"
     elif args.max_diff_rect:
-        diff_csv = max_diff_rect
+        diff_csv = "max_diff_rect"
     else:
-        diff_csv = diff_csv_ndiff
+        diff_csv = "ndiff"
 
-    detailed_diff_instance = detailed_diff(args.limit, diff_dbf, diff_csv)
+    detailed_diff_instance = detailed_diff(args.limit, args.pyshp,
+                                           diff_csv)
 
 n_diff = my_report(dcmp, detailed_diff_instance)
 print("\nNumber of differences:", n_diff)
