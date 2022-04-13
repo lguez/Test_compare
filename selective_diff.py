@@ -77,7 +77,7 @@ def my_report(dcmp, detailed_diff_instance):
     return n_diff
 
 class detailed_diff:
-    def __init__(self, size_lim, diff_dbf_pyshp, diff_csv):
+    def __init__(self, size_lim, diff_dbf_pyshp, diff_csv, diff_nc):
         self.size_lim = size_lim
 
         if diff_dbf_pyshp:
@@ -92,7 +92,12 @@ class detailed_diff:
         else:
             self.diff_csv = self.diff_csv_ndiff
 
-        self.diff_nc = nccmp.nccmp
+        if diff_nc == "ncdump":
+            self.diff_nc = self.diff_nc_ncdump
+        elif diff_nc == "max_diff_nc":
+            self.diff_nc = max_diff_nc
+        else:
+            self.diff_nc = nccmp.nccmp
 
     def diff(self, path_1, path_2):
         print('\n*******************************************\n')
@@ -173,6 +178,9 @@ parser.add_argument("--pyshp", action = "store_true")
 group = parser.add_mutually_exclusive_group()
 group.add_argument("--numdiff", action = "store_true")
 group.add_argument("--max_diff_rect", action = "store_true")
+group = parser.add_mutually_exclusive_group()
+group.add_argument("--ncdump", action = "store_true")
+group.add_argument("--max_diff_nc", action = "store_true")
 parser.add_argument("-l", "--limit", help = "maximum number of lines for "
                     "printing detailed differences (default 50)", type = int,
                     default = 50)
@@ -215,7 +223,15 @@ else:
     else:
         diff_csv = None
 
-    detailed_diff_instance = detailed_diff(args.limit, args.pyshp, diff_csv)
+    if args.ncdump:
+        diff_nc = "ncdump"
+    elif args.max_diff_nc:
+        diff_nc = "max_diff_nc"
+    else:
+        diff_nc = None
+
+    detailed_diff_instance = detailed_diff(args.limit, args.pyshp, diff_csv,
+                                           diff_nc)
 
 n_diff = my_report(dcmp, detailed_diff_instance)
 print("\nNumber of differences:", n_diff)
