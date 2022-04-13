@@ -47,7 +47,6 @@ def diff_txt(path_1, path_2, size_lim):
     return 1
 
 def max_diff_rect(path_1, path_2):
-    if os.access("max_diff_rect_nml", os.F_OK): os.remove("max_diff_rect_nml")
     subprocess.run(["max_diff_rect", path_1, path_2],
                    input = "&RECTANGLE FIRST_R=2/\n&RECTANGLE /\nc\nq\n",
                    text = True)

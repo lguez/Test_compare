@@ -359,7 +359,6 @@ then
 
 			echo "dbfdumps of \"$name\" compared with " \
 			     "max_diff_rect:"
-			rm max_diff_rect_nml
 			max_diff_rect ${name0}_[12]_dbfdump.txt <<EOF
 &RECTANGLE FIRST_R = 2 /
 &RECTANGLE /
@@ -381,6 +380,8 @@ EOF
 			rm ndiff_out
 			echo "Comparison with max_diff_rect:"
 			max_diff_rect $1/$name $2/$name <<EOF
+&RECTANGLE FIRST_R = 2 /
+&RECTANGLE /
 c
 q
 EOF
