@@ -88,6 +88,8 @@ class detailed_diff:
         else:
             self.diff_csv = self.diff_csv_ndiff
 
+        self.diff_nc = nccmp.nccmp
+
     def diff(self, path_1, path_2):
         print('\n*******************************************\n')
         print(path_1, path_2)
@@ -103,7 +105,7 @@ class detailed_diff:
         elif suffix == ".csv":
             n_diff = self.diff_csv(path_1, path_2)
         elif suffix == ".nc":
-            n_diff = nccmp.nccmp(path_1, path_2)
+            n_diff = self.diff_nc(path_1, path_2)
         else:
             print("Detailed diff not implemented")
             n_diff = 1
