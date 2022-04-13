@@ -53,6 +53,10 @@ def max_diff_rect(path_1, path_2):
                    text = True)
     return 1
 
+def max_diff_nc(path_1, path_2):
+    subprocess.run(["max_diff_nc.sh", path_1, path_2])
+    return 1
+
 def my_report(dcmp, detailed_diff_instance):
     print()
     dcmp.report()
@@ -127,6 +131,23 @@ class detailed_diff:
         f1_dbfdump.close()
         f2_dbfdump.close()
         return n_diff
+
+    def diff_nc_ncdump(self, path_1, path_2):
+        f1_ncdump = tempfile.NamedTemporaryFile("w+")
+        f2_ncdump = tempfile.NamedTemporaryFile("w+")
+        subprocess.run(["ncdump", "-h", path_1], stdout = f1_ncdump)
+        subprocess.run(["ncdump", "-h", path_2], stdout = f2_ncdump)
+
+        if filecmp.cmp(f1_ncdump.name, f2_ncdump.name, shallow = False):
+            print(f"ncdumps of {path_1} and {path_2} are identical")
+            n_diff = 0
+        else:
+            n_diff = diff_txt(f1_ncdump.name, f2_ncdump.name, self.size_lim)
+
+        f1_ncdump.close()
+        f2_ncdump.close()
+        n_diff += nccmp.nccmp(path_1, path_2, data_only = True)
+        return min(n_diff, 1)
 
     def diff_csv_ndiff(self, path_1, path_2):
         with tempfile.TemporaryFile("w+") as ndiff_out:
