@@ -118,12 +118,12 @@ class detailed_diff:
         subprocess.run(["dbfdump", path_1], stdout = f1_dbfdump)
         subprocess.run(["dbfdump", path_2], stdout = f2_dbfdump)
 
-        if filecmp.cmp(f1_dbfdump.name, f2_dbfdump.name,
-                       shallow = False):
+        if filecmp.cmp(f1_dbfdump.name, f2_dbfdump.name, shallow = False):
             print(f"dbfdumps of {path_1} and {path_2} are identical")
             n_diff = 0
         else:
             n_diff = self.diff_csv(f1_dbfdump.name, f2_dbfdump.name)
+
         f1_dbfdump.close()
         f2_dbfdump.close()
         return n_diff
@@ -194,8 +194,7 @@ else:
     else:
         diff_csv = "ndiff"
 
-    detailed_diff_instance = detailed_diff(args.limit, args.pyshp,
-                                           diff_csv)
+    detailed_diff_instance = detailed_diff(args.limit, args.pyshp, diff_csv)
 
 n_diff = my_report(dcmp, detailed_diff_instance)
 print("\nNumber of differences:", n_diff)
