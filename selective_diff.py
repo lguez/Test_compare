@@ -37,7 +37,7 @@ def diff_txt(path_1, path_2, size_lim):
     with open(path_1) as f: fromlines = f.readlines()
     with open(path_2) as f: tolines = f.readlines()
     diff = difflib.unified_diff(fromlines, tolines, fromfile = path_1,
-                                tofile = path_2)
+                                tofile = path_2, n = 0)
 
     with tempfile.TemporaryFile("w+") as diff_out:
         diff_out.writelines(diff)
