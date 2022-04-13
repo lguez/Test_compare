@@ -53,7 +53,7 @@ program max_diff_rect
   print *, "Enter namelist rectangle for first file:"
   read(unit = *, nml = rectangle)
   call csvread(filename1, data_old, first_r, first_c, last_r, last_c)
-  
+
   if (.not. allocated(data_old)) then
      print *, "max_diff_rect: could not read from " // filename1
      stop 1
@@ -61,11 +61,9 @@ program max_diff_rect
 
   n_rows = size(data_old, 1)
   n_col = size(data_old, 2)
-
-  ! Do not reset rectangle to 1, 0, 1, 0, default values are now
-  ! values from the first file:
   print *, "Enter namelist rectangle for second file (default values are ", &
        "values chosen for the first file):"
+  ! (Do not reset rectangle to 1, 0, 1, 0.)
   read(unit = *, nml = rectangle)
 
   ! If the user specifies the number of rows or columns in the
@@ -81,7 +79,7 @@ program max_diff_rect
      print *, "max_diff_rect: could not read from " // filename2
      stop 1
   end if
-  
+
   call assert(shape(data_old) == shape(data_new), 'Shapes should be identical.')
   allocate(valid(size(data_old, 1), size(data_old, 2)), &
        valid_1d(size(data_old, 1)))
