@@ -192,7 +192,7 @@ else:
     elif args.max_diff_rect:
         diff_csv = "max_diff_rect"
     else:
-        diff_csv = "ndiff"
+        diff_csv = None
 
     detailed_diff_instance = detailed_diff(args.limit, args.pyshp, diff_csv)
 
