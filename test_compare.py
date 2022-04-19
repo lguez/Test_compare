@@ -267,6 +267,8 @@ def compare(my_runs, compare_dir, exclude_list, brief):
                     subprocess_args[1:1] = ["-x",  pat]
 
             if "exclude_cmp" in my_run:
+                assert isinstance(my_run["exclude_cmp"], list)
+
                 for pat in my_run["exclude_cmp"]:
                     subprocess_args[1:1] = ["-x",  pat]
 
