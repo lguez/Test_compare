@@ -57,8 +57,6 @@ def max_diff_nc(path_1, path_2):
     return 1
 
 def my_report(dcmp, detailed_diff_instance):
-    print()
-    dcmp.report()
     n_diff = len(dcmp.left_only) + len(dcmp.right_only) \
         + len(dcmp.common_funny) + len(dcmp.funny_files)
 
@@ -72,6 +70,10 @@ def my_report(dcmp, detailed_diff_instance):
 
     for sub_dcmp in dcmp.subdirs.values():
         n_diff += my_report(sub_dcmp, detailed_diff_instance)
+
+    if n_diff != 0:
+        print()
+        dcmp.report()
 
     return n_diff
 
@@ -233,5 +235,7 @@ else:
                                            diff_nc)
 
 n_diff = my_report(dcmp, detailed_diff_instance)
-print("\nNumber of differences:", n_diff)
-if n_diff != 0: sys.exit(1)
+
+if n_diff != 0:
+    print("\nNumber of differences:", n_diff)
+    sys.exit(1)
