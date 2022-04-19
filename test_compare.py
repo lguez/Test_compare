@@ -279,7 +279,9 @@ def compare(my_runs, compare_dir, exclude_list, brief):
                 cumul_return += cp.returncode
 
                 if cp.returncode == 1:
-                    comparison_file.write('****************\n' * 2)
+                    echo_line = " ".join(subprocess_args) + "\n"
+                    comparison_file.write("\n" + echo_line)
+                    comparison_file.write("\n" + '****************\n' * 2)
                     comparison_file.flush()
             else:
                 print("Problem in selective_diff.py, return code "
