@@ -251,7 +251,7 @@ def run_tests(my_runs, allowed_keys):
     print("Elapsed time:", time.perf_counter() - t0, "s")
     perf_report.close()
 
-def compare(my_runs, compare_dir, exclude_list, brief):
+def compare(my_runs, compare_dir, exclude_list, brief, other_args):
     cumul_return = 0
     print("Comparing...")
     t0 = time.perf_counter()
@@ -261,6 +261,7 @@ def compare(my_runs, compare_dir, exclude_list, brief):
             old_dir = path.join(compare_dir, my_run["title"])
             subprocess_args = ["selective_diff.py", old_dir,
                                my_run["title"]]
+            subprocess_args[1:1] = other_args
 
             if exclude_list:
                 for pat in exclude_list:
@@ -296,7 +297,9 @@ def compare(my_runs, compare_dir, exclude_list, brief):
     print("cumul_return =", cumul_return)
 
 parser = argparse.ArgumentParser(description = __doc__, formatter_class \
-                                 = argparse.RawDescriptionHelpFormatter)
+                                 = argparse.RawDescriptionHelpFormatter,
+                                 epilog = 'Remaining options are passed on to '
+                                 '"selective_diff.py".')
 parser.add_argument("test_descr", nargs = "+",
                     help = "JSON file containing description of tests")
 parser.add_argument("-s", "--substitutions", help="JSON input file containing "
@@ -318,7 +321,7 @@ only the selected run directory, if it exists.""",
 parser.add_argument("-l", "--list", help = "just list the titles",
                     action = "store_true")
 parser.add_argument("-t", "--title", help = "select a title in JSON file")
-args = parser.parse_args()
+args, other_args = parser.parse_known_args()
 
 my_runs = []
 
@@ -385,7 +388,8 @@ else:
         if args.compare:
             while True:
                 run_tests(my_runs, allowed_keys)
-                compare(my_runs, args.compare, args.exclude, args.brief)
+                compare(my_runs, args.compare, args.exclude, args.brief,
+                        other_args)
                 reply = input("Remove old runs? ")
                 reply = reply.casefold()
 
