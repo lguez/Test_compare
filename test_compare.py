@@ -251,7 +251,7 @@ def run_tests(my_runs, allowed_keys):
     print("Elapsed time:", time.perf_counter() - t0, "s")
     perf_report.close()
 
-def compare(my_runs, compare_dir, exclude_list, brief, other_args):
+def compare(my_runs, compare_dir, exclude_list, other_args):
     cumul_return = 0
     print("Comparing...")
     t0 = time.perf_counter()
@@ -273,7 +273,6 @@ def compare(my_runs, compare_dir, exclude_list, brief, other_args):
                 for pat in my_run["exclude_cmp"]:
                     subprocess_args[1:1] = ["-x",  pat]
 
-            if brief: subprocess_args.insert(1, "-b")
             cp = subprocess.run(subprocess_args,
                                 stdout = comparison_file,
                                 stderr = subprocess.STDOUT)
@@ -309,8 +308,6 @@ group.add_argument("-c", "--compare", help = "Directory containing old runs "
                     "for comparison, after running the tests")
 group.add_argument("-a", "--archive", help = "Directory to which test dirs "
                     "will be copied, after running the tests")
-parser.add_argument("-b", "--brief", help = "compare briefly",
-                    action = "store_true")
 parser.add_argument("-x", "--exclude", help = "exclude files that match shell "
                     "pattern PAT from comparison, after running the tests",
                     metavar = "PAT", action = "append")
@@ -388,8 +385,7 @@ else:
         if args.compare:
             while True:
                 run_tests(my_runs, allowed_keys)
-                compare(my_runs, args.compare, args.exclude, args.brief,
-                        other_args)
+                compare(my_runs, args.compare, args.exclude, other_args)
                 reply = input("Remove old runs? ")
                 reply = reply.casefold()
 
