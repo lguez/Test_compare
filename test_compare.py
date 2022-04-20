@@ -251,7 +251,7 @@ def run_tests(my_runs, allowed_keys):
     print("Elapsed time:", time.perf_counter() - t0, "s")
     perf_report.close()
 
-def compare(my_runs, compare_dir, exclude_list, other_args):
+def compare(my_runs, compare_dir, other_args):
     cumul_return = 0
     print("Comparing...")
     t0 = time.perf_counter()
@@ -262,10 +262,6 @@ def compare(my_runs, compare_dir, exclude_list, other_args):
             subprocess_args = ["selective_diff.py", old_dir,
                                my_run["title"]]
             subprocess_args[1:1] = other_args
-
-            if exclude_list:
-                for pat in exclude_list:
-                    subprocess_args[1:1] = ["-x",  pat]
 
             if "exclude_cmp" in my_run:
                 assert isinstance(my_run["exclude_cmp"], list)
@@ -308,9 +304,6 @@ group.add_argument("-c", "--compare", help = "Directory containing old runs "
                     "for comparison, after running the tests")
 group.add_argument("-a", "--archive", help = "Directory to which test dirs "
                     "will be copied, after running the tests")
-parser.add_argument("-x", "--exclude", help = "exclude files that match shell "
-                    "pattern PAT from comparison, after running the tests",
-                    metavar = "PAT", action = "append")
 parser.add_argument("--clean", help = """
 Remove any existing run directories in the current directory. With -t, remove 
 only the selected run directory, if it exists.""",
@@ -385,7 +378,7 @@ else:
         if args.compare:
             while True:
                 run_tests(my_runs, allowed_keys)
-                compare(my_runs, args.compare, args.exclude, other_args)
+                compare(my_runs, args.compare, other_args)
                 reply = input("Remove old runs? ")
                 reply = reply.casefold()
 
