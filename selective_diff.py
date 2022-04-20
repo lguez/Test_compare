@@ -175,7 +175,8 @@ class detailed_diff:
 
 parser = argparse.ArgumentParser()
 parser.add_argument("directory", nargs = 2)
-parser.add_argument("--pyshp", action = "store_true")
+parser.add_argument("--pyshp", action = "store_true",
+                    help = "use pyshp to compare DBF files")
 group = parser.add_mutually_exclusive_group()
 group.add_argument("--numdiff", action = "store_true")
 group.add_argument("--max_diff_rect", action = "store_true")
