@@ -258,33 +258,34 @@ def compare(my_runs, compare_dir, other_args):
 
     with open("comparison.txt", "w") as comparison_file:
         for my_run in my_runs:
-            old_dir = path.join(compare_dir, my_run["title"])
-            subprocess_args = ["selective_diff.py", old_dir,
-                               my_run["title"]]
-            subprocess_args[1:1] = other_args
+            if not pathlib.Path(my_run["title"], "failed").exists():
+                old_dir = path.join(compare_dir, my_run["title"])
+                subprocess_args = ["selective_diff.py", old_dir,
+                                   my_run["title"]]
+                subprocess_args[1:1] = other_args
 
-            if "exclude_cmp" in my_run:
-                assert isinstance(my_run["exclude_cmp"], list)
+                if "exclude_cmp" in my_run:
+                    assert isinstance(my_run["exclude_cmp"], list)
 
-                for pat in my_run["exclude_cmp"]:
-                    subprocess_args[1:1] = ["-x",  pat]
+                    for pat in my_run["exclude_cmp"]:
+                        subprocess_args[1:1] = ["-x",  pat]
 
-            cp = subprocess.run(subprocess_args,
-                                stdout = comparison_file,
-                                stderr = subprocess.STDOUT)
+                cp = subprocess.run(subprocess_args,
+                                    stdout = comparison_file,
+                                    stderr = subprocess.STDOUT)
 
-            if cp.returncode in [0, 1]:
-                cumul_return += cp.returncode
+                if cp.returncode in [0, 1]:
+                    cumul_return += cp.returncode
 
-                if cp.returncode == 1:
-                    echo_line = " ".join(subprocess_args) + "\n"
-                    comparison_file.write("\n" + echo_line)
-                    comparison_file.write("\n" + '****************\n' * 2)
-                    comparison_file.flush()
-            else:
-                print("Problem in selective_diff.py, return code "
-                      "should be 0 or 1.\nSee \"comparison.txt\".")
-                cp.check_returncode()
+                    if cp.returncode == 1:
+                        echo_line = " ".join(subprocess_args) + "\n"
+                        comparison_file.write("\n" + echo_line)
+                        comparison_file.write("\n" + '****************\n' * 2)
+                        comparison_file.flush()
+                else:
+                    print("Problem in selective_diff.py, return code "
+                          "should be 0 or 1.\nSee \"comparison.txt\".")
+                    cp.check_returncode()
 
     print("Elapsed time for comparisons:", time.perf_counter() - t0,
           "s")
