@@ -122,6 +122,8 @@ def get_all_required(my_run):
 
             if not found: break
 
+    return found
+
 def get_single_required(src, my_run, base_dest, required_type):
     """If src does not exist, remove my_run["title"], else symlink or copy
     src to my_run["title"]/base_dest.
@@ -257,8 +259,8 @@ def run_tests(my_runs, allowed_keys):
                 print("Creating", my_run["title"] + "...", flush = True)
 
             os.mkdir(my_run["title"])
-            get_all_required(my_run)
-            run_single_test(my_run, writer, path_failed)
+            found = get_all_required(my_run)
+            if found: run_single_test(my_run, writer, path_failed)
 
     print("Elapsed time:", time.perf_counter() - t0, "s")
     perf_report.close()
