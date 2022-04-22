@@ -113,20 +113,7 @@ def get_required(src, my_run, base_dest, required_type):
         else:
             shutil.copytree(src, dst)
 
-def run_single_test(previous_failed, my_run, writer, path_failed, allowed_keys):
-    if not set(my_run) <= allowed_keys:
-        print("bad keys:")
-        print(set(my_run) - allowed_keys)
-        sys.exit(1)
-
-    if previous_failed:
-        print("Replacing", my_run["title"], "because previous run failed...")
-        shutil.rmtree(my_run["title"])
-    else:
-        print("Creating", my_run["title"] + "...", flush = True)
-
-    os.mkdir(my_run["title"])
-
+def run_single_test(my_run, writer, path_failed):
     for required_type in ["symlink", "copy"]:
         if required_type in my_run:
             assert isinstance(my_run[required_type], list)
@@ -245,8 +232,20 @@ def run_tests(my_runs, allowed_keys):
         if path.exists(my_run["title"]) and not previous_failed:
             print("Skipping", my_run["title"], "(already exists)") 
         else:
-            run_single_test(previous_failed, my_run, writer, path_failed,
-                            allowed_keys)
+            if not set(my_run) <= allowed_keys:
+                print("bad keys:")
+                print(set(my_run) - allowed_keys)
+                sys.exit(1)
+
+            if previous_failed:
+                print("Replacing", my_run["title"],
+                      "because previous run failed...")
+                shutil.rmtree(my_run["title"])
+            else:
+                print("Creating", my_run["title"] + "...", flush = True)
+
+            os.mkdir(my_run["title"])
+            run_single_test(my_run, writer, path_failed)
 
     print("Elapsed time:", time.perf_counter() - t0, "s")
     perf_report.close()
