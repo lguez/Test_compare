@@ -386,9 +386,10 @@ else:
                 if not reply.startswith("y"): break
 
                 for my_run in my_runs:
-                    old_dir = path.join(args.compare, my_run["title"])
-                    if path.exists(old_dir): shutil.rmtree(old_dir)
-                    shutil.move(my_run["title"], old_dir)
+                    if not pathlib.Path(my_run["title"], "failed").exists():
+                        old_dir = path.join(args.compare, my_run["title"])
+                        if path.exists(old_dir): shutil.rmtree(old_dir)
+                        shutil.move(my_run["title"], old_dir)
 
                 dst = path.join(args.compare, "perf_report.csv")
                 os.rename("perf_report.csv", dst)
