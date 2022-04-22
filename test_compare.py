@@ -90,6 +90,30 @@ import time
 import string
 import pathlib
 
+def get_all_required(my_run):
+    for required_type in ["symlink", "copy"]:
+        if required_type in my_run:
+            assert isinstance(my_run[required_type], list)
+
+            for required_item in my_run[required_type]:
+                if isinstance(required_item, list):
+                    get_required(required_item[0], my_run, required_item[1],
+                                 required_type)
+                else:
+                    # Wildcards allowed
+                    expanded_list = glob.glob(required_item)
+
+                    if len(expanded_list) == 0:
+                        shutil.rmtree(my_run["title"])
+                        print()
+                        sys.exit(f"{sys.argv[0]}: required {required_item} "
+                                 "does not exist.")
+                    else:
+                        for expanded_item in expanded_list:
+                            base_dest = path.basename(expanded_item)
+                            get_required(expanded_item, my_run, base_dest,
+                                         required_type)
+
 def get_required(src, my_run, base_dest, required_type):
     """If src does not exist, remove my_run["title"], else symlink or copy
     src to my_run["title"]/base_dest.
@@ -114,29 +138,6 @@ def get_required(src, my_run, base_dest, required_type):
             shutil.copytree(src, dst)
 
 def run_single_test(my_run, writer, path_failed):
-    for required_type in ["symlink", "copy"]:
-        if required_type in my_run:
-            assert isinstance(my_run[required_type], list)
-
-            for required_item in my_run[required_type]:
-                if isinstance(required_item, list):
-                    get_required(required_item[0], my_run, required_item[1],
-                                 required_type)
-                else:
-                    # Wildcards allowed
-                    expanded_list = glob.glob(required_item)
-
-                    if len(expanded_list) == 0:
-                        shutil.rmtree(my_run["title"])
-                        print()
-                        sys.exit(f"{sys.argv[0]}: required {required_item} "
-                                 "does not exist.")
-                    else:
-                        for expanded_item in expanded_list:
-                            base_dest = path.basename(expanded_item)
-                            get_required(expanded_item, my_run, base_dest,
-                                         required_type)
-
     if "command" in my_run:
         commands = [my_run["command"]]
         main_command = 0
@@ -245,6 +246,7 @@ def run_tests(my_runs, allowed_keys):
                 print("Creating", my_run["title"] + "...", flush = True)
 
             os.mkdir(my_run["title"])
+            get_all_required(my_run)
             run_single_test(my_run, writer, path_failed)
 
     print("Elapsed time:", time.perf_counter() - t0, "s")
