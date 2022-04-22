@@ -97,8 +97,8 @@ def get_all_required(my_run):
 
             for required_item in my_run[required_type]:
                 if isinstance(required_item, list):
-                    get_required(required_item[0], my_run, required_item[1],
-                                 required_type)
+                    get_single_required(required_item[0], my_run,
+                                        required_item[1], required_type)
                 else:
                     # Wildcards allowed
                     expanded_list = glob.glob(required_item)
@@ -111,10 +111,10 @@ def get_all_required(my_run):
                     else:
                         for expanded_item in expanded_list:
                             base_dest = path.basename(expanded_item)
-                            get_required(expanded_item, my_run, base_dest,
-                                         required_type)
+                            get_single_required(expanded_item, my_run,
+                                                base_dest, required_type)
 
-def get_required(src, my_run, base_dest, required_type):
+def get_single_required(src, my_run, base_dest, required_type):
     """If src does not exist, remove my_run["title"], else symlink or copy
     src to my_run["title"]/base_dest.
 
