@@ -91,14 +91,16 @@ import string
 import pathlib
 
 def get_all_required(my_run):
+    found = True
+
     for required_type in ["symlink", "copy"]:
         if required_type in my_run:
             assert isinstance(my_run[required_type], list)
 
             for required_item in my_run[required_type]:
                 if isinstance(required_item, list):
-                    get_single_required(required_item[0], my_run,
-                                        required_item[1], required_type)
+                    found = get_single_required(required_item[0], my_run,
+                                                required_item[1], required_type)
                 else:
                     # Wildcards allowed
                     expanded_list = glob.glob(required_item)
@@ -107,11 +109,18 @@ def get_all_required(my_run):
                         shutil.rmtree(my_run["title"])
                         print(f"\n{sys.argv[0]}: required {required_item} "
                               "does not exist.\n")
+                        found = False
                     else:
                         for expanded_item in expanded_list:
                             base_dest = path.basename(expanded_item)
-                            get_single_required(expanded_item, my_run,
-                                                base_dest, required_type)
+                            found = get_single_required(expanded_item, my_run,
+                                                        base_dest,
+                                                        required_type)
+                            if not found: break
+
+                if not found: break
+
+            if not found: break
 
 def get_single_required(src, my_run, base_dest, required_type):
     """If src does not exist, remove my_run["title"], else symlink or copy
