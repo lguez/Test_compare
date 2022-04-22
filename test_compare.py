@@ -272,7 +272,8 @@ def compare(my_runs, compare_dir, other_args):
 
     with open("comparison.txt", "w") as comparison_file:
         for my_run in my_runs:
-            if not pathlib.Path(my_run["title"], "failed").exists():
+            if path.exists(my_run["title"]) \
+               and not pathlib.Path(my_run["title"], "failed").exists():
                 old_dir = path.join(compare_dir, my_run["title"])
                 subprocess_args = ["selective_diff.py", old_dir,
                                    my_run["title"]]
@@ -400,7 +401,8 @@ else:
                 if not reply.startswith("y"): break
 
                 for my_run in my_runs:
-                    if not pathlib.Path(my_run["title"], "failed").exists():
+                    if path.exists(my_run["title"]) \
+                       and not pathlib.Path(my_run["title"], "failed").exists():
                         old_dir = path.join(args.compare, my_run["title"])
                         if path.exists(old_dir): shutil.rmtree(old_dir)
                         shutil.move(my_run["title"], old_dir)
@@ -431,7 +433,7 @@ else:
                         try:
                             shutil.copytree(my_run["title"], archive_dir,
                                             symlinks = True)
-                        except FileExistsError:
+                        except (FileExistsError, FileNotFoundError):
                             pass
                         else:
                             print("Archived", my_run["title"])
