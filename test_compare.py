@@ -118,22 +118,26 @@ def get_single_required(src, my_run, base_dest, required_type):
     src to my_run["title"]/base_dest.
 
     """
+
+    found = path.exists(src)
     
-    if not path.exists(src):
+    if found:
+        dst = path.join(my_run["title"], base_dest)
+
+        if required_type == "symlink":
+            os.symlink(src, dst)
+        else:
+            # required_type == "copy"
+            if path.isfile(src):
+                shutil.copyfile(src, dst)
+            else:
+                shutil.copytree(src, dst)
+    else:
         shutil.rmtree(my_run["title"])
         print("\nIn", my_run["test_series_file"])
-        sys.exit(sys.argv[0] + ": required " + src + " does not exist.")
+        print(sys.argv[0] + ": required " + src + " does not exist.\n")
 
-    dst = path.join(my_run["title"], base_dest)
-    
-    if required_type == "symlink":
-        os.symlink(src, dst)
-    else:
-        # required_type == "copy"
-        if path.isfile(src):
-            shutil.copyfile(src, dst)
-        else:
-            shutil.copytree(src, dst)
+    return found
 
 def run_single_test(my_run, writer, path_failed):
     if "command" in my_run:
