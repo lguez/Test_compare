@@ -105,9 +105,8 @@ def get_all_required(my_run):
 
                     if len(expanded_list) == 0:
                         shutil.rmtree(my_run["title"])
-                        print()
-                        sys.exit(f"{sys.argv[0]}: required {required_item} "
-                                 "does not exist.")
+                        print(f"\n{sys.argv[0]}: required {required_item} "
+                              "does not exist.\n")
                     else:
                         for expanded_item in expanded_list:
                             base_dest = path.basename(expanded_item)
@@ -122,8 +121,7 @@ def get_single_required(src, my_run, base_dest, required_type):
     
     if not path.exists(src):
         shutil.rmtree(my_run["title"])
-        print()
-        print("In", my_run["test_series_file"])
+        print("\nIn", my_run["test_series_file"])
         sys.exit(sys.argv[0] + ": required " + src + " does not exist.")
 
     dst = path.join(my_run["title"], base_dest)
