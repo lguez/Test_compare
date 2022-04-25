@@ -224,10 +224,14 @@ def run_single_test(my_run, writer, path_failed):
         writer.writerow([my_run["title"],
                          format(time.perf_counter() - t0_single_run, ".0f")])
         os.chdir("..")
+        test_return_code = 0
     else:
         os.chdir("..")
         path_failed.touch()
         print("failed")
+        test_return_code = 1
+
+    return test_return_code
 
 def run_tests(my_runs, allowed_keys):
     """my_runs should be a list of dictionaries, allowed_keys a set."""
@@ -237,6 +241,7 @@ def run_tests(my_runs, allowed_keys):
     writer.writerow(["Name of test", "elapsed time, in s"])
     print("Starting runs at", datetime.datetime.now())
     t0 = time.perf_counter()
+    n_failed = 0
     
     for i, my_run in enumerate(my_runs):
         print(i, end = ": ")
@@ -260,10 +265,11 @@ def run_tests(my_runs, allowed_keys):
 
             os.mkdir(my_run["title"])
             found = get_all_required(my_run)
-            if found: run_single_test(my_run, writer, path_failed)
+            if found: n_failed += run_single_test(my_run, writer, path_failed)
 
     print("Elapsed time:", time.perf_counter() - t0, "s")
     perf_report.close()
+    print("Number of failed runs:", n_failed)
 
 def compare(my_runs, compare_dir, other_args):
     cumul_return = 0
