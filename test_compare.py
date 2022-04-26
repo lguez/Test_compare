@@ -34,8 +34,8 @@ The difference between the keys "stdin_filename" and "input" is that
 must be the name of a file that will be redirected to standard
 input. The value of "input" is passed through to the "input" keyword
 argument of "subprocess.run". Usually, the value of "input" should end
-with "\n". If neither "stdin_filename" nor "input" is present, then we
-assume that the run does not need any input: no interaction is
+with "\\n". If neither "stdin_filename" nor "input" is present, then
+we assume that the run does not need any input: no interaction is
 allowed.
 
 If present, "symlink" or "copy" must be a list. Each element of
@@ -301,7 +301,8 @@ def compare(my_runs, compare_dir, other_args):
                     if cp.returncode == 1:
                         echo_line = " ".join(subprocess_args) + "\n"
                         comparison_file.write("\n" + echo_line)
-                        comparison_file.write("\n" + '****************\n' * 2)
+                        comparison_file.write("\n" + ("*" * 10 + "\n") * 2
+                                              + "\n")
                         comparison_file.flush()
                 else:
                     print("Problem in selective_diff.py, return code "

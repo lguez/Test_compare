@@ -72,8 +72,8 @@ def my_report(dcmp, detailed_diff_instance):
         n_diff += my_report(sub_dcmp, detailed_diff_instance)
 
     if n_diff != 0:
-        print('\n*******************************************\n')
         dcmp.report()
+        print('\n*******************************************\n')
 
     return n_diff
 
