@@ -101,8 +101,6 @@ class detailed_diff:
             self.diff_nc = nccmp.nccmp
 
     def diff(self, path_1, path_2):
-        print('\n*******************************************\n')
-        print(path_1, path_2)
         suffix = pathlib.PurePath(path_1).suffix
         text_file = suffix == ".txt" or suffix == ".json" \
             or (suffix != ".nc" and suffix != ".csv"
@@ -120,6 +118,10 @@ class detailed_diff:
             print("Detailed diff not implemented")
             n_diff = 1
 
+        if n_diff != 0:
+            print(path_1, path_2)
+            print('\n*******************************************\n')
+
         return n_diff
 
     def diff_dbf_dbfdump(self, path_1, path_2):
@@ -129,7 +131,6 @@ class detailed_diff:
         subprocess.run(["dbfdump", path_2], stdout = f2_dbfdump)
 
         if filecmp.cmp(f1_dbfdump.name, f2_dbfdump.name, shallow = False):
-            print(f"dbfdumps of {path_1} and {path_2} are identical")
             n_diff = 0
         else:
             n_diff = self.diff_csv(f1_dbfdump.name, f2_dbfdump.name)
