@@ -53,15 +53,12 @@ def compare_vars(v1, v2, silent = False, tag = None):
                 
             diff_found = False
         else:
-            if np.all(v1[:] == v2[:]):
-                diff_found = False
-            else:
-                if not silent:
-                    if tag: print(tag, ":")
-                    print("Different content")
-                    print("-------------\n")
-                    
-                diff_found = True
+            diff_found = np.any(v1[:] != v2[:])
+
+            if diff_found and not silent:
+                if tag: print(tag, ":")
+                print("Different content")
+                print("-------------\n")
     else:
         if not silent:
             if tag: print(tag, ":")
