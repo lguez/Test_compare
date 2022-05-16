@@ -5,9 +5,10 @@
 import netCDF4
 import compare_util
 
-def nccmp(old, new, silent = False, data_only = False):
-    f1 = netCDF4.Dataset(old)
-    f2 = netCDF4.Dataset(new)
+def nccmp(f1, f2, silent = False, data_only = False):
+    if isinstance(f1, str):
+        f1 = netCDF4.Dataset(f1)
+        f2 = netCDF4.Dataset(f2)
 
     vars1 = f1.variables.keys()
     vars2 = f2.variables.keys()
