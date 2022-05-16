@@ -1,4 +1,5 @@
 import numpy as np
+from numpy import ma
 
 def cmp(v1, v2, silent = False, tag = None):
     diff_found = v1 != v2
@@ -53,9 +54,21 @@ def compare_vars(v1, v2, silent = False, tag = None):
                 
             diff_found = False
         else:
-            diff_found = np.any(v1[:] != v2[:])
+            mask1 = ma.getmaskarray(v1[:])
+            mask2 = ma.getmaskarray(v2[:])
+            diff_found = np.any(mask1 != mask2)
 
-            if diff_found and not silent:
+            if not diff_found:
+                try:
+                    compressed1 = v1[:].compressed()
+                    compressed2 = v2[:].compressed()
+                except AttributeError:
+                    compressed1 = v1[:]
+                    compressed2 = v2[:]
+
+                diff_found = np.any(compressed1 != compressed2)
+
+            if  diff_found and not silent:
                 if tag: print(tag, ":")
                 print("Different content")
                 print("-------------\n")
