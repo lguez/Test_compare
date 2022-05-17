@@ -46,19 +46,18 @@ def nccmp(f1, f2, silent = False, data_only = False):
 
         while len(inters_vars) != 0 and (not silent or not diff_found):
             x = inters_vars.pop()
+            tag = f"Attributes of variable {x}"
             diff_found \
                 = compare_util.diff_dict(f1[x].__dict__, f2[x].__dict__,
-                                         silent, tag = "Attributes of "
-                                         f"variable {x}") or diff_found
+                                         silent, tag) or diff_found
 
             if not silent or not diff_found:
                 for attribute in ["dtype", "dimensions", "shape"]:
+                    tag = f"{attribute} of variable {x}"
                     diff_found = \
                         compare_util.cmp(f1[x].__getattribute__(attribute), 
                                          f2[x].__getattribute__(attribute),
-                                         silent, \
-                                         tag = f"{attribute} of variable {x}") \
-                            or diff_found
+                                         silent, tag) or diff_found
                     if diff_found and silent: break
 
         inters_groups = groups1 & groups2
@@ -70,9 +69,9 @@ def nccmp(f1, f2, silent = False, data_only = False):
 
     if not silent or not diff_found:
         for x in vars1 & vars2:
-            diff_found = compare_util.compare_vars(f1[x], f2[x], silent,
-                                                   tag = f"Variable {x}") \
-                                                   or diff_found
+            tag = f"Variable {x}"
+            diff_found = compare_util.compare_vars(f1[x], f2[x], silent, tag) \
+                or diff_found
             # (Note: call to compare_vars first to avoid short-circuit)
 
             if diff_found and silent: break
