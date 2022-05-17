@@ -46,14 +46,14 @@ def nccmp(f1, f2, silent = False, data_only = False):
 
         while len(inters_vars) != 0 and (not silent or not diff_found):
             x = inters_vars.pop()
-            tag = f"Attributes of variable {x}"
+            tag = f"Attributes of variable {f1.path}/{x}"
             diff_found \
                 = compare_util.diff_dict(f1[x].__dict__, f2[x].__dict__,
                                          silent, tag) or diff_found
 
             if not silent or not diff_found:
                 for attribute in ["dtype", "dimensions", "shape"]:
-                    tag = f"{attribute} of variable {x}"
+                    tag = f"{attribute} of variable {f1.path}/{x}"
                     diff_found = \
                         compare_util.cmp(f1[x].__getattribute__(attribute), 
                                          f2[x].__getattribute__(attribute),
@@ -69,7 +69,7 @@ def nccmp(f1, f2, silent = False, data_only = False):
 
     if not silent or not diff_found:
         for x in vars1 & vars2:
-            tag = f"Variable {x}"
+            tag = f"Variable {f1.path}/{x}"
             diff_found = compare_util.compare_vars(f1[x], f2[x], silent, tag) \
                 or diff_found
             # (Note: call to compare_vars first to avoid short-circuit)
