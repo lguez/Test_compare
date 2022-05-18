@@ -233,7 +233,7 @@ def run_single_test(my_run, writer, path_failed):
 
     return test_return_code
 
-def run_tests(my_runs, allowed_keys):
+def run_tests(my_runs, allowed_keys, archive_dir = None):
     """my_runs should be a list of dictionaries, allowed_keys a set."""
 
     perf_report = open("perf_report.csv", "w", newline='')
@@ -266,6 +266,17 @@ def run_tests(my_runs, allowed_keys):
             os.mkdir(my_run["title"])
             found = get_all_required(my_run)
             if found: n_failed += run_single_test(my_run, writer, path_failed)
+
+        if archive_dir and not path_failed.exists():
+            archive_subdir = path.join(args.archive, my_run["title"])
+
+            try:
+                shutil.copytree(my_run["title"], archive_subdir,
+                                symlinks = True)
+            except (FileExistsError, FileNotFoundError):
+                pass
+            else:
+                print("Archived", my_run["title"])
 
     print("Elapsed time:", time.perf_counter() - t0, "s")
     perf_report.close()
@@ -430,17 +441,4 @@ else:
                 dst = path.join(args.compare, "perf_report.csv")
                 os.rename("perf_report.csv", dst)
         else:
-            run_tests(my_runs, allowed_keys)
-
-            if args.archive:
-                for my_run in my_runs:
-                    if not pathlib.Path(my_run["title"], "failed").exists():
-                        archive_dir = path.join(args.archive, my_run["title"])
-
-                        try:
-                            shutil.copytree(my_run["title"], archive_dir,
-                                            symlinks = True)
-                        except (FileExistsError, FileNotFoundError):
-                            pass
-                        else:
-                            print("Archived", my_run["title"])
+            run_tests(my_runs, allowed_keys, args.archive)
