@@ -289,8 +289,11 @@ def compare(my_runs, compare_dir, other_args):
 
     with open("comparison.txt", "w") as comparison_file:
         for my_run in my_runs:
-            if path.exists(my_run["title"]) \
-               and not pathlib.Path(my_run["title"], "failed").exists():
+            path_identical = pathlib.Path(my_run["title"], "identical")
+
+            if path.exists(my_run["title"]) and not \
+               pathlib.Path(my_run["title"], "failed").exists() and not \
+               path_identical.exists():
                 old_dir = path.join(compare_dir, my_run["title"])
                 subprocess_args = ["selective_diff.py", old_dir,
                                    my_run["title"]]
@@ -309,7 +312,9 @@ def compare(my_runs, compare_dir, other_args):
                 if cp.returncode in [0, 1]:
                     cumul_return += cp.returncode
 
-                    if cp.returncode == 1:
+                    if cp.returncode == 0:
+                        path_identical.touch()
+                    else:
                         echo_line = " ".join(subprocess_args) + "\n"
                         comparison_file.write("\n" + echo_line)
                         comparison_file.write("\n" + ("*" * 10 + "\n") * 2
@@ -419,8 +424,9 @@ else:
                 if not reply.startswith("y"): break
 
                 for my_run in my_runs:
-                    if path.exists(my_run["title"]) \
-                       and not pathlib.Path(my_run["title"], "failed").exists():
+                    if path.exists(my_run["title"]) and not \
+                       pathlib.Path(my_run["title"], "failed").exists() and \
+                       not pathlib.Path(my_run["title"], "identical").exists():
                         old_dir = path.join(args.compare, my_run["title"])
                         if path.exists(old_dir): shutil.rmtree(old_dir)
                         shutil.move(my_run["title"], old_dir)
