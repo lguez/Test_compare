@@ -67,8 +67,11 @@ have to be specified with absolute paths.
 
 This script can also read a JSON file containing string substitutions
 to be made in the test description file. This is useful to abbreviate
-paths that occur repeatedly in test description file. This
-abbreviation file must contain a single dictionary.
+paths that occur repeatedly in test description file, or to make the
+test description file independant of the machine. This abbreviation
+file must contain a single dictionary. The string $PWD will be
+automatically substituted in the test description file, it should not
+be specified in the file containing string substitutions.
 
 There may be several JSON test description files on the command
 line. If two tests have the same name, the second one will be skipped.
