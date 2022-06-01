@@ -271,7 +271,7 @@ def run_tests(my_runs, allowed_keys, archive_dir = None):
             if found: n_failed += run_single_test(my_run, writer, path_failed)
 
         if archive_dir and not path_failed.exists():
-            archive_subdir = path.join(args.archive, my_run["title"])
+            archive_subdir = path.join(archive_dir, my_run["title"])
 
             try:
                 shutil.copytree(my_run["title"], archive_subdir,
