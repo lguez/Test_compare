@@ -236,7 +236,7 @@ def run_single_test(my_run, writer, path_failed):
 
     return test_return_code
 
-def run_tests(my_runs, allowed_keys, archive_dir = None):
+def run_tests(my_runs, allowed_keys, compare_dir = None):
     """my_runs should be a list of dictionaries, allowed_keys a set."""
 
     perf_report = open("perf_report.csv", "w", newline='')
@@ -270,12 +270,11 @@ def run_tests(my_runs, allowed_keys, archive_dir = None):
             found = get_all_required(my_run)
             if found: n_failed += run_single_test(my_run, writer, path_failed)
 
-        if archive_dir and not path_failed.exists():
-            archive_subdir = path.join(archive_dir, my_run["title"])
+        if compare_dir and not path_failed.exists():
+            old_dir = path.join(compare_dir, my_run["title"])
 
             try:
-                shutil.copytree(my_run["title"], archive_subdir,
-                                symlinks = True)
+                shutil.copytree(my_run["title"], old_dir, symlinks = True)
             except (FileExistsError, FileNotFoundError):
                 pass
             else:
