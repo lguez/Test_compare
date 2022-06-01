@@ -69,9 +69,10 @@ This script can also read a JSON file containing string substitutions
 to be made in the test description file. This is useful to abbreviate
 paths that occur repeatedly in test description file, or to make the
 test description file independant of the machine. This abbreviation
-file must contain a single dictionary. The string $PWD will be
-automatically substituted in the test description file, it should not
-be specified in the file containing string substitutions.
+file must contain a single dictionary. The strings $PWD and
+$tests_old_dir will be automatically substituted in the test
+description file, they should not be specified in the file containing
+string substitutions.
 
 There may be several JSON test description files on the command
 line. If two tests have the same name, the second one will be skipped.
@@ -236,7 +237,7 @@ def run_single_test(my_run, writer, path_failed):
 
     return test_return_code
 
-def run_tests(my_runs, allowed_keys, compare_dir = None):
+def run_tests(my_runs, allowed_keys, compare_dir):
     """my_runs should be a list of dictionaries, allowed_keys a set."""
 
     perf_report = open("perf_report.csv", "w", newline='')
@@ -270,7 +271,7 @@ def run_tests(my_runs, allowed_keys, compare_dir = None):
             found = get_all_required(my_run)
             if found: n_failed += run_single_test(my_run, writer, path_failed)
 
-        if compare_dir and not path_failed.exists():
+        if not path_failed.exists():
             old_dir = path.join(compare_dir, my_run["title"])
 
             try:
@@ -336,15 +337,12 @@ parser = argparse.ArgumentParser(description = __doc__, formatter_class \
                                  = argparse.RawDescriptionHelpFormatter,
                                  epilog = 'Remaining options are passed on to '
                                  '"selective_diff.py".')
+parser.add_argument("compare_dir", help = "Directory containing old runs "
+                    "for comparison, after running the tests")
 parser.add_argument("test_descr", nargs = "+",
                     help = "JSON file containing description of tests")
 parser.add_argument("-s", "--substitutions", help="JSON input file containing "
                     "abbreviations for directory names")
-group = parser.add_mutually_exclusive_group()
-group.add_argument("-c", "--compare", help = "Directory containing old runs "
-                    "for comparison, after running the tests")
-group.add_argument("-a", "--archive", help = "Directory to which test dirs "
-                    "will be copied, after running the tests")
 parser.add_argument("--clean", help = """
 Remove any existing run directories in the current directory. With -t, remove 
 only the selected run directory, if it exists.""",
@@ -363,11 +361,8 @@ if args.list:
 
     for my_run in my_runs: print(my_run["title"])
 else:
-    if args.compare or args.archive:
-        my_dir = args.compare or args.archive
-        
-        if not path.isdir(my_dir):
-            sys.exit("Directory " + my_dir + " not found.")
+    if not path.isdir(args.compare_dir):
+        sys.exit("Directory " + args.compare_dir + " not found.")
 
     if args.substitutions:
         with open(args.substitutions) as subst_file:
@@ -376,6 +371,7 @@ else:
         substitutions = {}
 
     substitutions["PWD"] = os.getcwd()
+    substitutions["tests_old_dir"] = path.abspath(args.compare_dir)
 
     for test_descr in args.test_descr:
         try:
@@ -416,37 +412,34 @@ else:
                         "stdin_filename", "input", "test_series_file",
                         "create_file", "exclude_cmp"}
 
-        if args.compare:
-            while True:
-                run_tests(my_runs, allowed_keys)
-                compare(my_runs, args.compare, other_args)
-                reply = input("Remove old runs? ")
-                reply = reply.casefold()
-
-                if not reply.startswith("y"): break
-
-                for my_run in my_runs:
-                    if path.exists(my_run["title"]) and not \
-                       pathlib.Path(my_run["title"], "failed").exists() and \
-                       not pathlib.Path(my_run["title"], "identical").exists():
-                        old_dir = path.join(args.compare, my_run["title"])
-                        if path.exists(old_dir): shutil.rmtree(old_dir)
-                        shutil.move(my_run["title"], old_dir)
-
-                dst = path.join(args.compare, "perf_report.csv")
-                os.rename("perf_report.csv", dst)
-
-            reply = input("Remove new runs? ")
+        while True:
+            run_tests(my_runs, allowed_keys, args.compare_dir)
+            compare(my_runs, args.compare_dir, other_args)
+            reply = input("Remove old runs? ")
             reply = reply.casefold()
 
-            if reply.startswith("y"): 
-                for my_run in my_runs: shutil.rmtree(my_run["title"])
+            if not reply.startswith("y"): break
 
-            reply = input("Replace old performance report? ")
-            reply = reply.casefold()
+            for my_run in my_runs:
+                if path.exists(my_run["title"]) and not \
+                   pathlib.Path(my_run["title"], "failed").exists() and \
+                   not pathlib.Path(my_run["title"], "identical").exists():
+                    old_dir = path.join(args.compare_dir, my_run["title"])
+                    if path.exists(old_dir): shutil.rmtree(old_dir)
+                    shutil.move(my_run["title"], old_dir)
 
-            if reply.startswith("y"):
-                dst = path.join(args.compare, "perf_report.csv")
-                os.rename("perf_report.csv", dst)
-        else:
-            run_tests(my_runs, allowed_keys, args.archive)
+            dst = path.join(args.compare_dir, "perf_report.csv")
+            os.rename("perf_report.csv", dst)
+
+        reply = input("Remove new runs? ")
+        reply = reply.casefold()
+
+        if reply.startswith("y"):
+            for my_run in my_runs: shutil.rmtree(my_run["title"])
+
+        reply = input("Replace old performance report? ")
+        reply = reply.casefold()
+
+        if reply.startswith("y"):
+            dst = path.join(args.compare_dir, "perf_report.csv")
+            os.rename("perf_report.csv", dst)
