@@ -7,56 +7,65 @@ import compare_util
 
 def nccmp(f1, f2, silent = False, data_only = False):
     if isinstance(f1, str):
-        f1 = netCDF4.Dataset(f1)
-        f2 = netCDF4.Dataset(f2)
+        file_1 = netCDF4.Dataset(f1)
+        file_2 = netCDF4.Dataset(f2)
+    else:
+        # nccmp may call itself with file object arguments.
+        file_1 = f1
+        file_2 = f2
 
-    vars1 = f1.variables.keys()
-    vars2 = f2.variables.keys()
+    vars1 = file_1.variables.keys()
+    vars2 = file_2.variables.keys()
 
     if data_only:
         diff_found = False
     else:
-        diff_found = compare_util.diff_dict(f1.__dict__, f2.__dict__, silent,
+        diff_found = compare_util.diff_dict(file_1.__dict__, file_2.__dict__,
+                                            silent,
                                             tag = "All attributes of the "
                                             "dataset")
-        groups1 = f1.groups.keys()
-        groups2 = f2.groups.keys()
+        groups1 = file_1.groups.keys()
+        groups2 = file_2.groups.keys()
 
         if not silent or not diff_found:
-            for tag, v1, v2 in [("Data_model", f1.data_model, f2.data_model),
-                                ("Disk_format", f1.disk_format, f2.disk_format),
-                                ("File_format", f1.file_format, f2.file_format),
-                                ("Dimension names", f1.dimensions.keys(),
-                                 f2.dimensions.keys()),
+            for tag, v1, v2 in [("Data_model", file_1.data_model,
+                                 file_2.data_model),
+                                ("Disk_format", file_1.disk_format,
+                                 file_2.disk_format),
+                                ("File_format", file_1.file_format,
+                                 file_2.file_format),
+                                ("Dimension names", file_1.dimensions.keys(),
+                                 file_2.dimensions.keys()),
                                 ("Variable names", vars1, vars2),
                                 ("Group names", groups1, groups2)]:
                 diff_found = compare_util.cmp(v1, v2, silent, tag) or diff_found
                 if diff_found and silent: break
 
         if not silent or not diff_found:
-            for x in f1.dimensions:
-                if x in f2.dimensions:
-                    diff_found = compare_util.cmp(len(f1.dimensions[x]),
-                                                  len(f2.dimensions[x]), silent,
-                                                  tag = "Size of dimension "
-                                                  f"{x}") or diff_found
+            for x in file_1.dimensions:
+                if x in file_2.dimensions:
+                    diff_found \
+                        = compare_util.cmp(len(file_1.dimensions[x]),
+                                           len(file_2.dimensions[x]), silent,
+                                           tag = f"Size of dimension {x}") \
+                                           or diff_found
                     if diff_found and silent: break
 
         inters_vars = vars1 & vars2
 
         while len(inters_vars) != 0 and (not silent or not diff_found):
             x = inters_vars.pop()
-            tag = f"Attributes of variable {f1.path}/{x}"
+            tag = f"Attributes of variable {file_1.path}/{x}"
             diff_found \
-                = compare_util.diff_dict(f1[x].__dict__, f2[x].__dict__,
+                = compare_util.diff_dict(file_1[x].__dict__, file_2[x].__dict__,
                                          silent, tag) or diff_found
 
             if not silent or not diff_found:
                 for attribute in ["dtype", "dimensions", "shape"]:
-                    tag = f"{attribute} of variable {f1.path}/{x}"
+                    tag = f"{attribute} of variable {file_1.path}/{x}"
                     diff_found = \
-                        compare_util.cmp(f1[x].__getattribute__(attribute), 
-                                         f2[x].__getattribute__(attribute),
+                        compare_util.cmp(file_1[x].__getattribute__(attribute),
+                                         file_2[x].__getattribute__(attribute),
                                          silent, tag) or diff_found
                     if diff_found and silent: break
 
@@ -64,13 +73,14 @@ def nccmp(f1, f2, silent = False, data_only = False):
 
         while len(inters_groups) != 0 and (not silent or not diff_found):
             x = inters_groups.pop()
-            diff_found = nccmp(f1[x], f2[x], silent, data_only) == 1 \
+            diff_found = nccmp(file_1[x], file_2[x], silent, data_only) == 1 \
                 or diff_found
 
     if not silent or not diff_found:
         for x in vars1 & vars2:
-            tag = f"Variable {f1.path}/{x}"
-            diff_found = compare_util.compare_vars(f1[x], f2[x], silent, tag) \
+            tag = f"Variable {file_1.path}/{x}"
+            diff_found \
+                = compare_util.compare_vars(file_1[x], file_2[x], silent, tag) \
                 or diff_found
             # (Note: call to compare_vars first to avoid short-circuit)
 
