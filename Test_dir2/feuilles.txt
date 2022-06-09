@@ -1,0 +1,4 @@
+De la feuille du dessus à celle du dessous :
+feuille 3 : modèle 2
+feuille 2 : modèle 1
+feuille 1 : axes
