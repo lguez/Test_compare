@@ -4,6 +4,7 @@
 
 import netCDF4
 import compare_util
+from os import path
 
 def nccmp(f1, f2, silent = False, data_only = False):
     """f1 and f2 can be either filenames or open file objects."""
@@ -79,7 +80,7 @@ def nccmp(f1, f2, silent = False, data_only = False):
 
     if not silent or not diff_found:
         for x in vars1 & vars2:
-            tag = f"Variable {file_1.path}/{x}"
+            tag = f"Variable {path.join(file_1.path, x)}"
             diff_found \
                 = compare_util.compare_vars(file_1[x], file_2[x], silent, tag) \
                 or diff_found
