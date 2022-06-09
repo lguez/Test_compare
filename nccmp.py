@@ -88,6 +88,10 @@ def nccmp(f1, f2, silent = False, data_only = False):
 
             if diff_found and silent: break
 
+    if isinstance(f1, str):
+        file_1.close()
+        file_2.close()
+
     if diff_found:
         return 1
     else:
