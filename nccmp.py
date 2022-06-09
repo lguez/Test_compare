@@ -6,6 +6,8 @@ import netCDF4
 import compare_util
 
 def nccmp(f1, f2, silent = False, data_only = False):
+    """f1 and f2 can be either filenames or open file objects."""
+
     if isinstance(f1, str):
         file_1 = netCDF4.Dataset(f1)
         file_2 = netCDF4.Dataset(f2)
@@ -20,10 +22,9 @@ def nccmp(f1, f2, silent = False, data_only = False):
     if data_only:
         diff_found = False
     else:
+        tag = "All attributes of the dataset"
         diff_found = compare_util.diff_dict(file_1.__dict__, file_2.__dict__,
-                                            silent,
-                                            tag = "All attributes of the "
-                                            "dataset")
+                                            silent, tag)
         groups1 = file_1.groups.keys()
         groups2 = file_2.groups.keys()
 
@@ -44,11 +45,11 @@ def nccmp(f1, f2, silent = False, data_only = False):
         if not silent or not diff_found:
             for x in file_1.dimensions:
                 if x in file_2.dimensions:
+                    tag = f"Size of dimension {x}"
                     diff_found \
                         = compare_util.cmp(len(file_1.dimensions[x]),
                                            len(file_2.dimensions[x]), silent,
-                                           tag = f"Size of dimension {x}") \
-                                           or diff_found
+                                           tag) or diff_found
                     if diff_found and silent: break
 
         inters_vars = vars1 & vars2
