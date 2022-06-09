@@ -84,7 +84,7 @@ def nccmp(f1, f2, silent = False, data_only = False):
 if __name__ == "__main__":
     import argparse
     import sys
-    
+
     parser = argparse.ArgumentParser()
     parser.add_argument("netCDF_file", nargs = 2)
     parser.add_argument("-s", "--silent", action = "store_true")
