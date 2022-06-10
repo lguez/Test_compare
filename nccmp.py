@@ -82,9 +82,9 @@ def nccmp(f1, f2, silent = False, data_only = False):
         for x in vars1 & vars2:
             tag = f"Variable {path.join(file_1.path, x)}"
             diff_found \
-                = compare_util.compare_vars(file_1[x], file_2[x], silent, tag) \
+                = compare_util.cmp_ndarr(file_1[x], file_2[x], silent, tag) \
                 or diff_found
-            # (Note: call to compare_vars first to avoid short-circuit)
+            # (Note: call to cmp_ndarr first to avoid short-circuit)
 
             if diff_found and silent: break
 
