@@ -40,7 +40,7 @@ def diff_dict(d1, d2, silent = False, tag = None, detail_file = sys.stdout):
     return diff_found
 
 def compare_vars(v1, v2, silent = False, tag = None, detail_file = sys.stdout):
-    """v1 and v2 are numpy arrays. Return True if a difference if
+    """v1 and v2 are numpy arrays. Return True if a difference is
     found."""
     
     if v1.shape == v2.shape:
