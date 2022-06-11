@@ -5,6 +5,7 @@
 import netCDF4
 import compare_util
 from os import path
+import io
 
 def nccmp(f1, f2, silent = False, data_only = False):
     """f1 and f2 can be either filenames or open file objects."""
@@ -17,6 +18,9 @@ def nccmp(f1, f2, silent = False, data_only = False):
         file_1 = f1
         file_2 = f2
 
+    # We need to insert a header before detailed diagnostic, but only
+    # if we find differences, so create a new text stream:
+    detail_subfile = io.StringIO()
     vars1 = file_1.variables.keys()
     vars2 = file_2.variables.keys()
 
@@ -25,7 +29,7 @@ def nccmp(f1, f2, silent = False, data_only = False):
     else:
         tag = "All attributes of the dataset"
         diff_found = compare_util.diff_dict(file_1.__dict__, file_2.__dict__,
-                                            silent, tag)
+                                            silent, tag, detail_subfile)
         groups1 = file_1.groups.keys()
         groups2 = file_2.groups.keys()
 
@@ -40,7 +44,9 @@ def nccmp(f1, f2, silent = False, data_only = False):
                                  file_2.dimensions.keys()),
                                 ("Variable names", vars1, vars2),
                                 ("Group names", groups1, groups2)]:
-                diff_found = compare_util.cmp(v1, v2, silent, tag) or diff_found
+                diff_found \
+                    = compare_util.cmp(v1, v2, silent, tag, detail_subfile) \
+                    or diff_found
                 if diff_found and silent: break
 
         if not silent or not diff_found:
@@ -50,7 +56,7 @@ def nccmp(f1, f2, silent = False, data_only = False):
                     diff_found \
                         = compare_util.cmp(len(file_1.dimensions[x]),
                                            len(file_2.dimensions[x]), silent,
-                                           tag) or diff_found
+                                           tag, detail_subfile) or diff_found
                     if diff_found and silent: break
 
         inters_vars = vars1 & vars2
@@ -60,7 +66,8 @@ def nccmp(f1, f2, silent = False, data_only = False):
             tag = f"Attributes of variable {file_1.path}/{x}"
             diff_found \
                 = compare_util.diff_dict(file_1[x].__dict__, file_2[x].__dict__,
-                                         silent, tag) or diff_found
+                                         silent, tag, detail_subfile) \
+                                         or diff_found
 
             if not silent or not diff_found:
                 for attribute in ["dtype", "dimensions", "shape"]:
@@ -68,7 +75,8 @@ def nccmp(f1, f2, silent = False, data_only = False):
                     diff_found = \
                         compare_util.cmp(file_1[x].__getattribute__(attribute),
                                          file_2[x].__getattribute__(attribute),
-                                         silent, tag) or diff_found
+                                         silent, tag, detail_subfile) \
+                                         or diff_found
                     if diff_found and silent: break
 
         inters_groups = groups1 & groups2
@@ -82,11 +90,17 @@ def nccmp(f1, f2, silent = False, data_only = False):
         for x in vars1 & vars2:
             tag = f"Variable {path.join(file_1.path, x)}"
             diff_found \
-                = compare_util.cmp_ndarr(file_1[x], file_2[x], silent, tag) \
-                or diff_found
+                = compare_util.cmp_ndarr(file_1[x], file_2[x], silent, tag,
+                                         detail_subfile) or diff_found
             # (Note: call to cmp_ndarr first to avoid short-circuit)
 
             if diff_found and silent: break
+
+    if diff_found:
+        detail_diag = detail_subfile.getvalue()
+        print(detail_diag)
+
+    detail_subfile.close()
 
     if isinstance(f1, str):
         file_1.close()
