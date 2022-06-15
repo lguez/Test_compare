@@ -24,6 +24,8 @@ def nccmp(f1, f2, silent = False, data_only = False):
 
     vars1 = file_1.variables.keys()
     vars2 = file_2.variables.keys()
+    groups1 = file_1.groups.keys()
+    groups2 = file_2.groups.keys()
 
     if data_only:
         diff_found = False
@@ -33,8 +35,6 @@ def nccmp(f1, f2, silent = False, data_only = False):
         tag = "All attributes of the dataset"
         diff_found = compare_util.diff_dict(file_1.__dict__, file_2.__dict__,
                                             silent, tag, detail_subfile)
-        groups1 = file_1.groups.keys()
-        groups2 = file_2.groups.keys()
 
         if not silent or not diff_found:
             for tag, v1, v2 in [("Data_model", file_1.data_model,
@@ -82,13 +82,6 @@ def nccmp(f1, f2, silent = False, data_only = False):
                                          or diff_found
                     if diff_found and silent: break
 
-        inters_groups = groups1 & groups2
-
-        while len(inters_groups) != 0 and (not silent or not diff_found):
-            x = inters_groups.pop()
-            diff_found = nccmp(file_1[x], file_2[x], silent, data_only) == 1 \
-                or diff_found
-
     if not silent or not diff_found:
         # Compare the data part:
         # Note that we cannot reuse inters_vars, which has been emptied.
@@ -107,6 +100,15 @@ def nccmp(f1, f2, silent = False, data_only = False):
         print(detail_diag)
 
     detail_subfile.close()
+
+    # Recurse into subgroups:
+
+    inters_groups = groups1 & groups2
+
+    while len(inters_groups) != 0 and (not silent or not diff_found):
+        x = inters_groups.pop()
+        diff_found = nccmp(file_1[x], file_2[x], silent, data_only) == 1 \
+            or diff_found
 
     if isinstance(f1, str):
         file_1.close()
