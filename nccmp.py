@@ -4,10 +4,11 @@
 
 import netCDF4
 import compare_util
+import sys
 from os import path
 import io
 
-def nccmp(f1, f2, silent = False, data_only = False):
+def nccmp(f1, f2, silent = False, data_only = False, detail_file = sys.stdout):
     """f1 and f2 can be either filenames or open file objects."""
 
     if isinstance(f1, str):
@@ -97,7 +98,7 @@ def nccmp(f1, f2, silent = False, data_only = False):
 
     if diff_found:
         detail_diag = detail_subfile.getvalue()
-        print(detail_diag)
+        detail_file.write(detail_diag)
 
     detail_subfile.close()
 
@@ -107,8 +108,8 @@ def nccmp(f1, f2, silent = False, data_only = False):
 
     while len(inters_groups) != 0 and (not silent or not diff_found):
         x = inters_groups.pop()
-        diff_found = nccmp(file_1[x], file_2[x], silent, data_only) == 1 \
-            or diff_found
+        diff_found = nccmp(file_1[x], file_2[x], silent, data_only,
+                           detail_file) == 1 or diff_found
 
     if isinstance(f1, str):
         file_1.close()
