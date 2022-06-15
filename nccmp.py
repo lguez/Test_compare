@@ -21,12 +21,15 @@ def nccmp(f1, f2, silent = False, data_only = False):
     # We need to insert a header before detailed diagnostic, but only
     # if we find differences, so create a new text stream:
     detail_subfile = io.StringIO()
+
     vars1 = file_1.variables.keys()
     vars2 = file_2.variables.keys()
 
     if data_only:
         diff_found = False
     else:
+        # Compare metadata:
+
         tag = "All attributes of the dataset"
         diff_found = compare_util.diff_dict(file_1.__dict__, file_2.__dict__,
                                             silent, tag, detail_subfile)
@@ -87,6 +90,9 @@ def nccmp(f1, f2, silent = False, data_only = False):
                 or diff_found
 
     if not silent or not diff_found:
+        # Compare the data part:
+        # Note that we cannot reuse inters_vars, which has been emptied.
+
         for x in vars1 & vars2:
             tag = f"Variable {path.join(file_1.path, x)}"
             diff_found \
