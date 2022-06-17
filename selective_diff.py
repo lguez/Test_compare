@@ -86,9 +86,6 @@ def my_report(dcmp, detailed_diff_instance):
             path_2 = path.join(dcmp.right, name)
             n_diff += detailed_diff_instance.diff(path_1, path_2, detail_file)
 
-    for sub_dcmp in dcmp.subdirs.values():
-        n_diff += my_report(sub_dcmp, detailed_diff_instance)
-
     if n_diff != 0:
         print('diff', dcmp.left, dcmp.right, "\n")
 
@@ -139,6 +136,9 @@ def my_report(dcmp, detailed_diff_instance):
         print(detail_diag)
 
     detail_file.close()
+
+    for sub_dcmp in dcmp.subdirs.values():
+        n_diff += my_report(sub_dcmp, detailed_diff_instance)
 
     return n_diff
 
