@@ -96,23 +96,23 @@ class detailed_diff:
         self.size_lim = size_lim
 
         if diff_dbf_pyshp:
-            self.diff_dbf = diff_dbf.diff_dbf
+            self._diff_dbf = diff_dbf.diff_dbf
         else:
-            self.diff_dbf = self.diff_dbf_dbfdump
+            self._diff_dbf = self._diff_dbf_dbfdump
 
         if diff_csv == "numdiff":
-            self.diff_csv = self.diff_csv_numdiff
+            self._diff_csv = self._diff_csv_numdiff
         elif diff_csv == "max_diff_rect":
-            self.diff_csv = max_diff_rect
+            self._diff_csv = max_diff_rect
         else:
-            self.diff_csv = self.diff_csv_ndiff
+            self._diff_csv = self._diff_csv_ndiff
 
         if diff_nc == "ncdump":
-            self.diff_nc = self.diff_nc_ncdump
+            self._diff_nc = self._diff_nc_ncdump
         elif diff_nc == "max_diff_nc":
-            self.diff_nc = max_diff_nc
+            self._diff_nc = max_diff_nc
         else:
-            self.diff_nc = nccmp.nccmp
+            self._diff_nc = nccmp.nccmp
 
     def diff(self, path_1, path_2, detail_file):
         suffix = pathlib.PurePath(path_1).suffix
@@ -123,11 +123,11 @@ class detailed_diff:
         if text_file:
             n_diff = diff_txt(path_1, path_2, self.size_lim, detail_file)
         elif suffix == ".dbf":
-            n_diff = self.diff_dbf(path_1, path_2, detail_file)
+            n_diff = self._diff_dbf(path_1, path_2, detail_file)
         elif suffix == ".csv":
-            n_diff = self.diff_csv(path_1, path_2, detail_file)
+            n_diff = self._diff_csv(path_1, path_2, detail_file)
         elif suffix == ".nc":
-            n_diff = self.diff_nc(path_1, path_2, detail_file = detail_file)
+            n_diff = self._diff_nc(path_1, path_2, detail_file = detail_file)
         else:
             detail_file.write("Detailed diff not implemented\n")
             n_diff = 1
@@ -138,7 +138,7 @@ class detailed_diff:
 
         return n_diff
 
-    def diff_dbf_dbfdump(self, path_1, path_2, detail_file):
+    def _diff_dbf_dbfdump(self, path_1, path_2, detail_file):
         f1_dbfdump = tempfile.NamedTemporaryFile("w+")
         f2_dbfdump = tempfile.NamedTemporaryFile("w+")
         subprocess.run(["dbfdump", path_1], stdout = f1_dbfdump)
@@ -147,14 +147,14 @@ class detailed_diff:
         if filecmp.cmp(f1_dbfdump.name, f2_dbfdump.name, shallow = False):
             n_diff = 0
         else:
-            n_diff = self.diff_csv(f1_dbfdump.name, f2_dbfdump.name,
-                                   detail_file)
+            n_diff = self._diff_csv(f1_dbfdump.name, f2_dbfdump.name,
+                                    detail_file)
 
         f1_dbfdump.close()
         f2_dbfdump.close()
         return n_diff
 
-    def diff_nc_ncdump(self, path_1, path_2, detail_file):
+    def _diff_nc_ncdump(self, path_1, path_2, detail_file):
         f1_ncdump = tempfile.NamedTemporaryFile("w+")
         f2_ncdump = tempfile.NamedTemporaryFile("w+")
         subprocess.run(["ncdump", "-h", path_1], stdout = f1_ncdump)
@@ -174,7 +174,7 @@ class detailed_diff:
                               detail_file = detail_file)
         return min(n_diff, 1)
 
-    def diff_csv_ndiff(self, path_1, path_2, detail_file):
+    def _diff_csv_ndiff(self, path_1, path_2, detail_file):
         with tempfile.TemporaryFile("w+") as ndiff_out:
             cp = subprocess.run(["ndiff", "-relerr", "1e-7", path_1, path_2],
                                 stdout = ndiff_out, text = True)
@@ -183,7 +183,7 @@ class detailed_diff:
         detail_file.write("\n")
         return cp.returncode
 
-    def diff_csv_numdiff(self, path_1, path_2, detail_file):
+    def _diff_csv_numdiff(self, path_1, path_2, detail_file):
         with tempfile.TemporaryFile("w+") as numdiff_out:
             cp = subprocess.run(["numdiff", "-r", "1e-7", path_1, path_2],
                                 stdout = numdiff_out, text = True)
