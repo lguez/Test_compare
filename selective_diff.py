@@ -59,6 +59,7 @@ def max_diff_rect(path_1, path_2, detail_file):
         diff_out.seek(0)
         detail_file.writelines(diff_out)
 
+    detail_file.write("\n\n")
     return 1
 
 def max_diff_nc(path_1, path_2, detail_file):
@@ -131,7 +132,6 @@ def my_report(dcmp, detailed_diff_instance, level):
             for x in dcmp.common_funny: print(x)
             print()
 
-        print('\n*******************************************\n')
         detail_diag = detail_file.getvalue()
         print(detail_diag)
 
@@ -210,8 +210,8 @@ class detailed_diff:
         if filecmp.cmp(f1_ncdump.name, f2_ncdump.name, shallow = False):
             n_diff = 0
         else:
-            detail_file.write(f"ncdumps of {path_1} and {path_2} are "
-                              "different\n")
+            detail_file.write(f"ncdumps of headers of {path_1} and {path_2} "
+                              "are different\n")
             n_diff = diff_txt(f1_ncdump.name, f2_ncdump.name, self.size_lim,
                               detail_file)
 
@@ -255,7 +255,8 @@ group = parser.add_mutually_exclusive_group()
 group.add_argument("--numdiff", action = "store_true")
 group.add_argument("--max_diff_rect", action = "store_true")
 group = parser.add_mutually_exclusive_group()
-group.add_argument("--ncdump", action = "store_true")
+group.add_argument("--ncdump", action = "store_true", help = "compare headers "
+                   "of NetCDF files with ncdump and data with nccmp")
 group.add_argument("--max_diff_nc", action = "store_true")
 parser.add_argument("-l", "--limit", help = "maximum number of lines for "
                     "printing detailed differences (default 50)", type = int,
