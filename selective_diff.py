@@ -279,11 +279,12 @@ if not path.isdir(args.directory[0]) or not path.isdir(args.directory[1]):
 
 ignore = set()
 
-for my_dir in args.directory:
-    for dirpath, dirnames, filenames in os.walk(my_dir):
-        for pattern in args.exclude:
-            list_match = fnmatch.filter(filenames, pattern)
-            ignore.update(list_match)
+if args.exclude:
+    for my_dir in args.directory:
+        for dirpath, dirnames, filenames in os.walk(my_dir):
+            for pattern in args.exclude:
+                list_match = fnmatch.filter(filenames, pattern)
+                ignore.update(list_match)
 
 # done
 
