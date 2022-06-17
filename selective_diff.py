@@ -208,10 +208,10 @@ class detailed_diff:
         subprocess.run(["ncdump", "-h", path_2], stdout = f2_ncdump)
 
         if filecmp.cmp(f1_ncdump.name, f2_ncdump.name, shallow = False):
-            detail_file.write(f"ncdumps of {path_1} and {path_2} are "
-                              "identical\n")
             n_diff = 0
         else:
+            detail_file.write(f"ncdumps of {path_1} and {path_2} are "
+                              "different\n")
             n_diff = diff_txt(f1_ncdump.name, f2_ncdump.name, self.size_lim,
                               detail_file)
 
