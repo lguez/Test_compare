@@ -82,7 +82,50 @@ def my_report(dcmp, detailed_diff_instance):
         n_diff += my_report(sub_dcmp, detailed_diff_instance)
 
     if n_diff != 0:
-        dcmp.report()
+        print('diff', dcmp.left, dcmp.right, "\n")
+
+        if dcmp.left_only:
+            dcmp.left_only.sort()
+            print('Only in', dcmp.left, ':')
+            for x in dcmp.left_only: print(x)
+            print()
+
+        if dcmp.right_only:
+            dcmp.right_only.sort()
+            print('Only in', dcmp.right, ':')
+            for x in dcmp.right_only: print(x)
+            print()
+
+        if dcmp.same_files:
+            dcmp.same_files.sort()
+            print('Identical files :')
+            for x in dcmp.same_files: print(x)
+            print()
+
+        if dcmp.diff_files:
+            dcmp.diff_files.sort()
+            print('Differing files according to cmp:')
+            for x in dcmp.diff_files: print(x)
+            print()
+
+        if dcmp.funny_files:
+            dcmp.funny_files.sort()
+            print('Trouble with common files :')
+            for x in dcmp.funny_files: print(x)
+            print()
+
+        if dcmp.common_dirs:
+            dcmp.common_dirs.sort()
+            print('Common subdirectories :')
+            for x in dcmp.common_dirs: print(x)
+            print()
+
+        if dcmp.common_funny:
+            dcmp.common_funny.sort()
+            print('Common funny cases :')
+            for x in dcmp.common_funny: print(x)
+            print()
+
         print('\n*******************************************\n')
         detail_diag = detail_file.getvalue()
         print(detail_diag)
