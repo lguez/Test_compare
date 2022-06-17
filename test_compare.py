@@ -319,8 +319,6 @@ def compare(my_runs, compare_dir, other_args):
                     if cp.returncode == 0:
                         path_identical.touch()
                     else:
-                        echo_line = " ".join(subprocess_args) + "\n"
-                        comparison_file.write("\n" + echo_line)
                         comparison_file.write("\n" + ("*" * 10 + "\n") * 2
                                               + "\n")
                         comparison_file.flush()
