@@ -73,7 +73,7 @@ def max_diff_nc(path_1, path_2, detail_file):
 
     return 1
 
-def my_report(dcmp, detailed_diff_instance):
+def my_report(dcmp, detailed_diff_instance, level):
     detail_file = io.StringIO()
     n_diff = len(dcmp.left_only) + len(dcmp.right_only) \
         + len(dcmp.common_funny) + len(dcmp.funny_files)
@@ -87,7 +87,7 @@ def my_report(dcmp, detailed_diff_instance):
             n_diff += detailed_diff_instance.diff(path_1, path_2, detail_file)
 
     if n_diff != 0:
-        print('diff', dcmp.left, dcmp.right, "\n")
+        print(level * '#', 'diff', dcmp.left, dcmp.right, "\n")
 
         if dcmp.left_only:
             dcmp.left_only.sort()
@@ -138,7 +138,7 @@ def my_report(dcmp, detailed_diff_instance):
     detail_file.close()
 
     for sub_dcmp in dcmp.subdirs.values():
-        n_diff += my_report(sub_dcmp, detailed_diff_instance)
+        n_diff += my_report(sub_dcmp, detailed_diff_instance, level + 1)
 
     return n_diff
 
@@ -309,7 +309,7 @@ else:
     detailed_diff_instance = detailed_diff(args.limit, args.pyshp, diff_csv,
                                            diff_nc)
 
-n_diff = my_report(dcmp, detailed_diff_instance)
+n_diff = my_report(dcmp, detailed_diff_instance, level = 1)
 
 if n_diff != 0:
     print("\nNumber of differences:", n_diff)
