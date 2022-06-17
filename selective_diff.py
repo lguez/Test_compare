@@ -175,19 +175,19 @@ class detailed_diff:
         return min(n_diff, 1)
 
     def _diff_csv_ndiff(self, path_1, path_2, detail_file):
-        with tempfile.TemporaryFile("w+") as ndiff_out:
+        with tempfile.TemporaryFile("w+") as diff_out:
             cp = subprocess.run(["ndiff", "-relerr", "1e-7", path_1, path_2],
-                                stdout = ndiff_out, text = True)
-            cat_not_too_many(ndiff_out, self.size_lim, detail_file)
+                                stdout = diff_out, text = True)
+            cat_not_too_many(diff_out, self.size_lim, detail_file)
 
         detail_file.write("\n")
         return cp.returncode
 
     def _diff_csv_numdiff(self, path_1, path_2, detail_file):
-        with tempfile.TemporaryFile("w+") as numdiff_out:
+        with tempfile.TemporaryFile("w+") as diff_out:
             cp = subprocess.run(["numdiff", "-r", "1e-7", path_1, path_2],
-                                stdout = numdiff_out, text = True)
-            cat_not_too_many(numdiff_out, self.size_lim, detail_file)
+                                stdout = diff_out, text = True)
+            cat_not_too_many(diff_out, self.size_lim, detail_file)
 
         detail_file.write("\n")
         return cp.returncode
