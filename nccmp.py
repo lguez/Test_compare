@@ -97,7 +97,6 @@ def nccmp(f1, f2, silent = False, data_only = False, detail_file = sys.stdout):
             if diff_found and silent: break
 
     if diff_found:
-        detail_diag = detail_subfile.getvalue()
         detail_file.write('\n' + "*" * 10 + '\n\n')
 
         if isinstance(f1, str):
@@ -106,6 +105,7 @@ def nccmp(f1, f2, silent = False, data_only = False, detail_file = sys.stdout):
             detail_file.write(f"diff {file_1.filepath()} {file_2.filepath()}, "
                               f"group {file_1.path}:\n")
 
+        detail_diag = detail_subfile.getvalue()
         detail_file.write(detail_diag)
 
     detail_subfile.close()
