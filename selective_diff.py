@@ -13,9 +13,10 @@ import os
 import tempfile
 import nccmp
 import fnmatch
+import io
 
-def cat_not_too_many(file_in, size_lim):
-    """file_in should be an existing file object."""
+def cat_not_too_many(file_in, size_lim, file_out):
+    """file_in and file_out should be existing file objects."""
 
     count = 0
     file_in.seek(0)
@@ -26,12 +27,11 @@ def cat_not_too_many(file_in, size_lim):
 
     if count <= size_lim:
         file_in.seek(0)
-        for line in file_in: print(line, end = "")
-        print()
+        file_out.writelines(file_in)
     else:
-        print("Too many lines in diff output")
+        file_out.write("Too many lines in diff output\n")
 
-def diff_txt(path_1, path_2, size_lim):
+def diff_txt(path_1, path_2, size_lim, detail_file):
     """Treat path_1 and path_2 as text files."""
 
     with open(path_1) as f: fromlines = f.readlines()
@@ -41,22 +41,23 @@ def diff_txt(path_1, path_2, size_lim):
 
     with tempfile.TemporaryFile("w+") as diff_out:
         diff_out.writelines(diff)
-        cat_not_too_many(diff_out, size_lim)
+        cat_not_too_many(diff_out, size_lim, detail_file)
 
     print()
     return 1
 
-def max_diff_rect(path_1, path_2):
+def max_diff_rect(path_1, path_2, detail_file):
     subprocess.run(["max_diff_rect", path_1, path_2],
                    input = "&RECTANGLE FIRST_R=2/\n&RECTANGLE /\nc\nq\n",
                    text = True)
     return 1
 
-def max_diff_nc(path_1, path_2):
+def max_diff_nc(path_1, path_2, detail_file):
     subprocess.run(["max_diff_nc.sh", path_1, path_2])
     return 1
 
 def my_report(dcmp, detailed_diff_instance):
+    detail_file = io.StringIO()
     n_diff = len(dcmp.left_only) + len(dcmp.right_only) \
         + len(dcmp.common_funny) + len(dcmp.funny_files)
 
@@ -66,7 +67,7 @@ def my_report(dcmp, detailed_diff_instance):
         for name in dcmp.diff_files:
             path_1 = path.join(dcmp.left, name)
             path_2 = path.join(dcmp.right, name)
-            n_diff += detailed_diff_instance.diff(path_1, path_2)
+            n_diff += detailed_diff_instance.diff(path_1, path_2, detail_file)
 
     for sub_dcmp in dcmp.subdirs.values():
         n_diff += my_report(sub_dcmp, detailed_diff_instance)
@@ -100,20 +101,20 @@ class detailed_diff:
         else:
             self.diff_nc = nccmp.nccmp
 
-    def diff(self, path_1, path_2):
+    def diff(self, path_1, path_2, detail_file):
         suffix = pathlib.PurePath(path_1).suffix
         text_file = suffix == ".txt" or suffix == ".json" \
             or (suffix != ".nc" and suffix != ".csv"
                 and "text" in magic.from_file(path_1))
 
         if text_file:
-            n_diff = diff_txt(path_1, path_2, self.size_lim)
+            n_diff = diff_txt(path_1, path_2, self.size_lim, detail_file)
         elif suffix == ".dbf":
-            n_diff = self.diff_dbf(path_1, path_2)
+            n_diff = self.diff_dbf(path_1, path_2, detail_file)
         elif suffix == ".csv":
-            n_diff = self.diff_csv(path_1, path_2)
+            n_diff = self.diff_csv(path_1, path_2, detail_file)
         elif suffix == ".nc":
-            n_diff = self.diff_nc(path_1, path_2)
+            n_diff = self.diff_nc(path_1, path_2, detail_file = detail_file)
         else:
             print("Detailed diff not implemented")
             n_diff = 1
@@ -124,7 +125,7 @@ class detailed_diff:
 
         return n_diff
 
-    def diff_dbf_dbfdump(self, path_1, path_2):
+    def diff_dbf_dbfdump(self, path_1, path_2, detail_file):
         f1_dbfdump = tempfile.NamedTemporaryFile("w+")
         f2_dbfdump = tempfile.NamedTemporaryFile("w+")
         subprocess.run(["dbfdump", path_1], stdout = f1_dbfdump)
@@ -133,13 +134,14 @@ class detailed_diff:
         if filecmp.cmp(f1_dbfdump.name, f2_dbfdump.name, shallow = False):
             n_diff = 0
         else:
-            n_diff = self.diff_csv(f1_dbfdump.name, f2_dbfdump.name)
+            n_diff = self.diff_csv(f1_dbfdump.name, f2_dbfdump.name,
+                                   detail_file)
 
         f1_dbfdump.close()
         f2_dbfdump.close()
         return n_diff
 
-    def diff_nc_ncdump(self, path_1, path_2):
+    def diff_nc_ncdump(self, path_1, path_2, detail_file):
         f1_ncdump = tempfile.NamedTemporaryFile("w+")
         f2_ncdump = tempfile.NamedTemporaryFile("w+")
         subprocess.run(["ncdump", "-h", path_1], stdout = f1_ncdump)
@@ -149,27 +151,28 @@ class detailed_diff:
             print(f"ncdumps of {path_1} and {path_2} are identical")
             n_diff = 0
         else:
-            n_diff = diff_txt(f1_ncdump.name, f2_ncdump.name, self.size_lim)
+            n_diff = diff_txt(f1_ncdump.name, f2_ncdump.name, self.size_lim,
+                              detail_file)
 
         f1_ncdump.close()
         f2_ncdump.close()
         n_diff += nccmp.nccmp(path_1, path_2, data_only = True)
         return min(n_diff, 1)
 
-    def diff_csv_ndiff(self, path_1, path_2):
+    def diff_csv_ndiff(self, path_1, path_2, detail_file):
         with tempfile.TemporaryFile("w+") as ndiff_out:
             cp = subprocess.run(["ndiff", "-relerr", "1e-7", path_1, path_2],
                                 stdout = ndiff_out, text = True)
-            cat_not_too_many(ndiff_out, self.size_lim)
+            cat_not_too_many(ndiff_out, self.size_lim, detail_file)
 
         print()
         return cp.returncode
 
-    def diff_csv_numdiff(self, path_1, path_2):
+    def diff_csv_numdiff(self, path_1, path_2, detail_file):
         with tempfile.TemporaryFile("w+") as numdiff_out:
             cp = subprocess.run(["numdiff", "-r", "1e-7", path_1, path_2],
                                 stdout = numdiff_out, text = True)
-            cat_not_too_many(numdiff_out, self.size_lim)
+            cat_not_too_many(numdiff_out, self.size_lim, detail_file)
 
         print()
         return cp.returncode
