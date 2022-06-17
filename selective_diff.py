@@ -14,19 +14,19 @@ import tempfile
 import nccmp
 import fnmatch
 
-def cat_not_too_many(file, size_lim):
-    """file should be an existing file object."""
+def cat_not_too_many(file_in, size_lim):
+    """file_in should be an existing file object."""
 
     count = 0
-    file.seek(0)
+    file_in.seek(0)
     while True:
-        line = file.readline()
+        line = file_in.readline()
         count += 1
         if line == "" or count > size_lim: break
 
     if count <= size_lim:
-        file.seek(0)
-        for line in file: print(line, end = "")
+        file_in.seek(0)
+        for line in file_in: print(line, end = "")
         print()
     else:
         print("Too many lines in diff output")
