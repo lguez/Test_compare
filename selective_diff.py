@@ -43,17 +43,26 @@ def diff_txt(path_1, path_2, size_lim, detail_file):
         diff_out.writelines(diff)
         cat_not_too_many(diff_out, size_lim, detail_file)
 
-    print()
+    detail_file.write("\n")
     return 1
 
 def max_diff_rect(path_1, path_2, detail_file):
-    subprocess.run(["max_diff_rect", path_1, path_2],
-                   input = "&RECTANGLE FIRST_R=2/\n&RECTANGLE /\nc\nq\n",
-                   text = True)
+    with tempfile.TemporaryFile("w+") as diff_out:
+        subprocess.run(["max_diff_rect", path_1, path_2],
+                       input = "&RECTANGLE FIRST_R=2/\n&RECTANGLE /\nc\nq\n",
+                       text = True, stdout = diff_out)
+        diff_out.seek(0)
+        detail_file.writelines(diff_out)
+
     return 1
 
 def max_diff_nc(path_1, path_2, detail_file):
-    subprocess.run(["max_diff_nc.sh", path_1, path_2])
+    with tempfile.TemporaryFile("w+") as diff_out:
+        subprocess.run(["max_diff_nc.sh", path_1, path_2], text = True,
+                       stdout = diff_out)
+        diff_out.seek(0)
+        detail_file.writelines(diff_out)
+
     return 1
 
 def my_report(dcmp, detailed_diff_instance):
@@ -75,6 +84,10 @@ def my_report(dcmp, detailed_diff_instance):
     if n_diff != 0:
         dcmp.report()
         print('\n*******************************************\n')
+        detail_diag = detail_file.getvalue()
+        print(detail_diag)
+
+    detail_file.close()
 
     return n_diff
 
@@ -116,7 +129,7 @@ class detailed_diff:
         elif suffix == ".nc":
             n_diff = self.diff_nc(path_1, path_2, detail_file = detail_file)
         else:
-            print("Detailed diff not implemented")
+            detail_file.write("Detailed diff not implemented\n")
             n_diff = 1
 
         if n_diff != 0:
@@ -148,7 +161,8 @@ class detailed_diff:
         subprocess.run(["ncdump", "-h", path_2], stdout = f2_ncdump)
 
         if filecmp.cmp(f1_ncdump.name, f2_ncdump.name, shallow = False):
-            print(f"ncdumps of {path_1} and {path_2} are identical")
+            detail_file.write(f"ncdumps of {path_1} and {path_2} are "
+                              "identical\n")
             n_diff = 0
         else:
             n_diff = diff_txt(f1_ncdump.name, f2_ncdump.name, self.size_lim,
@@ -156,7 +170,8 @@ class detailed_diff:
 
         f1_ncdump.close()
         f2_ncdump.close()
-        n_diff += nccmp.nccmp(path_1, path_2, data_only = True)
+        n_diff += nccmp.nccmp(path_1, path_2, data_only = True,
+                              detail_file = detail_file)
         return min(n_diff, 1)
 
     def diff_csv_ndiff(self, path_1, path_2, detail_file):
@@ -165,7 +180,7 @@ class detailed_diff:
                                 stdout = ndiff_out, text = True)
             cat_not_too_many(ndiff_out, self.size_lim, detail_file)
 
-        print()
+        detail_file.write("\n")
         return cp.returncode
 
     def diff_csv_numdiff(self, path_1, path_2, detail_file):
@@ -174,7 +189,7 @@ class detailed_diff:
                                 stdout = numdiff_out, text = True)
             cat_not_too_many(numdiff_out, self.size_lim, detail_file)
 
-        print()
+        detail_file.write("\n")
         return cp.returncode
 
 parser = argparse.ArgumentParser()
