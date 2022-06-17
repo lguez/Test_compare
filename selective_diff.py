@@ -34,6 +34,8 @@ def cat_not_too_many(file_in, size_lim, file_out):
 def diff_txt(path_1, path_2, size_lim, detail_file):
     """Treat path_1 and path_2 as text files."""
 
+    detail_file.write('\n' + "*" * 10 + '\n\n')
+    detail_file.write(f"diff {path_1} {path_2}\n")
     with open(path_1) as f: fromlines = f.readlines()
     with open(path_2) as f: tolines = f.readlines()
     diff = difflib.unified_diff(fromlines, tolines, fromfile = path_1,
@@ -47,6 +49,9 @@ def diff_txt(path_1, path_2, size_lim, detail_file):
     return 1
 
 def max_diff_rect(path_1, path_2, detail_file):
+    detail_file.write('\n' + "*" * 10 + '\n\n')
+    detail_file.write(f"diff {path_1} {path_2}\n")
+
     with tempfile.TemporaryFile("w+") as diff_out:
         subprocess.run(["max_diff_rect", path_1, path_2],
                        input = "&RECTANGLE FIRST_R=2/\n&RECTANGLE /\nc\nq\n",
@@ -57,6 +62,9 @@ def max_diff_rect(path_1, path_2, detail_file):
     return 1
 
 def max_diff_nc(path_1, path_2, detail_file):
+    detail_file.write('\n' + "*" * 10 + '\n\n')
+    detail_file.write(f"diff {path_1} {path_2}\n")
+
     with tempfile.TemporaryFile("w+") as diff_out:
         subprocess.run(["max_diff_nc.sh", path_1, path_2], text = True,
                        stdout = diff_out)
@@ -175,10 +183,6 @@ class detailed_diff:
             detail_file.write("Detailed diff not implemented\n")
             n_diff = 1
 
-        if n_diff != 0:
-            print(path_1, path_2)
-            print('\n*******************************************\n')
-
         return n_diff
 
     def _diff_dbf_dbfdump(self, path_1, path_2, detail_file):
@@ -223,6 +227,8 @@ class detailed_diff:
                                 stdout = diff_out, text = True)
 
             if cp.returncode != 0:
+                detail_file.write('\n' + "*" * 10 + '\n\n')
+                detail_file.write(f"diff {path_1} {path_2}\n")
                 cat_not_too_many(diff_out, self.size_lim, detail_file)
                 detail_file.write("\n")
 
@@ -234,6 +240,8 @@ class detailed_diff:
                                 stdout = diff_out, text = True)
 
             if cp.returncode != 0:
+                detail_file.write('\n' + "*" * 10 + '\n\n')
+                detail_file.write(f"diff {path_1} {path_2}\n")
                 cat_not_too_many(diff_out, self.size_lim, detail_file)
                 detail_file.write("\n")
 
