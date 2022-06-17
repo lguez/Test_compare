@@ -221,18 +221,22 @@ class detailed_diff:
         with tempfile.TemporaryFile("w+") as diff_out:
             cp = subprocess.run(["ndiff", "-relerr", "1e-7", path_1, path_2],
                                 stdout = diff_out, text = True)
-            cat_not_too_many(diff_out, self.size_lim, detail_file)
 
-        detail_file.write("\n")
+            if cp.returncode != 0:
+                cat_not_too_many(diff_out, self.size_lim, detail_file)
+                detail_file.write("\n")
+
         return cp.returncode
 
     def _diff_csv_numdiff(self, path_1, path_2, detail_file):
         with tempfile.TemporaryFile("w+") as diff_out:
             cp = subprocess.run(["numdiff", "-r", "1e-7", path_1, path_2],
                                 stdout = diff_out, text = True)
-            cat_not_too_many(diff_out, self.size_lim, detail_file)
 
-        detail_file.write("\n")
+            if cp.returncode != 0:
+                cat_not_too_many(diff_out, self.size_lim, detail_file)
+                detail_file.write("\n")
+
         return cp.returncode
 
 parser = argparse.ArgumentParser()
