@@ -335,7 +335,8 @@ def compare(my_runs, compare_dir, other_args):
 parser = argparse.ArgumentParser(description = __doc__, formatter_class \
                                  = argparse.RawDescriptionHelpFormatter,
                                  epilog = 'Remaining options are passed on to '
-                                 '"selective_diff.py".')
+                                 '"selective_diff.py". Use long form for '
+                                 'options with arguments.')
 parser.add_argument("compare_dir", help = "Directory containing old runs "
                     "for comparison, after running the tests")
 parser.add_argument("test_descr", nargs = "+",

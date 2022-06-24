@@ -32,7 +32,7 @@ def cat_not_too_many(file_in, size_lim, file_out):
         file_out.write("Too many lines in diff output\n")
 
 def diff_txt(path_1, path_2, size_lim, detail_file):
-    """Treat path_1 and path_2 as text files."""
+    """Process path_1 and path_2 as text files."""
 
     detail_file.write('\n' + "*" * 10 + '\n\n')
     detail_file.write(f"diff {path_1} {path_2}\n")
@@ -229,6 +229,7 @@ class detailed_diff:
             if cp.returncode != 0:
                 detail_file.write('\n' + "*" * 10 + '\n\n')
                 detail_file.write(f"diff {path_1} {path_2}\n")
+                detail_file.write("Comparison with ndiff,  tolerance 1e-7:\n")
                 cat_not_too_many(diff_out, self.size_lim, detail_file)
                 detail_file.write("\n")
 
@@ -242,6 +243,7 @@ class detailed_diff:
             if cp.returncode != 0:
                 detail_file.write('\n' + "*" * 10 + '\n\n')
                 detail_file.write(f"diff {path_1} {path_2}\n")
+                detail_file.write("Comparison with numdiff,  tolerance 1e-7:\n")
                 cat_not_too_many(diff_out, self.size_lim, detail_file)
                 detail_file.write("\n")
 

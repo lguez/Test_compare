@@ -100,10 +100,10 @@ def nccmp(f1, f2, silent = False, data_only = False, detail_file = sys.stdout):
         detail_file.write('\n' + "*" * 10 + '\n\n')
 
         if isinstance(f1, str):
-            detail_file.write(f"diff {f1} {f2}, root group:\n")
+            detail_file.write(f"diff {f1} {f2}\nroot group:\n\n")
         else:
-            detail_file.write(f"diff {file_1.filepath()} {file_2.filepath()}, "
-                              f"group {file_1.path}:\n")
+            detail_file.write(f"diff {file_1.filepath()} {file_2.filepath()}\n"
+                              f"group {file_1.path}:\n\n")
 
         detail_diag = detail_subfile.getvalue()
         detail_file.write(detail_diag)
