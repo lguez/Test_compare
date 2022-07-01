@@ -48,9 +48,13 @@ def diff_txt(path_1, path_2, size_lim, detail_file):
     detail_file.write("\n")
     return 1
 
-def max_diff_rect(path_1, path_2, detail_file):
+def max_diff_rect(path_1, path_2, detail_file, names = None):
     detail_file.write('\n' + "*" * 10 + '\n\n')
-    detail_file.write(f"diff {path_1} {path_2}\n")
+
+    if names is None:
+        detail_file.write(f"diff {path_1} {path_2}\n")
+    else:
+        detail_file.write(f"diff {names[0]} {names[1]}\n")
 
     with tempfile.TemporaryFile("w+") as diff_out:
         subprocess.run(["max_diff_rect", path_1, path_2],
@@ -195,7 +199,7 @@ class detailed_diff:
             n_diff = 0
         else:
             n_diff = self._diff_csv(f1_dbfdump.name, f2_dbfdump.name,
-                                    detail_file)
+                                    detail_file, names = (path_1, path_2))
 
         f1_dbfdump.close()
         f2_dbfdump.close()
@@ -221,28 +225,38 @@ class detailed_diff:
                               detail_file = detail_file)
         return min(n_diff, 1)
 
-    def _diff_csv_ndiff(self, path_1, path_2, detail_file):
+    def _diff_csv_ndiff(self, path_1, path_2, detail_file, names = None):
         with tempfile.TemporaryFile("w+") as diff_out:
             cp = subprocess.run(["ndiff", "-relerr", "1e-7", path_1, path_2],
                                 stdout = diff_out, text = True)
 
             if cp.returncode != 0:
                 detail_file.write('\n' + "*" * 10 + '\n\n')
-                detail_file.write(f"diff {path_1} {path_2}\n")
+
+                if names is None:
+                    detail_file.write(f"diff {path_1} {path_2}\n")
+                else:
+                    detail_file.write(f"diff {names[0]} {names[1]}\n")
+
                 detail_file.write("Comparison with ndiff,  tolerance 1e-7:\n")
                 cat_not_too_many(diff_out, self.size_lim, detail_file)
                 detail_file.write("\n")
 
         return cp.returncode
 
-    def _diff_csv_numdiff(self, path_1, path_2, detail_file):
+    def _diff_csv_numdiff(self, path_1, path_2, detail_file, names = None):
         with tempfile.TemporaryFile("w+") as diff_out:
             cp = subprocess.run(["numdiff", "-r", "1e-7", path_1, path_2],
                                 stdout = diff_out, text = True)
 
             if cp.returncode != 0:
                 detail_file.write('\n' + "*" * 10 + '\n\n')
-                detail_file.write(f"diff {path_1} {path_2}\n")
+
+                if names is None:
+                    detail_file.write(f"diff {path_1} {path_2}\n")
+                else:
+                    detail_file.write(f"diff {names[0]} {names[1]}\n")
+
                 detail_file.write("Comparison with numdiff,  tolerance 1e-7:\n")
                 cat_not_too_many(diff_out, self.size_lim, detail_file)
                 detail_file.write("\n")
