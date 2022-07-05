@@ -267,14 +267,20 @@ class detailed_diff:
 parser = argparse.ArgumentParser()
 parser.add_argument("directory", nargs = 2)
 parser.add_argument("--pyshp", action = "store_true",
-                    help = "use pyshp to compare DBF files")
+                    help = "use pyshp to compare DBF files (default dbfdump)")
 group = parser.add_mutually_exclusive_group()
-group.add_argument("--numdiff", action = "store_true")
-group.add_argument("--max_diff_rect", action = "store_true")
+group.add_argument("--numdiff", action = "store_true",
+                   help = "use numdiff to compare CSV files (default ndiff)")
+group.add_argument("--max_diff_rect", action = "store_true",
+                   help = "use max_diff_rect to compare CSV files (default "
+                   "ndiff)")
 group = parser.add_mutually_exclusive_group()
 group.add_argument("--ncdump", action = "store_true", help = "compare headers "
-                   "of NetCDF files with ncdump and data with nccmp")
-group.add_argument("--max_diff_nc", action = "store_true")
+                   "of NetCDF files with ncdump and data with nccmp (default "
+                   "headers and data with nccmp)")
+group.add_argument("--max_diff_nc", action = "store_true",
+                   help = "use max_diff_nc to compare NetCDF files (default "
+                   "nccmp)")
 parser.add_argument("-l", "--limit", help = "maximum number of lines for "
                     "printing detailed differences (default 50)", type = int,
                     default = 50)
