@@ -425,6 +425,7 @@ else:
                 if path.exists(my_run["title"]) and not \
                    pathlib.Path(my_run["title"], "failed").exists() and \
                    not pathlib.Path(my_run["title"], "identical").exists():
+                    print("Replacing", my_run["title"])
                     old_dir = path.join(args.compare_dir, my_run["title"])
                     if path.exists(old_dir): shutil.rmtree(old_dir)
                     shutil.move(my_run["title"], old_dir)
