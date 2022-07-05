@@ -336,7 +336,8 @@ parser = argparse.ArgumentParser(description = __doc__, formatter_class \
                                  = argparse.RawDescriptionHelpFormatter,
                                  epilog = 'Remaining options are passed on to '
                                  '"selective_diff.py". Use long form for '
-                                 'options with arguments.')
+                                 'options of "selective_diff.py" with '
+                                 'arguments.')
 parser.add_argument("compare_dir", help = "Directory containing old runs "
                     "for comparison, after running the tests")
 parser.add_argument("test_descr", nargs = "+",
@@ -415,7 +416,7 @@ else:
         while True:
             run_tests(my_runs, allowed_keys, args.compare_dir)
             compare(my_runs, args.compare_dir, other_args)
-            reply = input("Remove old runs? ")
+            reply = input("Replace old runs? ")
             reply = reply.casefold()
 
             if not reply.startswith("y"): break
