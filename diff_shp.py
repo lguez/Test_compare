@@ -69,22 +69,8 @@ def compare_poly(p_old, p_new, marker, i, j = None):
     for k, (r_old, r_new) in enumerate(zip(p_old.interiors, p_new.interiors)):
         compare_rings(r_old, r_new, marker, i, j, k)
         
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("old", help = "shapefile")
-    parser.add_argument("new", help = "shapefile or directory")
-    parser.add_argument("-s", "--report-identical", action = "store_true",
-                        help = "report when vertices are the same")
-    args = parser.parse_args()
-
-    if path.isdir(args.new):
-        # Assume that basename is the same:
-        basename = path.basename(args.old)
-        new = path.join(args.new, basename)
-    else:
-        new = args.new
-
-    reader_old = shapefile.Reader(args.old)
+def diff_shp(old, new, detail_file = sys.stdout):
+    reader_old = shapefile.Reader(old)
     reader_new = shapefile.Reader(new)
     diff_found = False
 
@@ -153,4 +139,22 @@ if __name__ == "__main__":
         plt.legend()
         plt.show()
 
+    return diff_found
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("old", help = "shapefile")
+    parser.add_argument("new", help = "shapefile or directory")
+    parser.add_argument("-s", "--report-identical", action = "store_true",
+                        help = "report when vertices are the same")
+    args = parser.parse_args()
+
+    if path.isdir(args.new):
+        # Assume that basename is the same:
+        basename = path.basename(args.old)
+        new = path.join(args.new, basename)
+    else:
+        new = args.new
+
+    diff_found = diff_shp(args.old, new)
     if diff_found: sys.exit(1)
