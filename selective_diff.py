@@ -8,6 +8,7 @@ import difflib
 from os import path
 import magic
 import diff_dbf
+import diff_shp
 import subprocess
 import os
 import tempfile
@@ -183,6 +184,9 @@ class detailed_diff:
             n_diff = self._diff_csv(path_1, path_2, detail_file)
         elif suffix == ".nc":
             n_diff = self._diff_nc(path_1, path_2, detail_file = detail_file)
+        elif suffix == ".shp":
+            n_diff = diff_shp.diff_shp(path_1, path_2,
+                                       detail_file = detail_file)
         else:
             detail_file.write(f"diff {path_1} {path_2}\n")
             detail_file.write("Detailed diff not implemented\n")
