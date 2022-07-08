@@ -76,15 +76,11 @@ def diff_shp(old, new, detail_file = sys.stdout):
 
     if reader_old.numRecords != reader_new.numRecords:
         diff_found = True
-
-        if args.quiet:
-            sys.exit(1)
-        else:
-            print("Not the same number of records:", reader_old.numRecords,
-                  reader_new.numRecords)
-            print("Comparing the first",
-                  min(reader_old.numRecords, reader_new.numRecords),
-                  "records...")
+        print("Not the same number of records:", reader_old.numRecords,
+              reader_new.numRecords)
+        print("Comparing the first",
+              min(reader_old.numRecords, reader_new.numRecords),
+              "records...")
 
     my_figure = plt.figure()
     # (We purposely do not create the axes now because we do not know if
