@@ -69,7 +69,6 @@ def compare_poly(p_old, p_new, marker, i, j = None):
     for k, (r_old, r_new) in enumerate(zip(p_old.interiors, p_new.interiors)):
         compare_rings(r_old, r_new, marker, i, j, k)
         
-
 parser = argparse.ArgumentParser()
 parser.add_argument("old", help = "shapefile")
 parser.add_argument("new", help = "shapefile or directory")
@@ -100,6 +99,10 @@ if reader_old.numRecords != reader_new.numRecords:
               min(reader_old.numRecords, reader_new.numRecords), "records...")
     
 my_figure = plt.figure()
+# (We purposely do not create the axes now because we do not know if
+# we will have something to draw and we want to test the presence of
+# axes at the end of the script.)
+
 marker = itertools.cycle(["+", "v", "^", "x"])
 
 print("\n************************")

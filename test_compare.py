@@ -38,6 +38,9 @@ with "\\n". If neither "stdin_filename" nor "input" is present, then
 we assume that the run does not need any input: no interaction is
 allowed.
 
+"create_file" is a list of two elements: the name of the file to
+create and its content.
+
 If present, "symlink" or "copy" must be a list. Each element of
 "symlink" or "copy" must itself be a string or a list of two strings
 (no tuple allowed in JSON). If an element of "symlink" or "copy" is a
