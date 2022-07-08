@@ -139,7 +139,10 @@ def diff_shp(old, new, report_identical = False, detail_file = sys.stdout):
         plt.legend()
         plt.show()
 
-    return diff_found
+    if diff_found:
+        return 1
+    else:
+        return 0
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -156,5 +159,5 @@ if __name__ == "__main__":
     else:
         new = args.new
 
-    diff_found = diff_shp(args.old, new, args.report_identical)
-    if diff_found: sys.exit(1)
+    ret_code = diff_shp(args.old, new, args.report_identical)
+    sys.exit(ret_code)
