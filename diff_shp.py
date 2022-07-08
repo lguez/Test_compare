@@ -69,7 +69,7 @@ def compare_poly(p_old, p_new, marker, i, j = None):
     for k, (r_old, r_new) in enumerate(zip(p_old.interiors, p_new.interiors)):
         compare_rings(r_old, r_new, marker, i, j, k)
         
-def diff_shp(old, new, detail_file = sys.stdout):
+def diff_shp(old, new, report_identical = False, detail_file = sys.stdout):
     reader_old = shapefile.Reader(old)
     reader_new = shapefile.Reader(new)
     diff_found = False
@@ -95,7 +95,7 @@ def diff_shp(old, new, detail_file = sys.stdout):
     for i, (s_old, s_new) in enumerate(zip(reader_old.iterShapes(),
                                            reader_new.iterShapes())):
         if s_old.points == s_new.points:
-            if args.report_identical:
+            if report_identical:
                 print("\nVertices for shape", i, "are identical.")
         else:
             diff_found = True
@@ -152,5 +152,5 @@ if __name__ == "__main__":
     else:
         new = args.new
 
-    diff_found = diff_shp(args.old, new)
+    diff_found = diff_shp(args.old, new, args.report_identical)
     if diff_found: sys.exit(1)
