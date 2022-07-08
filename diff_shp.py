@@ -10,6 +10,8 @@ import argparse
 import sys
 
 def compare_rings(r_old, r_new, marker, i, j, k = None):
+    """r_old and r_new are LinearRing objects from the geometry module."""
+
     print("\nShape", i, end = "")
     if j is not None: print(", part", j, end = "")
 
@@ -60,6 +62,7 @@ def compare_rings(r_old, r_new, marker, i, j, k = None):
 
 def compare_poly(p_old, p_new, marker, i, j = None):
     """
+    p_old and p_new are polygon objects from the geometry module.
     i: shape number
     j: polygon number for a multi-polygon
     """
@@ -68,7 +71,7 @@ def compare_poly(p_old, p_new, marker, i, j = None):
 
     for k, (r_old, r_new) in enumerate(zip(p_old.interiors, p_new.interiors)):
         compare_rings(r_old, r_new, marker, i, j, k)
-        
+
 def diff_shp(old, new, report_identical = False, detail_file = sys.stdout):
     reader_old = shapefile.Reader(old)
     reader_new = shapefile.Reader(new)
@@ -114,6 +117,7 @@ def diff_shp(old, new, report_identical = False, detail_file = sys.stdout):
                 else:
                     g_old = geometry.shape(s_old.__geo_interface__)
                     g_new = geometry.shape(s_new.__geo_interface__)
+
                     if g_old.geom_type == g_new.geom_type:
                         if g_old.geom_type == "MultiPolygon":
                             for j, (p_old, p_new) in enumerate(zip(g_old,
