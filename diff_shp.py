@@ -9,25 +9,27 @@ from os import path
 import argparse
 import sys
 
-def compare_rings(r_old, r_new, marker, i, j, k = None):
+def compare_rings(detail_file, r_old, r_new, marker, i, j, k = None):
     """r_old and r_new are LinearRing objects from the geometry module."""
 
-    print("\nShape", i, end = "")
-    if j is not None: print(", part", j, end = "")
+    detail_file.write(f"\nShape {i}")
+    if j is not None: detail_file.write(f", part {j}")
 
     if k is None:
-        print(", exterior:")
+        detail_file.write(", exterior:\n")
     else:
-        print(", interior", k, ":")
+        detail_file.write(f", interior {k}:\n")
 
     if r_old.equals(r_new):
-        print("This is just a difference by permutation or ordering.")
+        detail_file.write("This is just a difference by permutation or "
+                          "ordering.\n")
     else:
         len_old = len(r_old.coords)
         len_new = len(r_new.coords)
 
         if len_new != len_old:
-            print("Numbers of points differ:",  len_old, len_new)
+            detail_file.write(f"Numbers of points differ: {len_old} "
+                              f"{len_new}\n")
 
         my_label = str(i)
         if j is not None: my_label = my_label + ", " + str(j)
@@ -50,27 +52,27 @@ def compare_rings(r_old, r_new, marker, i, j, k = None):
             pr_new = geometry.Polygon(r_new)
             sym_diff = pr_new.symmetric_difference(pr_old)
             if pr_old.area != 0:
-                print("Area of symmetric difference / area of old shape:",
-                      sym_diff.area / pr_old.area)
+                detail_file.write("Area of symmetric difference / area of old "
+                                  f"shape: {sym_diff.area / pr_old.area}\n")
             else:
-                print("Area of old shape is 0. \n"
-                      "Note this should never be in a polygon shapefile.")
+                detail_file.write("Area of old shape is 0. \n"
+                      "Note this should never be in a polygon shapefile.\n")
         else:
-            print("Cannot compute symmetric difference.")
-            print("old:", validation.explain_validity(r_old))
-            print("new:", validation.explain_validity(r_new))
+            detail_file.write("Cannot compute symmetric difference.\n")
+            detail_file.write(f"old: {validation.explain_validity(r_old)}\n")
+            detail_file.write(f"new: {validation.explain_validity(r_new)}\n")
 
-def compare_poly(p_old, p_new, marker, i, j = None):
+def compare_poly(detail_file, p_old, p_new, marker, i, j = None):
     """
     p_old and p_new are polygon objects from the geometry module.
     i: shape number
     j: polygon number for a multi-polygon
     """
 
-    compare_rings(p_old.exterior, p_new.exterior, marker, i, j)
+    compare_rings(detail_file, p_old.exterior, p_new.exterior, marker, i, j)
 
     for k, (r_old, r_new) in enumerate(zip(p_old.interiors, p_new.interiors)):
-        compare_rings(r_old, r_new, marker, i, j, k)
+        compare_rings(detail_file, r_old, r_new, marker, i, j, k)
 
 def diff_shp(old, new, report_identical = False, detail_file = sys.stdout):
     reader_old = shapefile.Reader(old)
@@ -79,11 +81,11 @@ def diff_shp(old, new, report_identical = False, detail_file = sys.stdout):
 
     if reader_old.numRecords != reader_new.numRecords:
         diff_found = True
-        print("Not the same number of records:", reader_old.numRecords,
-              reader_new.numRecords)
-        print("Comparing the first",
-              min(reader_old.numRecords, reader_new.numRecords),
-              "records...")
+        detail_file.write("Not the same number of records: "
+                          f"{reader_old.numRecords} {reader_new.numRecords}\n")
+        detail_file.write("Comparing the first "
+              f"{min(reader_old.numRecords, reader_new.numRecords)}"
+              "records...\n")
 
     my_figure = plt.figure()
     # (We purposely do not create the axes now because we do not know if
@@ -93,27 +95,27 @@ def diff_shp(old, new, report_identical = False, detail_file = sys.stdout):
     marker = itertools.cycle(["+", "v", "^", "x"])
 
     print("\n************************")
-    print("Difference in vertices:")
+    detail_file.write("Difference in vertices:\n")
 
     for i, (s_old, s_new) in enumerate(zip(reader_old.iterShapes(),
                                            reader_new.iterShapes())):
         if s_old.points == s_new.points:
             if report_identical:
-                print("\nVertices for shape", i, "are identical.")
+                detail_file.write(f"\nVertices for shape {i} are identical.\n")
         else:
             diff_found = True
-            print("\nVertices for shape", i, "differ.")
+            detail_file.write(f"\nVertices for shape {i} differ.\n")
 
             if s_old.shapeType == shapefile.NULL:
-                print("Old shape is NULL.")
+                detail_file.write("Old shape is NULL.\n")
             elif s_new.shapeType == shapefile.NULL:
-                print("New shape is NULL.")
+                detail_file.write("New shape is NULL.\n")
             else:
                 nparts = len(s_old.parts)
 
                 if nparts != len(s_new.parts):
-                    print("Numbers of parts in shape", i, "differ:", nparts,
-                          len(s_new.parts))
+                    detail_file.write(f"Numbers of parts in shape {i} differ:"
+                                      f"{nparts} {len(s_new.parts)}\n")
                 else:
                     g_old = geometry.shape(s_old.__geo_interface__)
                     g_new = geometry.shape(s_new.__geo_interface__)
@@ -122,18 +124,23 @@ def diff_shp(old, new, report_identical = False, detail_file = sys.stdout):
                         if g_old.geom_type == "MultiPolygon":
                             for j, (p_old, p_new) in enumerate(zip(g_old,
                                                                    g_new)):
-                                compare_poly(p_old, p_new, marker, i, j)
+                                compare_poly(detail_file, p_old, p_new,
+                                             marker, i, j)
                         elif g_old.geom_type == "Polygon":
-                            compare_poly(g_old, g_new, marker, i)
+                            compare_poly(detail_file, g_old, g_new, marker, i)
                         elif g_old.geom_type == "Point":
-                            print("Absolute value of relative difference:",
-                                  np.abs(np.array(g_new) / np.array(g_old) - 1))
+                            abs_rel_diff = np.abs(np.array(g_new)
+                                                  / np.array(g_old) - 1)
+                            detail_file.write\
+                                ("Absolute value of relative difference: "
+                                 f"{abs_rel_diff}\n")
                         else:
-                            print("Geometry type not supported:",
-                                  g_old.geom_type)
+                            detail_file.write("Geometry type not supported:"
+                                              f"{g_old.geom_type}\n")
                     else:
-                        print("Geometry types differ:", g_old.geom_type,
-                              g_new.geom_type)
+                        detail_file.write("Geometry types differ:"
+                                          f"{g_old.geom_type}"
+                                          f"{g_new.geom_type}\n")
 
     if my_figure.axes:
         plt.legend()
