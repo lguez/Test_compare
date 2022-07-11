@@ -60,8 +60,10 @@ def compare_rings(ax, detail_file, r_old, r_new, marker, i, j, k = None):
                       "Note this should never be in a polygon shapefile.\n")
         else:
             detail_file.write("Cannot compute symmetric difference.\n")
-            detail_file.write(f"old: {validation.explain_validity(r_old)}\n")
-            detail_file.write(f"new: {validation.explain_validity(r_new)}\n")
+            explain = validation.explain_validity(r_old)
+            detail_file.write(f"old: {explain}\n")
+            explain = validation.explain_validity(r_new)
+            detail_file.write(f"new: {explain}\n")
 
 def compare_poly(ax, detail_file, p_old, p_new, marker, i, j = None):
     """
@@ -87,9 +89,8 @@ def diff_shp(old, new, report_identical = False, plot = False,
         diff_found = True
         detail_file.write("Not the same number of records: "
                           f"{reader_old.numRecords} {reader_new.numRecords}\n")
-        detail_file.write("Comparing the first "
-              f"{min(reader_old.numRecords, reader_new.numRecords)}"
-              "records...\n")
+        n_rec = min(reader_old.numRecords, reader_new.numRecords)
+        detail_file.write(f"Comparing the first {n_rec} records...\n")
 
     if plot:
         fig, ax = plt.subplots()
@@ -114,11 +115,12 @@ def diff_shp(old, new, report_identical = False, plot = False,
             elif s_new.shapeType == shapefile.NULL:
                 detail_file.write("New shape is NULL.\n")
             else:
-                nparts = len(s_old.parts)
+                nparts_old = len(s_old.parts)
+                nparts_new = len(s_new.parts)
 
-                if nparts != len(s_new.parts):
+                if nparts_old != nparts_new:
                     detail_file.write(f"Numbers of parts in shape {i} differ:"
-                                      f"{nparts} {len(s_new.parts)}\n")
+                                      f"{nparts_old} {nparts_new}\n")
                 else:
                     # Suppress possible warning about orientation of polygon:
                     shapefile.VERBOSE = False
