@@ -9,7 +9,7 @@ from os import path
 import argparse
 import sys
 
-def compare_rings(detail_file, r_old, r_new, marker, i, j, k = None):
+def compare_rings(ax, detail_file, r_old, r_new, marker, i, j, k = None):
     """r_old and r_new are LinearRing objects from the geometry module."""
 
     detail_file.write(f"\nShape {i}")
@@ -31,21 +31,22 @@ def compare_rings(detail_file, r_old, r_new, marker, i, j, k = None):
             detail_file.write(f"Numbers of points differ: {len_old} "
                               f"{len_new}\n")
 
-        my_label = str(i)
-        if j is not None: my_label = my_label + ", " + str(j)
+        if ax:
+            my_label = str(i)
+            if j is not None: my_label = my_label + ", " + str(j)
 
-        if k is None:
-            my_label = my_label + " ext"
-        else:
-            my_label = my_label + " int " + str(k)
+            if k is None:
+                my_label = my_label + " ext"
+            else:
+                my_label = my_label + " int " + str(k)
 
-        x, y = r_old.xy
-        l = plt.plot(x, y, "-o", markersize = 12, fillstyle = "none",
-                     label = "old " + my_label)
+            x, y = r_old.xy
+            l = ax.plot(x, y, "-o", markersize = 12, fillstyle = "none",
+                        label = "old " + my_label)
 
-        x, y = r_new.xy
-        plt.plot(x, y, marker = next(marker), label =  "new " + my_label,
-                 color = l[0].get_color())
+            x, y = r_new.xy
+            ax.plot(x, y, marker = next(marker), label =  "new " + my_label,
+                    color = l[0].get_color())
 
         if r_old.is_valid and r_new.is_valid:
             pr_old = geometry.Polygon(r_old)
@@ -62,19 +63,20 @@ def compare_rings(detail_file, r_old, r_new, marker, i, j, k = None):
             detail_file.write(f"old: {validation.explain_validity(r_old)}\n")
             detail_file.write(f"new: {validation.explain_validity(r_new)}\n")
 
-def compare_poly(detail_file, p_old, p_new, marker, i, j = None):
+def compare_poly(ax, detail_file, p_old, p_new, marker, i, j = None):
     """
     p_old and p_new are polygon objects from the geometry module.
     i: shape number
     j: polygon number for a multi-polygon
     """
 
-    compare_rings(detail_file, p_old.exterior, p_new.exterior, marker, i, j)
+    compare_rings(ax, detail_file, p_old.exterior, p_new.exterior, marker, i, j)
 
     for k, (r_old, r_new) in enumerate(zip(p_old.interiors, p_new.interiors)):
-        compare_rings(detail_file, r_old, r_new, marker, i, j, k)
+        compare_rings(ax, detail_file, r_old, r_new, marker, i, j, k)
 
-def diff_shp(old, new, report_identical = False, detail_file = sys.stdout):
+def diff_shp(old, new, report_identical = False, plot = False,
+             detail_file = sys.stdout):
     detail_file.write('\n' + "*" * 10 + '\n\n')
     detail_file.write(f"diff {old} {new}\n")
     reader_old = shapefile.Reader(old)
@@ -89,12 +91,12 @@ def diff_shp(old, new, report_identical = False, detail_file = sys.stdout):
               f"{min(reader_old.numRecords, reader_new.numRecords)}"
               "records...\n")
 
-    my_figure = plt.figure()
-    # (We purposely do not create the axes now because we do not know if
-    # we will have something to draw and we want to test the presence of
-    # axes at the end of the script.)
-
-    marker = itertools.cycle(["+", "v", "^", "x"])
+    if plot:
+        fig, ax = plt.subplots()
+        marker = itertools.cycle(["+", "v", "^", "x"])
+    else:
+        ax = None
+        marker = None
 
     detail_file.write("Difference in vertices:\n")
 
@@ -129,10 +131,11 @@ def diff_shp(old, new, report_identical = False, detail_file = sys.stdout):
                         if g_old.geom_type == "MultiPolygon":
                             for j, (p_old, p_new) in enumerate(zip(g_old,
                                                                    g_new)):
-                                compare_poly(detail_file, p_old, p_new,
+                                compare_poly(ax, detail_file, p_old, p_new,
                                              marker, i, j)
                         elif g_old.geom_type == "Polygon":
-                            compare_poly(detail_file, g_old, g_new, marker, i)
+                            compare_poly(ax, detail_file, g_old, g_new, marker,
+                                         i)
                         elif g_old.geom_type == "Point":
                             abs_rel_diff = np.abs(np.array(g_new.coords)
                                                   / np.array(g_old.coords) - 1)
@@ -147,8 +150,8 @@ def diff_shp(old, new, report_identical = False, detail_file = sys.stdout):
                                           f"{g_old.geom_type}"
                                           f"{g_new.geom_type}\n")
 
-    if my_figure.axes:
-        plt.legend()
+    if plot:
+        ax.legend()
         plt.show()
 
     if diff_found:
@@ -162,6 +165,7 @@ if __name__ == "__main__":
     parser.add_argument("new", help = "shapefile or directory")
     parser.add_argument("-s", "--report-identical", action = "store_true",
                         help = "report when vertices are the same")
+    parser.add_argument("-p", "--plot", action = "store_true")
     args = parser.parse_args()
 
     if path.isdir(args.new):
@@ -171,5 +175,5 @@ if __name__ == "__main__":
     else:
         new = args.new
 
-    ret_code = diff_shp(args.old, new, args.report_identical)
+    ret_code = diff_shp(args.old, new, args.report_identical, args.plot)
     sys.exit(ret_code)
