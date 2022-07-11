@@ -75,6 +75,8 @@ def compare_poly(detail_file, p_old, p_new, marker, i, j = None):
         compare_rings(detail_file, r_old, r_new, marker, i, j, k)
 
 def diff_shp(old, new, report_identical = False, detail_file = sys.stdout):
+    detail_file.write('\n' + "*" * 10 + '\n\n')
+    detail_file.write(f"diff {old} {new}\n")
     reader_old = shapefile.Reader(old)
     reader_new = shapefile.Reader(new)
     diff_found = False
