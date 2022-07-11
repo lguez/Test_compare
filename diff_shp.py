@@ -130,8 +130,8 @@ def diff_shp(old, new, report_identical = False, detail_file = sys.stdout):
                         elif g_old.geom_type == "Polygon":
                             compare_poly(detail_file, g_old, g_new, marker, i)
                         elif g_old.geom_type == "Point":
-                            abs_rel_diff = np.abs(np.array(g_new)
-                                                  / np.array(g_old) - 1)
+                            abs_rel_diff = np.abs(np.array(g_new.coords)
+                                                  / np.array(g_old.coords) - 1)
                             detail_file.write\
                                 ("Absolute value of relative difference: "
                                  f"{abs_rel_diff}\n")
