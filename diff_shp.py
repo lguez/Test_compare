@@ -96,7 +96,6 @@ def diff_shp(old, new, report_identical = False, detail_file = sys.stdout):
 
     marker = itertools.cycle(["+", "v", "^", "x"])
 
-    print("\n************************")
     detail_file.write("Difference in vertices:\n")
 
     for i, (s_old, s_new) in enumerate(zip(reader_old.iterShapes(),
