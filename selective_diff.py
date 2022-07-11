@@ -188,6 +188,7 @@ class detailed_diff:
             n_diff = diff_shp.diff_shp(path_1, path_2,
                                        detail_file = detail_file)
         else:
+            detail_file.write('\n' + "*" * 10 + '\n\n')
             detail_file.write(f"diff {path_1} {path_2}\n")
             detail_file.write("Detailed diff not implemented\n")
             n_diff = 1
