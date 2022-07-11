@@ -118,8 +118,12 @@ def diff_shp(old, new, report_identical = False, detail_file = sys.stdout):
                     detail_file.write(f"Numbers of parts in shape {i} differ:"
                                       f"{nparts} {len(s_new.parts)}\n")
                 else:
+                    # Suppress possible warning about orientation of polygon:
+                    shapefile.VERBOSE = False
+
                     g_old = geometry.shape(s_old.__geo_interface__)
                     g_new = geometry.shape(s_new.__geo_interface__)
+                    shapefile.VERBOSE = True
 
                     if g_old.geom_type == g_new.geom_type:
                         if g_old.geom_type == "MultiPolygon":
