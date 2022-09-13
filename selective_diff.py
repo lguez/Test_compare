@@ -21,6 +21,7 @@ def cat_not_too_many(file_in, size_lim, file_out):
 
     count = 0
     file_in.seek(0)
+
     while True:
         line = file_in.readline()
         count += 1
@@ -274,19 +275,23 @@ parser = argparse.ArgumentParser()
 parser.add_argument("directory", nargs = 2)
 parser.add_argument("--pyshp", action = "store_true",
                     help = "use pyshp to compare DBF files (default dbfdump)")
+
+# CSV files:
 group = parser.add_mutually_exclusive_group()
 group.add_argument("--numdiff", action = "store_true",
                    help = "use numdiff to compare CSV files (default ndiff)")
 group.add_argument("--max_diff_rect", action = "store_true",
                    help = "use max_diff_rect to compare CSV files (default "
                    "ndiff)")
+
+# NetCDF files:
 group = parser.add_mutually_exclusive_group()
 group.add_argument("--ncdump", action = "store_true", help = "compare headers "
-                   "of NetCDF files with ncdump and data with nccmp (default "
-                   "headers and data with nccmp)")
+                   "of NetCDF files with ncdump and data with nccmp.py "
+                   "(default headers and data with nccmp.py)")
 group.add_argument("--max_diff_nc", action = "store_true",
                    help = "use max_diff_nc to compare NetCDF files (default "
-                   "nccmp)")
+                   "nccmp.py)")
 parser.add_argument("-l", "--limit", help = "maximum number of lines for "
                     "printing detailed differences (default 50)", type = int,
                     default = 50)
