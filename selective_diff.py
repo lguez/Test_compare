@@ -80,6 +80,21 @@ def max_diff_nc(path_1, path_2, detail_file):
 
     return 1
 
+def nccmp_Ziemlinski(path_1, path_2, detail_file):
+    with tempfile.TemporaryFile("w+") as diff_out:
+        cp = subprocess.run(["nccmp", "--data", "--history", "--force",
+                             path_1, path_2], text = True, stdout = diff_out,
+                            stderr = subprocess.STDOUT)
+
+        if cp.returncode != 0:
+            detail_file.write('\n' + "*" * 10 + '\n\n')
+            detail_file.write(f"diff {path_1} {path_2}\n")
+            detail_file.write("Comparison with nccmp by Ziemlinski:\n")
+            diff_out.seek(0)
+            detail_file.writelines(diff_out)
+
+    return cp.returncode
+
 def my_report(dcmp, detailed_diff_instance, level):
     detail_file = io.StringIO()
     n_diff = len(dcmp.left_only) + len(dcmp.right_only) \
@@ -168,6 +183,8 @@ class detailed_diff:
             self._diff_nc = self._diff_nc_ncdump
         elif diff_nc == "max_diff_nc":
             self._diff_nc = max_diff_nc
+        elif diff_nc == "Ziemlinski":
+            self._diff_nc = nccmp_Ziemlinski
         else:
             self._diff_nc = nccmp.nccmp
 
@@ -292,6 +309,10 @@ group.add_argument("--ncdump", action = "store_true", help = "compare headers "
 group.add_argument("--max_diff_nc", action = "store_true",
                    help = "use max_diff_nc to compare NetCDF files (default "
                    "nccmp.py)")
+group.add_argument("--Ziemlinski", action = "store_true",
+                   help = "use nccmp by Ziemlinski to compare NetCDF files "
+                   "(default nccmp.py)")
+
 parser.add_argument("-l", "--limit", help = "maximum number of lines for "
                     "printing detailed differences (default 50)", type = int,
                     default = 50)
@@ -339,6 +360,8 @@ else:
         diff_nc = "ncdump"
     elif args.max_diff_nc:
         diff_nc = "max_diff_nc"
+    elif args.Ziemlinski:
+        diff_nc = "Ziemlinski"
     else:
         diff_nc = None
 
