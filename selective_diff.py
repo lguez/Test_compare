@@ -272,7 +272,8 @@ class detailed_diff:
     def _diff_csv_numdiff(self, path_1, path_2, detail_file, names = None):
         with tempfile.TemporaryFile("w+") as diff_out:
             cp = subprocess.run(["numdiff", "-r", "1e-7", path_1, path_2],
-                                stdout = diff_out, text = True)
+                                stdout = diff_out, stderr = subprocess.STDOUT,
+                                text = True)
 
             if cp.returncode != 0:
                 detail_file.write('\n' + "*" * 10 + '\n\n')
