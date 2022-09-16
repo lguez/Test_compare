@@ -275,7 +275,7 @@ class detailed_diff:
                                 stdout = diff_out, stderr = subprocess.STDOUT,
                                 text = True)
 
-            if cp.returncode != 0:
+            if cp.returncode == 1:
                 detail_file.write('\n' + "*" * 10 + '\n\n')
 
                 if names is None:
@@ -286,6 +286,10 @@ class detailed_diff:
                 detail_file.write("Comparison with numdiff, tolerance 1e-7:\n")
                 cat_not_too_many(diff_out, self.size_lim, detail_file)
                 detail_file.write("\n")
+            elif cp.returncode != 0:
+                diff_out.seek(0)
+                sys.stdout.writelines(diff_out)
+                sys.exit("selective_diff.py: error from numdiff")
 
         return cp.returncode
 
