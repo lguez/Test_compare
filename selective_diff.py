@@ -263,7 +263,7 @@ class detailed_diff:
                 else:
                     detail_file.write(f"diff {names[0]} {names[1]}\n")
 
-                detail_file.write("Comparison with ndiff,  tolerance 1e-7:\n")
+                detail_file.write("Comparison with ndiff, tolerance 1e-7:\n")
                 cat_not_too_many(diff_out, self.size_lim, detail_file)
                 detail_file.write("\n")
 
@@ -282,7 +282,7 @@ class detailed_diff:
                 else:
                     detail_file.write(f"diff {names[0]} {names[1]}\n")
 
-                detail_file.write("Comparison with numdiff,  tolerance 1e-7:\n")
+                detail_file.write("Comparison with numdiff, tolerance 1e-7:\n")
                 cat_not_too_many(diff_out, self.size_lim, detail_file)
                 detail_file.write("\n")
 
