@@ -271,7 +271,8 @@ class detailed_diff:
 
     def _diff_csv_numdiff(self, path_1, path_2, detail_file, names = None):
         with tempfile.TemporaryFile("w+") as diff_out:
-            cp = subprocess.run(["numdiff", "-r", "1e-7", path_1, path_2],
+            cp = subprocess.run(["numdiff", "--quiet", "--statistics",
+                                 "--relative-tolerance=1e-7", path_1, path_2],
                                 stdout = diff_out, stderr = subprocess.STDOUT,
                                 text = True)
 
