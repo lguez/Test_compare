@@ -40,11 +40,11 @@ def diff_txt(path_1, path_2, size_lim, detail_file):
     detail_file.write(f"diff {path_1} {path_2}\n")
     with open(path_1) as f: fromlines = f.readlines()
     with open(path_2) as f: tolines = f.readlines()
-    diff = difflib.unified_diff(fromlines, tolines, fromfile = path_1,
+    my_diff = difflib.unified_diff(fromlines, tolines, fromfile = path_1,
                                 tofile = path_2, n = 0)
 
     with tempfile.TemporaryFile("w+") as diff_out:
-        diff_out.writelines(diff)
+        diff_out.writelines(my_diff)
         cat_not_too_many(diff_out, size_lim, detail_file)
 
     detail_file.write("\n")
