@@ -15,6 +15,7 @@ import tempfile
 import nccmp
 import fnmatch
 import io
+from wand import image
 
 def cat_not_too_many(file_in, size_lim, file_out):
     """file_in and file_out should be existing file objects."""
@@ -49,6 +50,24 @@ def diff_txt(path_1, path_2, size_lim, detail_file):
 
     detail_file.write("\n")
     return 1
+
+def diff_png(path_1, path_2, detail_file):
+    with image.Image(filename = path_1) as image1, \
+         image.Image(filename = path_2) as image2:
+        if image1.signature == image2.signature:
+            # The difference must be only in metadata
+            n_diff = 0
+        else:
+            detail_file.write('\n' + "*" * 10 + '\n\n')
+            detail_file.write(f"diff {path_1} {path_2}\n")
+            diff_img, distorsion = image2.compare(image1, metric = "absolute")
+            detail_file.write(f"Number of different pixels: {distorsion}\n")
+            filename = path.join(path.dirname(path_2), "diff_image.png")
+            diff_img.save(filename = filename)
+            detail_file.write(f"See {filename}\n\n")
+            n_diff = 1
+
+    return n_diff
 
 def max_diff_rect(path_1, path_2, detail_file, names = None):
     detail_file.write('\n' + "*" * 10 + '\n\n')
@@ -205,6 +224,8 @@ class detailed_diff:
         elif suffix == ".shp":
             n_diff = diff_shp.diff_shp(path_1, path_2,
                                        detail_file = detail_file)
+        elif suffix == ".png":
+            n_diff = diff_png(path_1, path_2, detail_file = detail_file)
         else:
             detail_file.write('\n' + "*" * 10 + '\n\n')
             detail_file.write(f"diff {path_1} {path_2}\n")
