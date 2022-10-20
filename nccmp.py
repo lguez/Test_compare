@@ -67,7 +67,7 @@ def nccmp(f1, f2, silent = False, data_only = False, detail_file = sys.stdout):
 
         while len(inters_vars) != 0 and (not silent or not diff_found):
             x = inters_vars.pop()
-            tag = f"Attributes of variable {file_1.path}/{x}"
+            tag = f"Attributes of variable {path.join(file_1.path, x)}"
             diff_found \
                 = compare_util.diff_dict(file_1[x].__dict__, file_2[x].__dict__,
                                          silent, tag, detail_subfile) \
@@ -75,7 +75,7 @@ def nccmp(f1, f2, silent = False, data_only = False, detail_file = sys.stdout):
 
             if not silent or not diff_found:
                 for attribute in ["dtype", "dimensions", "shape"]:
-                    tag = f"{attribute} of variable {file_1.path}/{x}"
+                    tag = f"{attribute} of variable {path.join(file_1.path, x)}"
                     diff_found = \
                         compare_util.cmp(file_1[x].__getattribute__(attribute),
                                          file_2[x].__getattribute__(attribute),
