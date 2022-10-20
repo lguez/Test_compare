@@ -5,3 +5,7 @@
 some chosen types of files: NetCDF, numeric CSV, shapefile.
 
 Note that arguments should be two directories, not two files.
+
+# `test_compare`
+
+Test code and compare results.
