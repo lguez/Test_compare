@@ -49,11 +49,6 @@ def cmp_ndarr(v1, v2, silent = False, tag = None, detail_file = sys.stdout):
     
     if v1.shape == v2.shape:
         if v1.size == 0:
-            if not silent:
-                if tag: detail_file.write(f"{tag}:\n")
-                detail_file.write('Zero-sized array\n')
-                detail_file.write("-------------\n\n")
-                
             diff_found = False
         else:
             mask1 = ma.getmaskarray(v1[:])
