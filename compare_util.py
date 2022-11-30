@@ -14,7 +14,12 @@ def cmp(v1, v2, silent = False, tag = None, detail_file = sys.stdout):
     return diff_found
 
 def diff_dict(d1, d2, silent = False, tag = None, detail_file = sys.stdout):
-    diff_found = d1 != d2
+    try:
+        diff_found = d1 != d2
+    except ValueError:
+        # This happens if values are numpy arrays with more than one
+        # element. Let us just move past that for now.
+        diff_found = True
     
     if diff_found and not silent:
         if tag: detail_file.write(f"{tag}:\n\n")
@@ -30,7 +35,7 @@ def diff_dict(d1, d2, silent = False, tag = None, detail_file = sys.stdout):
             detail_file.write("-----------\n\n")
 
         for k in keys_1 & keys_2:
-            if d1[k] != d2[k]:
+            if np.any(d1[k] != d2[k]):
                 detail_file.write(f"Different values for key {k}:\n\n")
                 detail_file.write(f"{d1[k]}\n\n")
                 detail_file.write(f"{d2[k]}\n")
