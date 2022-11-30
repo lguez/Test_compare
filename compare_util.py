@@ -14,7 +14,7 @@ def cmp(v1, v2, silent = False, tag = None, detail_file = sys.stdout):
     return diff_found
 
 def diff_dict(d1, d2, silent = False, tag = None, detail_file = sys.stdout):
-    diff_found = dict(d1) != dict(d2)
+    diff_found = d1 != d2
     
     if diff_found and not silent:
         if tag: detail_file.write(f"{tag}:\n\n")
