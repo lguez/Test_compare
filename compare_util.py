@@ -20,13 +20,12 @@ def diff_dict(d1, d2, silent = False, tag = None, detail_file = sys.stdout):
         if tag: detail_file.write(f"{tag}:\n\n")
         keys_1 = d1.keys()
         keys_2 = d2.keys()
-        exclusive_keys = keys_1 ^ keys_2
 
-        for k in exclusive_keys:
+        for k in keys_1 ^ keys_2:
             if k in d1:
                 detail_file.write(f"{k} in first dictionary only\n")
             else:
-                 detail_file.write(f"{k} in second dictionary only\n")
+                detail_file.write(f"{k} in second dictionary only\n")
 
             detail_file.write("-----------\n\n")
 
