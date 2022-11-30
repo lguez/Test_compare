@@ -211,7 +211,7 @@ class detailed_diff:
         suffix = pathlib.PurePath(path_1).suffix
         text_file = suffix == ".txt" or suffix == ".json" \
             or (suffix != ".nc" and suffix != ".csv"
-                and "text" in magic.from_file(path_1))
+                and "text" in magic.from_file(path.realpath(path_1)))
 
         if text_file:
             n_diff = diff_txt(path_1, path_2, self.size_lim, detail_file)
