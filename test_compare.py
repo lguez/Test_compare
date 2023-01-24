@@ -301,7 +301,8 @@ def compare(my_runs, compare_dir, other_args):
                pathlib.Path(my_run["title"], "failed").exists() and not \
                path_identical.exists():
                 old_dir = path.join(compare_dir, my_run["title"])
-                subprocess_args = ["selective_diff.py", old_dir,
+                subprocess_args = ["selective_diff.py",
+                                   "--exclude=timing_test_compare.txt", old_dir,
                                    my_run["title"]]
                 subprocess_args[1:1] = other_args
 
