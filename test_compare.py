@@ -157,7 +157,7 @@ def get_single_required(src, my_run, base_dest, required_type):
 
     return found
 
-def run_single_test(my_run, writer, path_failed):
+def run_single_test(my_run, path_failed):
     if "command" in my_run:
         commands = [my_run["command"]]
         main_command = 0
@@ -228,8 +228,11 @@ def run_single_test(my_run, writer, path_failed):
         for command in commands[main_command + 1:]:
             subprocess.run(command, check = True)
 
-        writer.writerow([my_run["title"],
-                         format(time.perf_counter() - t0_single_run, ".0f")])
+        with open("timing_test_compare.txt", "w") as f:
+            t1 = time.perf_counter()
+            line = "Elapsed time: {:.0f} s\n".format(t1 - t0_single_run)
+            f.write(line)
+
         os.chdir("..")
         test_return_code = 0
     else:
@@ -243,9 +246,6 @@ def run_single_test(my_run, writer, path_failed):
 def run_tests(my_runs, allowed_keys, compare_dir):
     """my_runs should be a list of dictionaries, allowed_keys a set."""
 
-    perf_report = open("perf_report.csv", "w", newline='')
-    writer = csv.writer(perf_report, lineterminator = "\n")
-    writer.writerow(["Name of test", "elapsed time, in s"])
     print("Starting runs at", datetime.datetime.now())
     t0 = time.perf_counter()
     n_failed = 0
@@ -273,7 +273,7 @@ def run_tests(my_runs, allowed_keys, compare_dir):
 
             os.mkdir(my_run["title"])
             found = get_all_required(my_run)
-            if found: n_failed += run_single_test(my_run, writer, path_failed)
+            if found: n_failed += run_single_test(my_run, path_failed)
 
         if not path_failed.exists():
             old_dir = path.join(compare_dir, my_run["title"])
@@ -286,7 +286,6 @@ def run_tests(my_runs, allowed_keys, compare_dir):
                 print("Archived", my_run["title"])
 
     print("Elapsed time:", time.perf_counter() - t0, "s")
-    perf_report.close()
     print("Number of failed runs:", n_failed)
 
 def compare(my_runs, compare_dir, other_args):
@@ -433,18 +432,8 @@ else:
                     if path.exists(old_dir): shutil.rmtree(old_dir)
                     shutil.move(my_run["title"], old_dir)
 
-            dst = path.join(args.compare_dir, "perf_report.csv")
-            os.rename("perf_report.csv", dst)
-
         reply = input("Remove new runs? ")
         reply = reply.casefold()
 
         if reply.startswith("y"):
             for my_run in my_runs: shutil.rmtree(my_run["title"])
-
-        reply = input("Replace old performance report? ")
-        reply = reply.casefold()
-
-        if reply.startswith("y"):
-            dst = path.join(args.compare_dir, "perf_report.csv")
-            os.rename("perf_report.csv", dst)
