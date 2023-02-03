@@ -243,12 +243,13 @@ def run_single_test(my_run, path_failed):
 
     return test_return_code
 
-def run_tests(my_runs, allowed_keys, compare_dir):
+def run_tests(my_runs, allowed_keys, compare_dir, other_args):
     """my_runs should be a list of dictionaries, allowed_keys a set."""
 
     print("Starting runs at", datetime.datetime.now())
     t0 = time.perf_counter()
     n_failed = 0
+    cumul_return = 0
     
     for i, my_run in enumerate(my_runs):
         print(i, end = ": ")
@@ -279,66 +280,64 @@ def run_tests(my_runs, allowed_keys, compare_dir):
 
             try:
                 shutil.copytree(my_run["title"], old_dir, symlinks = True)
-            except (FileExistsError, FileNotFoundError):
+            except FileNotFoundError:
                 pass
+            except FileExistsError:
+                cumul_return += compare(my_run, compare_dir, other_args)
             else:
                 print("Archived", my_run["title"])
 
     print("Elapsed time:", time.perf_counter() - t0, "s")
     print("Number of failed runs:", n_failed)
-
-def compare(my_runs, compare_dir, other_args):
-    cumul_return = 0
-    print("Comparing...")
-    t0 = time.perf_counter()
-
-    for my_run in my_runs:
-        if path.exists(my_run["title"]) and not \
-           pathlib.Path(my_run["title"], "failed").exists():
-            path_comp_code = path.join(my_run["title"], "comparison_code.txt")
-
-            if path.exists(path_comp_code):
-                with open(path_comp_code) as f:
-                    return_code = f.readline()[:- 1]
-
-                cumul_return += int(return_code)
-            else:
-                old_dir = path.join(compare_dir, my_run["title"])
-                subprocess_args = ["selective_diff.py",
-                                   "--exclude=timing_test_compare.txt",
-                                   old_dir, my_run["title"]]
-                subprocess_args[1:1] = other_args
-
-                if "exclude_cmp" in my_run:
-                    assert isinstance(my_run["exclude_cmp"], list)
-
-                    for pat in my_run["exclude_cmp"]:
-                        subprocess_args[1:1] = ["-x",  pat]
-
-                with open("comparison.txt", "w") as f:
-                    cp = subprocess.run(subprocess_args, stdout = f,
-                                        stderr = subprocess.STDOUT)
-                    f.write("\n" + ("*" * 10 + "\n") * 2 + "\n")
-
-                if cp.returncode in [0, 1]:
-                    cumul_return += cp.returncode
-
-                    with open(path_comp_code, "w") as f:
-                        f.write(f"{cp.returncode}\n")
-
-                    if cp.returncode == 0:
-                        os.remove("comparison.txt")
-                    else:
-                        dst = path.join(my_run["title"], "comparison.txt")
-                        os.rename("comparison.txt", dst)
-                else:
-                    print("Problem in selective_diff.py, return code "
-                          "should be 0 or 1.\nSee \"comparison.txt\".")
-                    cp.check_returncode()
-
-    print("Elapsed time for comparisons:", time.perf_counter() - t0,
-          "s")
     print("cumul_return =", cumul_return)
+
+def compare(my_run, compare_dir, other_args):
+    t0 = time.perf_counter()
+    path_comp_code = path.join(my_run["title"], "comparison_code.txt")
+
+    if path.exists(path_comp_code):
+        with open(path_comp_code) as f:
+            return_code = f.readline()[:- 1]
+
+        return_code = int(return_code)
+    else:
+        old_dir = path.join(compare_dir, my_run["title"])
+        subprocess_args = ["selective_diff.py",
+                           "--exclude=timing_test_compare.txt",
+                           old_dir, my_run["title"]]
+        subprocess_args[1:1] = other_args
+
+        if "exclude_cmp" in my_run:
+            assert isinstance(my_run["exclude_cmp"], list)
+
+            for pat in my_run["exclude_cmp"]:
+                subprocess_args[1:1] = ["-x",  pat]
+
+        with open("comparison.txt", "w") as f:
+            cp = subprocess.run(subprocess_args, stdout = f,
+                                stderr = subprocess.STDOUT)
+            f.write("\n" + ("*" * 10 + "\n") * 2 + "\n")
+
+        if cp.returncode in [0, 1]:
+            return_code = cp.returncode
+
+            with open(path_comp_code, "w") as f:
+                f.write(f"{cp.returncode}\n")
+
+            if cp.returncode == 0:
+                os.remove("comparison.txt")
+            else:
+                dst = path.join(my_run["title"], "comparison.txt")
+                os.rename("comparison.txt", dst)
+        else:
+            print("Problem in selective_diff.py, return code "
+                  "should be 0 or 1.\nSee \"comparison.txt\".")
+            cp.check_returncode()
+
+        print("Elapsed time for comparisons:", time.perf_counter() - t0,
+              "s")
+
+    return return_code
 
 parser = argparse.ArgumentParser(description = __doc__, formatter_class \
                                  = argparse.RawDescriptionHelpFormatter,
@@ -422,8 +421,7 @@ else:
                         "create_file", "exclude_cmp"}
 
         while True:
-            run_tests(my_runs, allowed_keys, args.compare_dir)
-            compare(my_runs, args.compare_dir, other_args)
+            run_tests(my_runs, allowed_keys, args.compare_dir, other_args)
             reply = input("Replace old runs? ")
             reply = reply.casefold()
 
