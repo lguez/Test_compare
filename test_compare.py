@@ -292,52 +292,52 @@ def compare(my_runs, compare_dir, other_args):
     print("Comparing...")
     t0 = time.perf_counter()
 
-    with open("comparison.txt", "w") as comparison_file:
-        for my_run in my_runs:
+    for my_run in my_runs:
+        if path.exists(my_run["title"]) and not \
+           pathlib.Path(my_run["title"], "failed").exists():
             path_comp_code = path.join(my_run["title"], "comparison_code.txt")
 
-            if path.exists(my_run["title"]) and not \
-               pathlib.Path(my_run["title"], "failed").exists():
-                if path.exists(path_comp_code):
-                    with open(path_comp_code) as f:
-                        return_code = f.readline()[:- 1]
+            if path.exists(path_comp_code):
+                with open(path_comp_code) as f:
+                    return_code = f.readline()[:- 1]
 
-                    cumul_return += int(return_code)
-                else:
-                    old_dir = path.join(compare_dir, my_run["title"])
-                    subprocess_args = ["selective_diff.py",
-                                       "--exclude=timing_test_compare.txt",
-                                       old_dir, my_run["title"]]
-                    subprocess_args[1:1] = other_args
+                cumul_return += int(return_code)
+            else:
+                old_dir = path.join(compare_dir, my_run["title"])
+                subprocess_args = ["selective_diff.py",
+                                   "--exclude=timing_test_compare.txt",
+                                   old_dir, my_run["title"]]
+                subprocess_args[1:1] = other_args
 
-                    if "exclude_cmp" in my_run:
-                        assert isinstance(my_run["exclude_cmp"], list)
+                if "exclude_cmp" in my_run:
+                    assert isinstance(my_run["exclude_cmp"], list)
 
-                        for pat in my_run["exclude_cmp"]:
-                            subprocess_args[1:1] = ["-x",  pat]
+                    for pat in my_run["exclude_cmp"]:
+                        subprocess_args[1:1] = ["-x",  pat]
 
-                    cp = subprocess.run(subprocess_args,
-                                        stdout = comparison_file,
+                with open("comparison.txt", "w") as f:
+                    cp = subprocess.run(subprocess_args, stdout = f,
                                         stderr = subprocess.STDOUT)
+                    f.write("\n" + ("*" * 10 + "\n") * 2 + "\n")
 
-                    if cp.returncode in [0, 1]:
-                        cumul_return += cp.returncode
+                if cp.returncode in [0, 1]:
+                    cumul_return += cp.returncode
 
-                        with open(path_comp_code, "w") as f:
-                            f.write(f"{cp.returncode}\n")
+                    with open(path_comp_code, "w") as f:
+                        f.write(f"{cp.returncode}\n")
 
-                        if cp.returncode != 0:
-                            comparison_file.write("\n" + ("*" * 10 + "\n") * 2
-                                                  + "\n")
-                            comparison_file.flush()
+                    if cp.returncode == 0:
+                        os.remove("comparison.txt")
                     else:
-                        print("Problem in selective_diff.py, return code "
-                              "should be 0 or 1.\nSee \"comparison.txt\".")
-                        cp.check_returncode()
+                        dst = path.join(my_run["title"], "comparison.txt")
+                        os.rename("comparison.txt", dst)
+                else:
+                    print("Problem in selective_diff.py, return code "
+                          "should be 0 or 1.\nSee \"comparison.txt\".")
+                    cp.check_returncode()
 
     print("Elapsed time for comparisons:", time.perf_counter() - t0,
           "s")
-    print("Created file \"comparison.txt\".")
     print("cumul_return =", cumul_return)
 
 parser = argparse.ArgumentParser(description = __doc__, formatter_class \
@@ -443,6 +443,8 @@ else:
                         old_dir = path.join(args.compare_dir, my_run["title"])
                         if path.exists(old_dir): shutil.rmtree(old_dir)
                         os.remove(path_comp_code)
+                        f = path.join(my_run["title"], "comparison.txt")
+                        os.remove(f)
                         shutil.move(my_run["title"], old_dir)
 
         reply = input("Remove new runs? ")
