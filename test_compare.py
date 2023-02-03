@@ -293,48 +293,43 @@ def run_tests(my_runs, allowed_keys, compare_dir, other_args):
     print("cumul_return =", cumul_return)
 
 def compare(my_run, compare_dir, other_args):
-    path_comp_code = path.join(my_run["title"], "comparison_code.txt")
+    t0 = time.perf_counter()
+    old_dir = path.join(compare_dir, my_run["title"])
+    subprocess_args = ["selective_diff.py",
+                       "--exclude=timing_test_compare.txt",
+                       old_dir, my_run["title"]]
+    subprocess_args[1:1] = other_args
 
-    if path.exists(path_comp_code):
-        with open(path_comp_code) as f: comparison_code = f.readline()[:- 1]
-        comparison_code = int(comparison_code)
-    else:
-        t0 = time.perf_counter()
-        old_dir = path.join(compare_dir, my_run["title"])
-        subprocess_args = ["selective_diff.py",
-                           "--exclude=timing_test_compare.txt",
-                           old_dir, my_run["title"]]
-        subprocess_args[1:1] = other_args
+    if "exclude_cmp" in my_run:
+        assert isinstance(my_run["exclude_cmp"], list)
 
-        if "exclude_cmp" in my_run:
-            assert isinstance(my_run["exclude_cmp"], list)
+        for pat in my_run["exclude_cmp"]:
+            subprocess_args[1:1] = ["-x",  pat]
 
-            for pat in my_run["exclude_cmp"]:
-                subprocess_args[1:1] = ["-x",  pat]
+    with open("comparison.txt", "w") as f:
+        cp = subprocess.run(subprocess_args, stdout = f,
+                            stderr = subprocess.STDOUT)
+        f.write("\n" + ("*" * 10 + "\n") * 2 + "\n")
 
-        with open("comparison.txt", "w") as f:
-            cp = subprocess.run(subprocess_args, stdout = f,
-                                stderr = subprocess.STDOUT)
-            f.write("\n" + ("*" * 10 + "\n") * 2 + "\n")
+    if cp.returncode in [0, 1]:
+        comparison_code = cp.returncode
+        path_comp_code = path.join(my_run["title"], "comparison_code.txt")
+        with open(path_comp_code, "w") as f: f.write(f"{cp.returncode}\n")
 
-        if cp.returncode in [0, 1]:
-            comparison_code = cp.returncode
-            with open(path_comp_code, "w") as f: f.write(f"{cp.returncode}\n")
-
-            if cp.returncode == 0:
-                os.remove("comparison.txt")
-            else:
-                dst = path.join(my_run["title"], "comparison.txt")
-                os.rename("comparison.txt", dst)
+        if cp.returncode == 0:
+            os.remove("comparison.txt")
         else:
-            print("Problem in selective_diff.py, return code "
-                  "should be 0 or 1.\nSee \"comparison.txt\".")
-            cp.check_returncode()
+            dst = path.join(my_run["title"], "comparison.txt")
+            os.rename("comparison.txt", dst)
+    else:
+        print("Problem in selective_diff.py, return code "
+              "should be 0 or 1.\nSee \"comparison.txt\".")
+        cp.check_returncode()
 
-        t1 = time.perf_counter()
-        line = "Elapsed time for comparison: {:.0f} s\n".format(t1 - t0)
-        fname = path.join(my_run["title"], "timing_test_compare.txt")
-        with open(fname, "a") as f: f.write(line)
+    t1 = time.perf_counter()
+    line = "Elapsed time for comparison: {:.0f} s\n".format(t1 - t0)
+    fname = path.join(my_run["title"], "timing_test_compare.txt")
+    with open(fname, "a") as f: f.write(line)
 
     return comparison_code
 
