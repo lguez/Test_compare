@@ -309,7 +309,6 @@ def compare(my_run, compare_dir, other_args):
         f.write("\n" + ("*" * 10 + "\n") * 2 + "\n")
 
     if cp.returncode in [0, 1]:
-        comparison_code = cp.returncode
         path_comp_code = path.join(my_run["title"], "comparison_code.txt")
         with open(path_comp_code, "w") as f: f.write(f"{cp.returncode}\n")
 
@@ -328,7 +327,7 @@ def compare(my_run, compare_dir, other_args):
     fname = path.join(my_run["title"], "timing_test_compare.txt")
     with open(fname, "a") as f: f.write(line)
 
-    return comparison_code
+    return cp.returncode
 
 parser = argparse.ArgumentParser(description = __doc__, formatter_class \
                                  = argparse.RawDescriptionHelpFormatter,
