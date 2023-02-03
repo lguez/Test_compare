@@ -211,7 +211,7 @@ def run_single_test(my_run, path_failed):
         json.dump(my_run, f, indent = 3, sort_keys = True)
         f.write("\n")
 
-    t0_single_run = time.perf_counter()
+    t0 = time.perf_counter()
 
     for command in commands[:main_command]:
         subprocess.run(command, check = True)
@@ -228,7 +228,7 @@ def run_single_test(my_run, path_failed):
 
         with open("timing_test_compare.txt", "w") as f:
             t1 = time.perf_counter()
-            line = "Elapsed time: {:.0f} s\n".format(t1 - t0_single_run)
+            line = "Elapsed time: {:.0f} s\n".format(t1 - t0)
             f.write(line)
 
         os.chdir("..")
