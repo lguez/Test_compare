@@ -274,20 +274,19 @@ def run_tests(my_runs, allowed_keys, compare_dir, other_args):
 
             if found:
                 n_failed += run_single_test(my_run, path_failed)
+
+                if not path_failed.exists():
+                    old_dir = path.join(compare_dir, my_run["title"])
+
+                    try:
+                        shutil.copytree(my_run["title"], old_dir,
+                                        symlinks = True)
+                    except FileExistsError:
+                        cumul_return += compare(my_run, compare_dir, other_args)
+                    else:
+                        print("Archived", my_run["title"])
             else:
                 shutil.rmtree(my_run["title"])
-
-        if not path_failed.exists():
-            old_dir = path.join(compare_dir, my_run["title"])
-
-            try:
-                shutil.copytree(my_run["title"], old_dir, symlinks = True)
-            except FileNotFoundError:
-                pass
-            except FileExistsError:
-                cumul_return += compare(my_run, compare_dir, other_args)
-            else:
-                print("Archived", my_run["title"])
 
     print("Elapsed time:", time.perf_counter() - t0, "s")
     print("Number of failed runs:", n_failed)
