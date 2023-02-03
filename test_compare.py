@@ -273,9 +273,9 @@ def run_tests(my_runs, allowed_keys, compare_dir, other_args):
             found = get_all_required(my_run)
 
             if found:
-                n_failed += run_single_test(my_run, path_failed)
+                test_return_code = run_single_test(my_run, path_failed)
 
-                if not path_failed.exists():
+                if test_return_code == 0:
                     old_dir = path.join(compare_dir, my_run["title"])
 
                     try:
@@ -285,6 +285,8 @@ def run_tests(my_runs, allowed_keys, compare_dir, other_args):
                         cumul_return += compare(my_run, compare_dir, other_args)
                     else:
                         print("Archived", my_run["title"])
+                else:
+                    n_failed += 1
             else:
                 shutil.rmtree(my_run["title"])
 
