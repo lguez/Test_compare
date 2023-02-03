@@ -297,9 +297,9 @@ def compare(my_run, compare_dir, other_args):
 
     if path.exists(path_comp_code):
         with open(path_comp_code) as f:
-            return_code = f.readline()[:- 1]
+            comparison_code = f.readline()[:- 1]
 
-        return_code = int(return_code)
+        comparison_code = int(comparison_code)
     else:
         old_dir = path.join(compare_dir, my_run["title"])
         subprocess_args = ["selective_diff.py",
@@ -319,7 +319,7 @@ def compare(my_run, compare_dir, other_args):
             f.write("\n" + ("*" * 10 + "\n") * 2 + "\n")
 
         if cp.returncode in [0, 1]:
-            return_code = cp.returncode
+            comparison_code = cp.returncode
 
             with open(path_comp_code, "w") as f:
                 f.write(f"{cp.returncode}\n")
@@ -337,7 +337,7 @@ def compare(my_run, compare_dir, other_args):
         print("Elapsed time for comparisons:", time.perf_counter() - t0,
               "s")
 
-    return return_code
+    return comparison_code
 
 parser = argparse.ArgumentParser(description = __doc__, formatter_class \
                                  = argparse.RawDescriptionHelpFormatter,
@@ -434,9 +434,9 @@ else:
                                               "comparison_code.txt")
 
                     with open(path_comp_code) as f:
-                        return_code = f.readline()[:- 1]
+                        comparison_code = f.readline()[:- 1]
 
-                    if int(return_code) == 1:
+                    if int(comparison_code) == 1:
                         print("Replacing", my_run["title"])
                         old_dir = path.join(args.compare_dir, my_run["title"])
                         if path.exists(old_dir): shutil.rmtree(old_dir)
