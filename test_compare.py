@@ -113,7 +113,6 @@ def get_all_required(my_run):
                     expanded_list = glob.glob(required_item)
 
                     if len(expanded_list) == 0:
-                        shutil.rmtree(my_run["title"])
                         print(f"\n{sys.argv[0]}: required {required_item} "
                               "does not exist.\n")
                         found = False
@@ -132,8 +131,8 @@ def get_all_required(my_run):
     return found
 
 def get_single_required(src, my_run, base_dest, required_type):
-    """If src does not exist, remove my_run["title"], else symlink or copy
-    src to my_run["title"]/base_dest.
+    """If src exists then symlink or copy src to
+    my_run["title"]/base_dest.
 
     """
 
@@ -151,7 +150,6 @@ def get_single_required(src, my_run, base_dest, required_type):
             else:
                 shutil.copytree(src, dst)
     else:
-        shutil.rmtree(my_run["title"])
         print("\nIn", my_run["test_series_file"])
         print(sys.argv[0] + ": required " + src + " does not exist.\n")
 
@@ -273,7 +271,11 @@ def run_tests(my_runs, allowed_keys, compare_dir, other_args):
 
             os.mkdir(my_run["title"])
             found = get_all_required(my_run)
-            if found: n_failed += run_single_test(my_run, path_failed)
+
+            if found:
+                n_failed += run_single_test(my_run, path_failed)
+            else:
+                shutil.rmtree(my_run["title"])
 
         if not path_failed.exists():
             old_dir = path.join(compare_dir, my_run["title"])
