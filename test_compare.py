@@ -257,6 +257,7 @@ def run_tests(my_runs, allowed_keys, compare_dir, other_args):
             fname = path.join(my_run["title"], "comparison.txt")
             if path.exists(fname):
                 cumul_return += 1
+                print("difference found")
         else:
             if not set(my_run) <= allowed_keys:
                 print("bad keys:")
@@ -315,6 +316,7 @@ def compare(my_run, compare_dir, other_args):
         if cp.returncode == 0:
             os.remove("comparison.txt")
         else:
+            print("difference found")
             dst = path.join(my_run["title"], "comparison.txt")
             os.rename("comparison.txt", dst)
     else:
