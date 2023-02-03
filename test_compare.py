@@ -228,7 +228,7 @@ def run_single_test(my_run, path_failed):
 
         with open("timing_test_compare.txt", "w") as f:
             t1 = time.perf_counter()
-            line = "Elapsed time: {:.0f} s\n".format(t1 - t0)
+            line = "Elapsed time for test: {:.0f} s\n".format(t1 - t0)
             f.write(line)
 
         os.chdir("..")
@@ -290,7 +290,7 @@ def run_tests(my_runs, allowed_keys, compare_dir, other_args):
 
     print("Elapsed time:", time.perf_counter() - t0, "s")
     print("Number of failed runs:", n_failed)
-    print("cumul_return =", cumul_return)
+    print("Number of successful runs with different results:", cumul_return)
 
 def compare(my_run, compare_dir, other_args):
     t0 = time.perf_counter()
