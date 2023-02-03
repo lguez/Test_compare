@@ -232,14 +232,12 @@ def run_single_test(my_run, path_failed):
             f.write(line)
 
         os.chdir("..")
-        test_return_code = 0
     else:
         os.chdir("..")
         path_failed.touch()
         print("failed")
-        test_return_code = 1
 
-    return test_return_code
+    return cp.returncode
 
 def run_tests(my_runs, allowed_keys, compare_dir, other_args):
     """my_runs should be a list of dictionaries, allowed_keys a set."""
