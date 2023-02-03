@@ -330,8 +330,10 @@ def compare(my_run, compare_dir, other_args):
                   "should be 0 or 1.\nSee \"comparison.txt\".")
             cp.check_returncode()
 
-        print("Elapsed time for comparisons:", time.perf_counter() - t0,
-              "s")
+        t1 = time.perf_counter()
+        line = "Elapsed time for comparison: {:.0f} s\n".format(t1 - t0)
+        fname = path.join(my_run["title"], "timing_test_compare.txt")
+        with open(fname, "a") as f: f.write(line)
 
     return comparison_code
 
