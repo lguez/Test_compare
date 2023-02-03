@@ -309,9 +309,6 @@ def compare(my_run, compare_dir, other_args):
         f.write("\n" + ("*" * 10 + "\n") * 2 + "\n")
 
     if cp.returncode in [0, 1]:
-        path_comp_code = path.join(my_run["title"], "comparison_code.txt")
-        with open(path_comp_code, "w") as f: f.write(f"{cp.returncode}\n")
-
         if cp.returncode == 0:
             os.remove("comparison.txt")
         else:
@@ -420,18 +417,12 @@ else:
             for my_run in my_runs:
                 if path.exists(my_run["title"]) and not \
                    pathlib.Path(my_run["title"], "failed").exists():
-                    path_comp_code =path.join(my_run["title"],
-                                              "comparison_code.txt")
+                    fname =path.join(my_run["title"], "comparison.txt")
 
-                    with open(path_comp_code) as f:
-                        comparison_code = f.readline()[:- 1]
-
-                    if int(comparison_code) == 1:
+                    if path.exists(fname):
                         print("Replacing", my_run["title"])
                         old_dir = path.join(args.compare_dir, my_run["title"])
                         if path.exists(old_dir): shutil.rmtree(old_dir)
-                        os.remove(path_comp_code)
-                        fname = path.join(my_run["title"], "comparison.txt")
                         os.remove(fname)
                         shutil.move(my_run["title"], old_dir)
 
