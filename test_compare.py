@@ -294,13 +294,13 @@ def compare(my_runs, compare_dir, other_args):
 
     with open("comparison.txt", "w") as comparison_file:
         for my_run in my_runs:
-            path_identical = pathlib.Path(my_run["title"],
+            path_comp_code = pathlib.Path(my_run["title"],
                                           "comparison_code.txt")
 
             if path.exists(my_run["title"]) and not \
                pathlib.Path(my_run["title"], "failed").exists():
-                if path_identical.exists():
-                    with open(path_identical) as f:
+                if path_comp_code.exists():
+                    with open(path_comp_code) as f:
                         return_code = f.readline()[:- 1]
 
                     cumul_return += int(return_code)
@@ -324,7 +324,7 @@ def compare(my_runs, compare_dir, other_args):
                     if cp.returncode in [0, 1]:
                         cumul_return += cp.returncode
 
-                        with open(path_identical, "w") as f:
+                        with open(path_comp_code, "w") as f:
                             f.write(f"{cp.returncode}\n")
 
                         if cp.returncode != 0:
@@ -433,17 +433,17 @@ else:
             for my_run in my_runs:
                 if path.exists(my_run["title"]) and not \
                    pathlib.Path(my_run["title"], "failed").exists():
-                    path_identical =pathlib.Path(my_run["title"],
+                    path_comp_code =pathlib.Path(my_run["title"],
                                                  "comparison_code.txt")
 
-                    with open(path_identical) as f:
+                    with open(path_comp_code) as f:
                         return_code = f.readline()[:- 1]
 
                     if int(return_code) == 1:
                         print("Replacing", my_run["title"])
                         old_dir = path.join(args.compare_dir, my_run["title"])
                         if path.exists(old_dir): shutil.rmtree(old_dir)
-                        os.remove(path_identical)
+                        os.remove(path_comp_code)
                         shutil.move(my_run["title"], old_dir)
 
         reply = input("Remove new runs? ")
