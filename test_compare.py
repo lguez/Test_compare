@@ -292,15 +292,13 @@ def run_tests(my_runs, allowed_keys, compare_dir, other_args):
     print("cumul_return =", cumul_return)
 
 def compare(my_run, compare_dir, other_args):
-    t0 = time.perf_counter()
     path_comp_code = path.join(my_run["title"], "comparison_code.txt")
 
     if path.exists(path_comp_code):
-        with open(path_comp_code) as f:
-            comparison_code = f.readline()[:- 1]
-
+        with open(path_comp_code) as f: comparison_code = f.readline()[:- 1]
         comparison_code = int(comparison_code)
     else:
+        t0 = time.perf_counter()
         old_dir = path.join(compare_dir, my_run["title"])
         subprocess_args = ["selective_diff.py",
                            "--exclude=timing_test_compare.txt",
@@ -320,9 +318,7 @@ def compare(my_run, compare_dir, other_args):
 
         if cp.returncode in [0, 1]:
             comparison_code = cp.returncode
-
-            with open(path_comp_code, "w") as f:
-                f.write(f"{cp.returncode}\n")
+            with open(path_comp_code, "w") as f: f.write(f"{cp.returncode}\n")
 
             if cp.returncode == 0:
                 os.remove("comparison.txt")
@@ -441,8 +437,8 @@ else:
                         old_dir = path.join(args.compare_dir, my_run["title"])
                         if path.exists(old_dir): shutil.rmtree(old_dir)
                         os.remove(path_comp_code)
-                        f = path.join(my_run["title"], "comparison.txt")
-                        os.remove(f)
+                        fname = path.join(my_run["title"], "comparison.txt")
+                        os.remove(fname)
                         shutil.move(my_run["title"], old_dir)
 
         reply = input("Remove new runs? ")
