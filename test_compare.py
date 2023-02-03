@@ -297,37 +297,43 @@ def compare(my_runs, compare_dir, other_args):
             path_identical = pathlib.Path(my_run["title"], "identical")
 
             if path.exists(my_run["title"]) and not \
-               pathlib.Path(my_run["title"], "failed").exists() and not \
-               path_identical.exists():
-                old_dir = path.join(compare_dir, my_run["title"])
-                subprocess_args = ["selective_diff.py",
-                                   "--exclude=timing_test_compare.txt", old_dir,
-                                   my_run["title"]]
-                subprocess_args[1:1] = other_args
+               pathlib.Path(my_run["title"], "failed").exists():
+                if path_identical.exists():
+                    with open(path_identical) as f:
+                        return_code = f.readline()[:- 1]
 
-                if "exclude_cmp" in my_run:
-                    assert isinstance(my_run["exclude_cmp"], list)
-
-                    for pat in my_run["exclude_cmp"]:
-                        subprocess_args[1:1] = ["-x",  pat]
-
-                cp = subprocess.run(subprocess_args,
-                                    stdout = comparison_file,
-                                    stderr = subprocess.STDOUT)
-
-                if cp.returncode in [0, 1]:
-                    cumul_return += cp.returncode
-
-                    if cp.returncode == 0:
-                        path_identical.touch()
-                    else:
-                        comparison_file.write("\n" + ("*" * 10 + "\n") * 2
-                                              + "\n")
-                        comparison_file.flush()
+                    cumul_return += int(return_code)
                 else:
-                    print("Problem in selective_diff.py, return code "
-                          "should be 0 or 1.\nSee \"comparison.txt\".")
-                    cp.check_returncode()
+                    old_dir = path.join(compare_dir, my_run["title"])
+                    subprocess_args = ["selective_diff.py",
+                                       "--exclude=timing_test_compare.txt",
+                                       old_dir, my_run["title"]]
+                    subprocess_args[1:1] = other_args
+
+                    if "exclude_cmp" in my_run:
+                        assert isinstance(my_run["exclude_cmp"], list)
+
+                        for pat in my_run["exclude_cmp"]:
+                            subprocess_args[1:1] = ["-x",  pat]
+
+                    cp = subprocess.run(subprocess_args,
+                                        stdout = comparison_file,
+                                        stderr = subprocess.STDOUT)
+
+                    if cp.returncode in [0, 1]:
+                        cumul_return += cp.returncode
+
+                        with open(path_identical, "w") as f:
+                            f.write(f"{cp.returncode}\n")
+
+                        if cp.returncode != 0:
+                            comparison_file.write("\n" + ("*" * 10 + "\n") * 2
+                                                  + "\n")
+                            comparison_file.flush()
+                    else:
+                        print("Problem in selective_diff.py, return code "
+                              "should be 0 or 1.\nSee \"comparison.txt\".")
+                        cp.check_returncode()
 
     print("Elapsed time for comparisons:", time.perf_counter() - t0,
           "s")
@@ -425,12 +431,18 @@ else:
 
             for my_run in my_runs:
                 if path.exists(my_run["title"]) and not \
-                   pathlib.Path(my_run["title"], "failed").exists() and \
-                   not pathlib.Path(my_run["title"], "identical").exists():
-                    print("Replacing", my_run["title"])
-                    old_dir = path.join(args.compare_dir, my_run["title"])
-                    if path.exists(old_dir): shutil.rmtree(old_dir)
-                    shutil.move(my_run["title"], old_dir)
+                   pathlib.Path(my_run["title"], "failed").exists():
+                    path_identical =pathlib.Path(my_run["title"], "identical")
+
+                    with open(path_identical) as f:
+                        return_code = f.readline()[:- 1]
+
+                    if int(return_code) == 1:
+                        print("Replacing", my_run["title"])
+                        old_dir = path.join(args.compare_dir, my_run["title"])
+                        if path.exists(old_dir): shutil.rmtree(old_dir)
+                        os.remove(path_identical)
+                        shutil.move(my_run["title"], old_dir)
 
         reply = input("Remove new runs? ")
         reply = reply.casefold()
