@@ -294,7 +294,8 @@ def compare(my_runs, compare_dir, other_args):
 
     with open("comparison.txt", "w") as comparison_file:
         for my_run in my_runs:
-            path_identical = pathlib.Path(my_run["title"], "identical")
+            path_identical = pathlib.Path(my_run["title"],
+                                          "comparison_code.txt")
 
             if path.exists(my_run["title"]) and not \
                pathlib.Path(my_run["title"], "failed").exists():
@@ -432,7 +433,8 @@ else:
             for my_run in my_runs:
                 if path.exists(my_run["title"]) and not \
                    pathlib.Path(my_run["title"], "failed").exists():
-                    path_identical =pathlib.Path(my_run["title"], "identical")
+                    path_identical =pathlib.Path(my_run["title"],
+                                                 "comparison_code.txt")
 
                     with open(path_identical) as f:
                         return_code = f.readline()[:- 1]
