@@ -254,6 +254,9 @@ def run_tests(my_runs, allowed_keys, compare_dir, other_args):
         
         if path.exists(my_run["title"]) and not previous_failed:
             print("Skipping", my_run["title"], "(already exists, did not fail)")
+            fname = path.join(my_run["title"], "comparison.txt")
+            if path.exists(fname):
+                cumul_return += 1
         else:
             if not set(my_run) <= allowed_keys:
                 print("bad keys:")
