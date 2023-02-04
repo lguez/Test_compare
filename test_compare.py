@@ -350,6 +350,8 @@ only the selected run directory, if it exists.""",
 parser.add_argument("-l", "--list", help = "just list the titles",
                     action = "store_true")
 parser.add_argument("-t", "--title", help = "select a title in JSON file")
+parser.add_argument("--cat_compar", help = "cat files comparison.txt",
+                    action = "store_true")
 args, other_args = parser.parse_known_args()
 
 my_runs = []
@@ -420,6 +422,15 @@ else:
 
         while True:
             run_tests(my_runs, allowed_keys, args.compare_dir, other_args)
+
+            if args.cat_compar:
+                for my_run in my_runs:
+                    fname = path.join(my_run["title"], "comparison.txt")
+
+                    if path.exists(fname):
+                        with open(fname) as f:
+                            for line in f: print(line, end = "")
+
             reply = input("Replace old runs? ")
             reply = reply.casefold()
 
