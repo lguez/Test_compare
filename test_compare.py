@@ -356,8 +356,14 @@ my_runs = []
 
 if args.list:
     for test_descr in args.test_descr:
-        with open(test_descr) as input_file: series = json.load(input_file)
-        my_runs.extend(series)
+        try:
+            input_file = open(test_descr)
+        except FileNotFoundError:
+            print("Skipping", test_descr, ", not found")
+        else:
+            series = json.load(input_file)
+            input_file.close()
+            my_runs.extend(series)
 
     for my_run in my_runs: print(my_run["title"])
 else:
