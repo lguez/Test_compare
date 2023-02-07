@@ -426,6 +426,8 @@ else:
             run_tests(my_runs, allowed_keys, args.compare_dir, other_args)
 
             if args.cat_compar:
+                print()
+
                 for my_run in my_runs:
                     fname = path.join(my_run["title"], "comparison.txt")
 
@@ -433,7 +435,7 @@ else:
                         with open(fname) as f:
                             for line in f: print(line, end = "")
 
-            reply = input("Replace old runs? ")
+            reply = input("Replace old runs with difference? ")
             reply = reply.casefold()
 
             if not reply.startswith("y"): break
