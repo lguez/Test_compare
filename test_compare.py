@@ -204,6 +204,8 @@ def run_single_test(my_run, path_failed):
     os.chdir(my_run["title"])
 
     if "create_file" in my_run:
+        assert isinstance(my_run["create_file"], list)
+
         with open(my_run["create_file"][0], "w") as f:
             f.write(my_run["create_file"][1])
         
