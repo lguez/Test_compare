@@ -466,8 +466,8 @@ else:
                         fname = path.join(my_run["title"], "comparison.txt")
 
                         if path.exists(fname):
-                            with open(fname) as f:
-                                for line in f: f_out.write(line)
+                            with open(fname) as f_in:
+                                for line in f_in: f_out.write(line)
 
             if cumul_return != 0:
                 reply = input("Replace old runs with difference? ")
