@@ -315,18 +315,15 @@ def compare(my_run, compare_dir, other_args):
         assert isinstance(my_run["exclude_cmp"], list)
         for pat in my_run["exclude_cmp"]: subprocess_args[1:1] = ["-x",  pat]
 
-    with open("comparison.txt", "w") as f:
+    fname = path.join(my_run["title"], "comparison.txt")
+    with open(fname, "w") as f:
         cp = subprocess.run(subprocess_args, stdout = f,
                             stderr = subprocess.STDOUT)
         f.write("\n" + ("*" * 10 + "\n") * 2 + "\n")
 
-    if cp.returncode in [0, 1]:
-        if cp.returncode == 0:
-            os.remove("comparison.txt")
-        else:
-            dst = path.join(my_run["title"], "comparison.txt")
-            os.rename("comparison.txt", dst)
-    else:
+    if cp.returncode == 0:
+        os.remove(fname)
+    elif cp.returncode != 1:
         print("Problem in selective_diff.py, return code "
               "should be 0 or 1.\nSee \"comparison.txt\".")
         cp.check_returncode()
