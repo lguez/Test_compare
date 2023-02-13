@@ -137,7 +137,7 @@ def get_single_required(src, my_run, base_dest, required_type):
     """
 
     found = path.exists(src)
-    
+
     if found:
         dst = path.join(my_run["title"], base_dest)
 
@@ -208,7 +208,7 @@ def run_single_test(my_run, path_failed):
 
         with open(my_run["create_file"][0], "w") as f:
             f.write(my_run["create_file"][1])
-        
+
     with open("test.json", "w") as f:
         json.dump(my_run, f, indent = 3, sort_keys = True)
         f.write("\n")
@@ -248,12 +248,12 @@ def run_tests(my_runs, allowed_keys, compare_dir, other_args):
     t0 = time.perf_counter()
     n_failed = 0
     cumul_return = 0
-    
+
     for i, my_run in enumerate(my_runs):
         print(i, end = ": ")
         path_failed = pathlib.Path(my_run["title"], "failed")
         previous_failed = path_failed.exists()
-        
+
         if path.exists(my_run["title"]) and not previous_failed:
             print("Skipping", my_run["title"], "(already exists, did not fail)")
             fname = path.join(my_run["title"], "comparison.txt")
