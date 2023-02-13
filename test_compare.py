@@ -307,7 +307,7 @@ def compare(my_run, compare_dir, other_args):
     t0 = time.perf_counter()
     old_dir = path.join(compare_dir, my_run["title"])
     subprocess_args = ["selective_diff.py", "--exclude=timing_test_compare.txt",
-                       old_dir, my_run["title"]]
+                       "--exclude=comparison.txt", old_dir, my_run["title"]]
     subprocess_args[1:1] = other_args
 
     if "exclude_cmp" in my_run:
