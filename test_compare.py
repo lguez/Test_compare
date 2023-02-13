@@ -286,7 +286,11 @@ def run_tests(my_runs, allowed_keys, compare_dir, other_args):
                         shutil.copytree(my_run["title"], old_dir,
                                         symlinks = True)
                     except FileExistsError:
-                        cumul_return += compare(my_run, compare_dir, other_args)
+                        return_code = compare(my_run, compare_dir, other_args)
+
+                        if return_code != 0:
+                            print("difference found")
+                            cumul_return += 1
                     else:
                         print("Archived", my_run["title"])
                 else:
@@ -318,7 +322,6 @@ def compare(my_run, compare_dir, other_args):
         if cp.returncode == 0:
             os.remove("comparison.txt")
         else:
-            print("difference found")
             dst = path.join(my_run["title"], "comparison.txt")
             os.rename("comparison.txt", dst)
     else:
