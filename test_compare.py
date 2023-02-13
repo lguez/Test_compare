@@ -457,7 +457,8 @@ else:
                         "create_file", "exclude_cmp"}
 
         while True:
-            run_tests(my_runs, allowed_keys, args.compare_dir, other_args)
+            cumul_return = run_tests(my_runs, allowed_keys, args.compare_dir,
+                                     other_args)
 
             if args.cat_compar:
                 print()
@@ -469,10 +470,11 @@ else:
                         with open(fname) as f:
                             for line in f: print(line, end = "")
 
-            reply = input("Replace old runs with difference? ")
-            reply = reply.casefold()
+            if cumul_return != 0:
+                reply = input("Replace old runs with difference? ")
+                reply = reply.casefold()
 
-            if not reply.startswith("y"): break
+            if cumul_return == 0 or not reply.startswith("y"): break
 
             for my_run in my_runs:
                 if path.exists(my_run["title"]) and not \
