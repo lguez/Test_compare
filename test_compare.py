@@ -357,6 +357,8 @@ parser.add_argument("-l", "--list", help = "just list the titles",
 parser.add_argument("-t", "--title", help = "select a title in JSON file")
 parser.add_argument("--cat_compar", help = "cat files comparison.txt",
                     action = "store_true")
+parser.add_argument("--re_compar", help = "redo comparison (but do not re-run)",
+                    action = "store_true")
 args, other_args = parser.parse_known_args()
 
 my_runs = []
@@ -419,6 +421,33 @@ else:
             if path.exists(my_run["title"]):
                 print("Removing", my_run["title"] + "...")
                 shutil.rmtree(my_run["title"])
+    elif args.re_compar:
+        print("Starting comparisons at", datetime.datetime.now())
+        t0 = time.perf_counter()
+        cumul_return = 0
+
+        for i, my_run in enumerate(my_runs):
+            print(i)
+            path_failed = pathlib.Path(my_run["title"], "failed")
+
+            if path.exists(my_run["title"]) and not path_failed.exists():
+                old_dir = path.join(args.compare_dir, my_run["title"])
+
+                try:
+                    shutil.copytree(my_run["title"], old_dir, symlinks = True)
+                except FileExistsError:
+                    return_code = compare(my_run, args.compare_dir, other_args)
+
+                    if return_code != 0:
+                        print("difference found")
+                        cumul_return += 1
+                else:
+                    print("Archived", my_run["title"])
+            else:
+                print("Does not exist or failed")
+
+        print("Elapsed time:", time.perf_counter() - t0, "s")
+        print("Number of successful runs with different results:", cumul_return)
     else:
         allowed_keys = {"title", "command", "commands", "main_command",
                         "description", "stdout", "symlink", "copy", "env",
