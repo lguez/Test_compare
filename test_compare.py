@@ -302,6 +302,7 @@ def run_tests(my_runs, allowed_keys, compare_dir, other_args):
     print("Elapsed time:", time.perf_counter() - t0, "s")
     print("Number of failed runs:", n_failed)
     print("Number of successful runs with different results:", cumul_return)
+    return cumul_return
 
 def compare(my_run, compare_dir, other_args):
     t0 = time.perf_counter()
