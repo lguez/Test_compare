@@ -426,10 +426,10 @@ else:
         cumul_return = 0
 
         for i, my_run in enumerate(my_runs):
-            print(i)
-            path_failed = pathlib.Path(my_run["title"], "failed")
+            print(f'{i}: {my_run["title"]}')
 
-            if path.exists(my_run["title"]) and not path_failed.exists():
+            if path.exists(my_run["title"]) \
+               and not pathlib.Path(my_run["title"], "failed").exists():
                 old_dir = path.join(args.compare_dir, my_run["title"])
 
                 try:
