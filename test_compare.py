@@ -277,9 +277,9 @@ def run_tests(my_runs, allowed_keys, compare_dir, other_args):
             found = get_all_required(my_run)
 
             if found:
-                test_return_code = run_single_test(my_run, path_failed)
+                return_code = run_single_test(my_run, path_failed)
 
-                if test_return_code == 0:
+                if return_code == 0:
                     old_dir = path.join(compare_dir, my_run["title"])
 
                     try:
