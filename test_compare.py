@@ -357,8 +357,8 @@ only the selected run directory, if it exists.""",
 parser.add_argument("-l", "--list", help = "just list the titles",
                     action = "store_true")
 parser.add_argument("-t", "--title", help = "select a title in JSON file")
-parser.add_argument("--cat_compar", help = "cat files comparison.txt",
-                    action = "store_true")
+parser.add_argument("--cat", help = "cat files comparison.txt",
+                    metavar = "FILE")
 parser.add_argument("--re_compar", help = "redo comparison (but do not re-run)",
                     action = "store_true")
 args, other_args = parser.parse_known_args()
@@ -460,15 +460,14 @@ else:
             cumul_return = run_tests(my_runs, allowed_keys, args.compare_dir,
                                      other_args)
 
-            if args.cat_compar:
-                print()
+            if args.cat:
+                with open(args.cat, "w") as f_out:
+                    for my_run in my_runs:
+                        fname = path.join(my_run["title"], "comparison.txt")
 
-                for my_run in my_runs:
-                    fname = path.join(my_run["title"], "comparison.txt")
-
-                    if path.exists(fname):
-                        with open(fname) as f:
-                            for line in f: print(line, end = "")
+                        if path.exists(fname):
+                            with open(fname) as f:
+                                for line in f: f_out.write(line)
 
             if cumul_return != 0:
                 reply = input("Replace old runs with difference? ")
