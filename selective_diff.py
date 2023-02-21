@@ -315,6 +315,56 @@ class detailed_diff:
 
         return cp.returncode
 
+def selective_diff(args):
+    if not path.isdir(args.directory[0]) or not path.isdir(args.directory[1]):
+        print()
+        print("Bad directories: ", *args.directory)
+        sys.exit(2)
+
+    # Construct a list of files to ignore:
+
+    ignore = set()
+
+    if args.exclude:
+        for my_dir in args.directory:
+            for dirpath, dirnames, filenames in os.walk(my_dir):
+                for pattern in args.exclude:
+                    list_match = fnmatch.filter(filenames, pattern)
+                    ignore.update(list_match)
+
+    # done
+
+    dcmp = filecmp.dircmp(*args.directory, list(ignore))
+
+    # Use command-line options to define a detailed_diff instance:
+    if args.brief:
+        detailed_diff_instance = None
+    else:
+        if args.numdiff:
+            diff_csv = "numdiff"
+        elif args.max_diff_rect:
+            diff_csv = "max_diff_rect"
+        else:
+            diff_csv = None
+
+        if args.ncdump:
+            diff_nc = "ncdump"
+        elif args.max_diff_nc:
+            diff_nc = "max_diff_nc"
+        elif args.Ziemlinski:
+            diff_nc = "Ziemlinski"
+        else:
+            diff_nc = None
+
+        detailed_diff_instance = detailed_diff(args.limit, args.pyshp, diff_csv,
+                                               diff_nc)
+
+    n_diff = my_report(dcmp, detailed_diff_instance, level = 1)
+
+    if n_diff != 0:
+        print("\nNumber of differences:", n_diff)
+        sys.exit(1)
+
 parser = argparse.ArgumentParser()
 parser.add_argument("directory", nargs = 2)
 parser.add_argument("--pyshp", action = "store_true",
@@ -351,52 +401,4 @@ parser.add_argument("-x", "--exclude", metavar = 'PAT', action = "append",
                     default = [],
                     help = "exclude files that match shell pattern PAT")
 args = parser.parse_args()
-
-if not path.isdir(args.directory[0]) or not path.isdir(args.directory[1]):
-    print()
-    print("Bad directories: ", *args.directory)
-    sys.exit(2)
-
-# Construct a list of files to ignore:
-
-ignore = set()
-
-if args.exclude:
-    for my_dir in args.directory:
-        for dirpath, dirnames, filenames in os.walk(my_dir):
-            for pattern in args.exclude:
-                list_match = fnmatch.filter(filenames, pattern)
-                ignore.update(list_match)
-
-# done
-
-dcmp = filecmp.dircmp(*args.directory, list(ignore))
-
-# Use command-line options to define a detailed_diff instance:
-if args.brief:
-    detailed_diff_instance = None
-else:
-    if args.numdiff:
-        diff_csv = "numdiff"
-    elif args.max_diff_rect:
-        diff_csv = "max_diff_rect"
-    else:
-        diff_csv = None
-
-    if args.ncdump:
-        diff_nc = "ncdump"
-    elif args.max_diff_nc:
-        diff_nc = "max_diff_nc"
-    elif args.Ziemlinski:
-        diff_nc = "Ziemlinski"
-    else:
-        diff_nc = None
-
-    detailed_diff_instance = detailed_diff(args.limit, args.pyshp, diff_csv,
-                                           diff_nc)
-
-n_diff = my_report(dcmp, detailed_diff_instance, level = 1)
-
-if n_diff != 0:
-    print("\nNumber of differences:", n_diff)
-    sys.exit(1)
+selective_diff(args)
