@@ -113,7 +113,7 @@ def nccmp_Ziemlinski(path_1, path_2, detail_file):
 
     return cp.returncode
 
-def my_report(dcmp, detailed_diff_instance, level):
+def my_report(dcmp, detailed_diff_instance, file_out, level):
     """dcmp should be an instance of filecmp.dircmp."""
 
     detail_file = io.StringIO()
@@ -129,57 +129,58 @@ def my_report(dcmp, detailed_diff_instance, level):
             n_diff += detailed_diff_instance.diff(path_1, path_2, detail_file)
 
     if n_diff != 0:
-        print(level * '#', 'diff', dcmp.left, dcmp.right, "\n")
+        print(level * '#', 'diff', dcmp.left, dcmp.right, "\n", file = file_out)
 
         if dcmp.left_only:
             dcmp.left_only.sort()
-            print('Only in', dcmp.left, ':')
-            for x in dcmp.left_only: print(x)
-            print()
+            print('Only in', dcmp.left, ':', file = file_out)
+            for x in dcmp.left_only: print(x, file = file_out)
+            file_out.write("\n")
 
         if dcmp.right_only:
             dcmp.right_only.sort()
-            print('Only in', dcmp.right, ':')
-            for x in dcmp.right_only: print(x)
-            print()
+            print('Only in', dcmp.right, ':', file = file_out)
+            for x in dcmp.right_only: print(x, file = file_out)
+            file_out.write("\n")
 
         if dcmp.same_files:
             dcmp.same_files.sort()
-            print('Identical files :')
-            for x in dcmp.same_files: print(x)
-            print()
+            print('Identical files :', file = file_out)
+            for x in dcmp.same_files: print(x, file = file_out)
+            file_out.write("\n")
 
         if dcmp.diff_files:
             dcmp.diff_files.sort()
-            print('Differing files according to cmp:')
-            for x in dcmp.diff_files: print(x)
-            print()
+            print('Differing files according to cmp:', file = file_out)
+            for x in dcmp.diff_files: print(x, file = file_out)
+            file_out.write("\n")
 
         if dcmp.funny_files:
             dcmp.funny_files.sort()
-            print('Trouble with common files :')
-            for x in dcmp.funny_files: print(x)
-            print()
+            print('Trouble with common files :', file = file_out)
+            for x in dcmp.funny_files: print(x, file = file_out)
+            file_out.write("\n")
 
         if dcmp.common_dirs:
             dcmp.common_dirs.sort()
-            print('Common subdirectories :')
-            for x in dcmp.common_dirs: print(x)
-            print()
+            print('Common subdirectories :', file = file_out)
+            for x in dcmp.common_dirs: print(x, file = file_out)
+            file_out.write("\n")
 
         if dcmp.common_funny:
             dcmp.common_funny.sort()
-            print('Common funny cases :')
-            for x in dcmp.common_funny: print(x)
-            print()
+            print('Common funny cases :', file = file_out)
+            for x in dcmp.common_funny: print(x, file = file_out)
+            file_out.write("\n")
 
         detail_diag = detail_file.getvalue()
-        print(detail_diag)
+        file_out.write(detail_diag)
 
     detail_file.close()
 
     for sub_dcmp in dcmp.subdirs.values():
-        n_diff += my_report(sub_dcmp, detailed_diff_instance, level + 1)
+        n_diff += my_report(sub_dcmp, detailed_diff_instance, file_out,
+                            level + 1)
 
     return n_diff
 
@@ -316,7 +317,7 @@ class detailed_diff:
 
         return cp.returncode
 
-def selective_diff(args):
+def selective_diff(args, file_out = sys.stdout):
     if not path.isdir(args.directory[0]) or not path.isdir(args.directory[1]):
         print("\nBad directories: ", *args.directory, file = sys.stderr)
         sys.exit(2)
@@ -359,10 +360,10 @@ def selective_diff(args):
         detailed_diff_instance = detailed_diff(args.limit, args.pyshp, diff_csv,
                                                diff_nc)
 
-    n_diff = my_report(dcmp, detailed_diff_instance, level = 1)
+    n_diff = my_report(dcmp, detailed_diff_instance, file_out, level = 1)
 
     if n_diff != 0:
-        print("\nNumber of differences:", n_diff)
+        print("\nNumber of differences:", n_diff, file = file_out)
         sys.exit(1)
 
 if __name__ == "__main__":
