@@ -318,8 +318,7 @@ class detailed_diff:
 
 def selective_diff(args):
     if not path.isdir(args.directory[0]) or not path.isdir(args.directory[1]):
-        print()
-        print("Bad directories: ", *args.directory)
+        print("\nBad directories: ", *args.directory, file = sys.stderr)
         sys.exit(2)
 
     # Construct a list of files to ignore:
