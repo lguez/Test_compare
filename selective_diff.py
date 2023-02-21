@@ -365,40 +365,41 @@ def selective_diff(args):
         print("\nNumber of differences:", n_diff)
         sys.exit(1)
 
-parser = argparse.ArgumentParser()
-parser.add_argument("directory", nargs = 2)
-parser.add_argument("--pyshp", action = "store_true",
-                    help = "use pyshp to compare DBF files (default dbfdump)")
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("directory", nargs = 2)
+    parser.add_argument("--pyshp", action = "store_true",
+                        help = "use pyshp to compare DBF files (default dbfdump)")
 
-# CSV files:
-group = parser.add_mutually_exclusive_group()
-group.add_argument("--numdiff", action = "store_true",
-                   help = "use numdiff to compare CSV files (default ndiff)")
-group.add_argument("--max_diff_rect", action = "store_true",
-                   help = "use max_diff_rect to compare CSV files (default "
-                   "ndiff)")
+    # CSV files:
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("--numdiff", action = "store_true",
+                       help = "use numdiff to compare CSV files (default ndiff)")
+    group.add_argument("--max_diff_rect", action = "store_true",
+                       help = "use max_diff_rect to compare CSV files (default "
+                       "ndiff)")
 
-# NetCDF files:
-group = parser.add_mutually_exclusive_group()
-group.add_argument("--ncdump", action = "store_true", help = "compare headers "
-                   "of NetCDF files with ncdump and data with nccmp.py "
-                   "(default headers and data with nccmp.py)")
-group.add_argument("--max_diff_nc", action = "store_true",
-                   help = "use max_diff_nc to compare NetCDF files (default "
-                   "nccmp.py)")
-group.add_argument("--Ziemlinski", action = "store_true",
-                   help = "use nccmp by Ziemlinski to compare NetCDF files "
-                   "(default nccmp.py)")
+    # NetCDF files:
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("--ncdump", action = "store_true", help = "compare headers "
+                       "of NetCDF files with ncdump and data with nccmp.py "
+                       "(default headers and data with nccmp.py)")
+    group.add_argument("--max_diff_nc", action = "store_true",
+                       help = "use max_diff_nc to compare NetCDF files (default "
+                       "nccmp.py)")
+    group.add_argument("--Ziemlinski", action = "store_true",
+                       help = "use nccmp by Ziemlinski to compare NetCDF files "
+                       "(default nccmp.py)")
 
-parser.add_argument("-l", "--limit", help = "maximum number of lines for "
-                    "printing detailed differences (default 50)", type = int,
-                    default = 50)
-parser.add_argument("-b", "--brief",
-                    help = "only compare directories briefly (default: "
-                    "analyse each file after brief comparison of directories)",
-                    action = "store_true")
-parser.add_argument("-x", "--exclude", metavar = 'PAT', action = "append",
-                    default = [],
-                    help = "exclude files that match shell pattern PAT")
-args = parser.parse_args()
-selective_diff(args)
+    parser.add_argument("-l", "--limit", help = "maximum number of lines for "
+                        "printing detailed differences (default 50)", type = int,
+                        default = 50)
+    parser.add_argument("-b", "--brief",
+                        help = "only compare directories briefly (default: "
+                        "analyse each file after brief comparison of directories)",
+                        action = "store_true")
+    parser.add_argument("-x", "--exclude", metavar = 'PAT', action = "append",
+                        default = [],
+                        help = "exclude files that match shell pattern PAT")
+    args = parser.parse_args()
+    selective_diff(args)
