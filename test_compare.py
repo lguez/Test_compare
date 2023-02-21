@@ -316,6 +316,7 @@ def compare(my_run, compare_dir, other_args):
         for pat in my_run["exclude_cmp"]: subprocess_args[1:1] = ["-x",  pat]
 
     fname = path.join(my_run["title"], "comparison.txt")
+
     with open(fname, "w") as f:
         cp = subprocess.run(subprocess_args, stdout = f,
                             stderr = subprocess.STDOUT)
