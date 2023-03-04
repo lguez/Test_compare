@@ -489,4 +489,8 @@ else:
         reply = reply.casefold()
 
         if reply.startswith("y"):
-            for my_run in my_runs: shutil.rmtree(my_run["title"])
+            for my_run in my_runs:
+                try:
+                    shutil.rmtree(my_run["title"])
+                except FileNotFoundError:
+                    pass
