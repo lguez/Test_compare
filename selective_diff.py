@@ -244,7 +244,7 @@ class detailed_diff:
             n_diff = diff_shp.diff_shp(path_1, path_2,
                                        detail_file = detail_file)
         elif suffix == ".png":
-            n_diff = diff_png(path_1, path_2, detail_file = detail_file)
+            n_diff = diff_png(path_1, path_2, detail_file)
         elif suffix == ".gv":
             n_diff = diff_gv(path_1, path_2, detail_file)
         else:
