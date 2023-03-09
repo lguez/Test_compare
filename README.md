@@ -7,7 +7,7 @@ some chosen types of files: NetCDF, numeric CSV, shapefile.
 Note that arguments should be two directories, not two files.
 
 Dependencies: [python3-wand](https://github.com/emcconville/wand),
-[pygraphviz](https://pygraphviz.github.io).
+[networkx](https://networkx.org).
 
 # `test_compare`
 

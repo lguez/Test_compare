@@ -15,7 +15,8 @@ import nccmp
 import fnmatch
 import io
 from wand import image
-import pygraphviz as pgv
+import networkx as nx
+from networkx import nx_agraph
 
 def cat_not_too_many(file_in, size_lim, file_out):
     """file_in and file_out should be existing file objects."""
@@ -117,8 +118,8 @@ def nccmp_Ziemlinski(path_1, path_2, detail_file):
 def diff_gv(path_1, path_2, detail_file):
     """For Graphviz files."""
 
-    G1 = pgv.AGraph(path_1)
-    G2 = pgv.AGraph(path_2)
+    G1 = nx_agraph.read_dot(path_1)
+    G2 = nx_agraph.read_dot(path_2)
 
     if G1 == G2:
         returncode = 0
@@ -126,7 +127,9 @@ def diff_gv(path_1, path_2, detail_file):
         returncode = 1
         detail_file.write('\n' + "*" * 10 + '\n\n')
         detail_file.write(f"diff {path_1} {path_2}\n")
-        detail_file.write("Different according to pygraphviz\n")
+        detail_file.write(f"Equality of nodes: {G1.nodes == G2.nodes}\n")
+        detail_file.write(f"Equality of adjacencies: {G1.adj == G2.adj}\n")
+        detail_file.write(f"Equality of attributes: {G1.graph == G2.graph}\n")
 
     return returncode
 
