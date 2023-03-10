@@ -15,7 +15,6 @@ import nccmp
 import fnmatch
 import io
 from wand import image
-import networkx as nx
 from networkx import nx_agraph
 
 def cat_not_too_many(file_in, size_lim, file_out):
