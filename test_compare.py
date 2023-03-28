@@ -248,6 +248,7 @@ def run_tests(my_runs, allowed_keys, compare_dir, other_args):
     t0 = time.perf_counter()
     n_failed = 0
     cumul_return = 0
+    n_missing = 0
 
     for i, my_run in enumerate(my_runs):
         print(i, end = ": ")
@@ -297,11 +298,16 @@ def run_tests(my_runs, allowed_keys, compare_dir, other_args):
                 else:
                     n_failed += 1
             else:
+                n_missing += 1
                 shutil.rmtree(my_run["title"])
 
     print("Elapsed time:", time.perf_counter() - t0, "s")
     print("Number of failed runs:", n_failed)
     print("Number of successful runs with different results:", cumul_return)
+
+    if n_missing != 0:
+        print("Number not created because of missing requirements:", n_missing)
+
     return cumul_return
 
 def compare(my_run, compare_dir, other_args):
