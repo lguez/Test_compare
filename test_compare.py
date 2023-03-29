@@ -44,15 +44,15 @@ create and its content.
 If present, "symlink" or "copy" must be a list. Each element of
 "symlink" or "copy" must itself be a string or a list of two strings
 (no tuple allowed in JSON). If an element of "symlink" or "copy" is a
-string then it must be the absolute path to a file that will be
-sym-linked or copied to the test directory, with the same basename. It
-may contain a shell pattern. If a required element is a list of two
-strings then the first string must be the absolute path to a file that
-will be sym-linked or copied to the test directory, with the second
-string as basename. "symlink" and "copy" can both be present in a
-given test description. Generally, files which will not be modified by
-the test should be symlinked. An element of "symlink" or "copy" may be
-a directory.
+string then it must be the absolute path to a file or directory that
+will be sym-linked or copied to the test directory, with the same
+basename. It may contain a shell pattern. If a required element is a
+list of two strings then the first string must be the absolute path to
+a file or directory that will be sym-linked or copied to the test
+directory, with the second string as basename. "symlink" and "copy"
+can both be present in a given test description. Generally, files or
+directories which will not be modified by the test should be
+sym-linked.
 
 If present, "env" must be a dictionary of environment variables and
 values. This dictionary will be added to, not replace, the inherited

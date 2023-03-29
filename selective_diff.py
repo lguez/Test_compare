@@ -234,7 +234,7 @@ class detailed_diff:
         else:
             detail_file.write('\n' + "*" * 10 + '\n\n')
             detail_file.write(f"diff {path_1} {path_2}\n")
-            detail_file.write("Detailed diff not implemented\n")
+            detail_file.write("Detailed diff not implemented\n\n")
             n_diff = 1
 
         return n_diff
