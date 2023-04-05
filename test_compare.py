@@ -97,7 +97,7 @@ import time
 import string
 import pathlib
 
-def get_all_required(my_run):
+def get_all_required(title, my_run):
     found = True
 
     for required_type in ["symlink", "copy"]:
@@ -106,7 +106,7 @@ def get_all_required(my_run):
 
             for required_item in my_run[required_type]:
                 if isinstance(required_item, list):
-                    found = get_single_required(required_item[0], my_run,
+                    found = get_single_required(required_item[0], title, my_run,
                                                 required_item[1], required_type)
                 else:
                     # Wildcards allowed
@@ -119,8 +119,8 @@ def get_all_required(my_run):
                     else:
                         for expanded_item in expanded_list:
                             base_dest = path.basename(expanded_item)
-                            found = get_single_required(expanded_item, my_run,
-                                                        base_dest,
+                            found = get_single_required(expanded_item, title,
+                                                        my_run, base_dest,
                                                         required_type)
                             if not found: break
 
@@ -130,16 +130,16 @@ def get_all_required(my_run):
 
     return found
 
-def get_single_required(src, my_run, base_dest, required_type):
+def get_single_required(src, title, my_run, base_dest, required_type):
     """If src exists then symlink or copy src to
-    my_run["title"]/base_dest.
+    title/base_dest.
 
     """
 
     found = path.exists(src)
 
     if found:
-        dst = path.join(my_run["title"], base_dest)
+        dst = path.join(title, base_dest)
 
         if required_type == "symlink":
             os.symlink(src, dst)
@@ -155,7 +155,7 @@ def get_single_required(src, my_run, base_dest, required_type):
 
     return found
 
-def run_single_test(my_run, path_failed):
+def run_single_test(title, my_run, path_failed):
     if "command" in my_run:
         commands = [my_run["command"]]
         main_command = 0
@@ -181,8 +181,8 @@ def run_single_test(my_run, path_failed):
     stderr_filename = stdout_filename.replace("_stdout.txt", "_stderr.txt")
 
     if "stdin_filename" in my_run and "input" in my_run:
-        print(my_run["title"], ": stdin_filename and input are exclusive.")
-        shutil.rmtree(my_run["title"])
+        print(title, ": stdin_filename and input are exclusive.")
+        shutil.rmtree(title)
         sys.exit(1)
 
     other_kwargs = {}
@@ -191,7 +191,7 @@ def run_single_test(my_run, path_failed):
         try:
             other_kwargs["stdin"] = open(my_run["stdin_filename"])
         except FileNotFoundError:
-            shutil.rmtree(my_run["title"])
+            shutil.rmtree(title)
             raise
     elif "input" in my_run:
         other_kwargs["input"] = my_run["input"]
@@ -201,7 +201,7 @@ def run_single_test(my_run, path_failed):
     if "env" in my_run:
         other_kwargs["env"] = dict(os.environ, **my_run["env"])
 
-    os.chdir(my_run["title"])
+    os.chdir(title)
 
     if "create_file" in my_run:
         assert isinstance(my_run["create_file"], list)
@@ -251,13 +251,14 @@ def run_tests(my_runs, allowed_keys, compare_dir, other_args):
     n_missing = 0
 
     for i, my_run in enumerate(my_runs):
+        title = my_run["title"]
         print(i, end = ": ")
-        path_failed = pathlib.Path(my_run["title"], "failed")
+        path_failed = pathlib.Path(title, "failed")
         previous_failed = path_failed.exists()
 
-        if path.exists(my_run["title"]) and not previous_failed:
-            print("Skipping", my_run["title"], "(already exists, did not fail)")
-            fname = path.join(my_run["title"], "comparison.txt")
+        if path.exists(title) and not previous_failed:
+            print("Skipping", title, "(already exists, did not fail)")
+            fname = path.join(title, "comparison.txt")
 
             if path.exists(fname):
                 cumul_return += 1
@@ -269,37 +270,38 @@ def run_tests(my_runs, allowed_keys, compare_dir, other_args):
                 sys.exit(1)
 
             if previous_failed:
-                print("Replacing", my_run["title"],
+                print("Replacing", title,
                       "because previous run failed...")
-                shutil.rmtree(my_run["title"])
+                shutil.rmtree(title)
             else:
-                print("Creating", my_run["title"] + "...", flush = True)
+                print("Creating", title + "...", flush = True)
 
-            os.mkdir(my_run["title"])
-            found = get_all_required(my_run)
+            os.mkdir(title)
+            found = get_all_required(title, my_run)
 
             if found:
-                return_code = run_single_test(my_run, path_failed)
+                return_code = run_single_test(title, my_run, path_failed)
 
                 if return_code == 0:
-                    old_dir = path.join(compare_dir, my_run["title"])
+                    old_dir = path.join(compare_dir, title)
 
                     try:
-                        shutil.copytree(my_run["title"], old_dir,
+                        shutil.copytree(title, old_dir,
                                         symlinks = True)
                     except FileExistsError:
-                        return_code = compare(my_run, compare_dir, other_args)
+                        return_code = compare(title, my_run, compare_dir,
+                                              other_args)
 
                         if return_code != 0:
                             print("difference found")
                             cumul_return += 1
                     else:
-                        print("Archived", my_run["title"])
+                        print("Archived", title)
                 else:
                     n_failed += 1
             else:
                 n_missing += 1
-                shutil.rmtree(my_run["title"])
+                shutil.rmtree(title)
 
     print("Elapsed time:", time.perf_counter() - t0, "s")
     print("Number of failed runs:", n_failed)
@@ -310,18 +312,18 @@ def run_tests(my_runs, allowed_keys, compare_dir, other_args):
 
     return cumul_return
 
-def compare(my_run, compare_dir, other_args):
+def compare(title, my_run, compare_dir, other_args):
     t0 = time.perf_counter()
-    old_dir = path.join(compare_dir, my_run["title"])
+    old_dir = path.join(compare_dir, title)
     subprocess_args = ["selective_diff.py", "--exclude=timing_test_compare.txt",
-                       "--exclude=comparison.txt", old_dir, my_run["title"]]
+                       "--exclude=comparison.txt", old_dir, title]
     subprocess_args[1:1] = other_args
 
     if "exclude_cmp" in my_run:
         assert isinstance(my_run["exclude_cmp"], list)
         for pat in my_run["exclude_cmp"]: subprocess_args[1:1] = ["-x",  pat]
 
-    fname = path.join(my_run["title"], "comparison.txt")
+    fname = path.join(title, "comparison.txt")
 
     with open(fname, "w") as f:
         cp = subprocess.run(subprocess_args, stdout = f,
@@ -337,7 +339,7 @@ def compare(my_run, compare_dir, other_args):
 
     t1 = time.perf_counter()
     line = "Elapsed time for comparison: {:.0f} s\n".format(t1 - t0)
-    fname = path.join(my_run["title"], "timing_test_compare.txt")
+    fname = path.join(title, "timing_test_compare.txt")
     with open(fname, "a") as f: f.write(line)
 
     return cp.returncode
@@ -445,7 +447,8 @@ else:
                 try:
                     shutil.copytree(my_run["title"], old_dir, symlinks = True)
                 except FileExistsError:
-                    return_code = compare(my_run, args.compare_dir, other_args)
+                    return_code = compare(my_run["title"], my_run,
+                                          args.compare_dir, other_args)
 
                     if return_code != 0:
                         print("difference found")
