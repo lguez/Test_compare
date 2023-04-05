@@ -409,7 +409,10 @@ else:
                 series = json.load(json_substituted)
 
             input_file.close()
-            for my_run in series: my_run["test_series_file"] = test_descr
+
+            for my_run in series:
+                my_run["test_series_file"] = path.abspath(test_descr)
+
             my_runs.extend(series)
 
     if args.title:
