@@ -6,15 +6,14 @@ This script chains runs in directories which do not pre-exist and are
 created.
 
 This script reads a JSON test description file. The test description
-file must contain a list of dictionaries. Each run is defined by
-title, commands, required files (that is, files required to be present
-in the current directory at run time), environment, stdin_filename or
-input, and stdout file. The title is used as directory name. Each
-dictionary must thus include the keys:
-
-"title", either "command" or "commands"
-
-and may also include the keys:
+file must contain a dictionary. The keys of this dictionary should be
+the titles of the test. Each title is a string and is used as
+directory name. The value for each title is a dictionary describing a
+run. Each run is defined by commands, required files (that is, files
+required to be present in the current directory at run time),
+environment, stdin_filename or input, and stdout file. Each dictionary
+must thus include either the key "command" or "commands", and may also
+include the keys:
 
 "main_command", "description", "stdout", "symlink", "copy", "env", either
 "stdin_filename" or "input", "create_file", "exclude_cmp"
@@ -131,8 +130,7 @@ def get_all_required(title, my_run):
     return found
 
 def get_single_required(src, title, my_run, base_dest, required_type):
-    """If src exists then symlink or copy src to
-    title/base_dest.
+    """If src exists then symlink or copy src to title/base_dest.
 
     """
 
@@ -242,7 +240,10 @@ def run_single_test(title, my_run, path_failed):
     return cp.returncode
 
 def run_tests(my_runs, allowed_keys, compare_dir, other_args):
-    """my_runs should be a list of dictionaries, allowed_keys a set."""
+    """my_runs should be a dictionary of dictionaries. allowed_keys should
+    be a set.
+
+    """
 
     print("Starting runs at", datetime.datetime.now())
     t0 = time.perf_counter()
@@ -270,8 +271,7 @@ def run_tests(my_runs, allowed_keys, compare_dir, other_args):
                 sys.exit(1)
 
             if previous_failed:
-                print("Replacing", title,
-                      "because previous run failed...")
+                print("Replacing", title, "because previous run failed...")
                 shutil.rmtree(title)
             else:
                 print("Creating", title + "...", flush = True)
@@ -286,8 +286,7 @@ def run_tests(my_runs, allowed_keys, compare_dir, other_args):
                     old_dir = path.join(compare_dir, title)
 
                     try:
-                        shutil.copytree(title, old_dir,
-                                        symlinks = True)
+                        shutil.copytree(title, old_dir, symlinks = True)
                     except FileExistsError:
                         return_code = compare(title, my_run, compare_dir,
                                               other_args)
