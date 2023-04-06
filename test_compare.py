@@ -250,8 +250,8 @@ def run_tests(my_runs, allowed_keys, compare_dir, other_args):
     cumul_return = 0
     n_missing = 0
 
-    for i, my_run in enumerate(my_runs):
-        title = my_run["title"]
+    for i, title in enumerate(my_runs):
+        my_run = my_runs[title]
         print(i, end = ": ")
         path_failed = pathlib.Path(title, "failed")
         previous_failed = path_failed.exists()
@@ -369,7 +369,7 @@ parser.add_argument("--re_compar", help = "redo comparison (but do not re-run)",
                     action = "store_true")
 args, other_args = parser.parse_known_args()
 
-my_runs = []
+my_runs = {}
 
 if args.list:
     for test_descr in args.test_descr:
@@ -380,9 +380,9 @@ if args.list:
         else:
             series = json.load(input_file)
             input_file.close()
-            my_runs.extend(series)
+            my_runs.update(series)
 
-    for my_run in my_runs: print(my_run["title"])
+    for title in my_runs: print(title)
 else:
     if not path.isdir(args.compare_dir):
         sys.exit("Directory " + args.compare_dir + " not found.")
@@ -412,59 +412,57 @@ else:
 
             input_file.close()
 
-            for my_run in series:
+            for my_run in series.values():
                 my_run["test_series_file"] = path.abspath(test_descr)
 
-            my_runs.extend(series)
+            my_runs.update(series)
 
     if args.title:
-        for my_run in my_runs:
-            if my_run["title"] == args.title: break
-        else:
+        if args.title not in my_runs:
             sys.exit(args.title + " is not a title in the JSON input file.")
 
-        my_runs = [my_run]
+        my_runs = {args.title: my_runs[args.title]}
 
     print("Number of runs:", len(my_runs))
 
     if args.clean:
-        for my_run in my_runs:
-            if path.exists(my_run["title"]):
-                print("Removing", my_run["title"] + "...")
-                shutil.rmtree(my_run["title"])
+        for title in my_runs:
+            if path.exists(title):
+                print("Removing", title + "...")
+                shutil.rmtree(title)
     elif args.re_compar:
         print("Starting comparisons at", datetime.datetime.now())
         t0 = time.perf_counter()
         cumul_return = 0
 
-        for i, my_run in enumerate(my_runs):
-            print(f'{i}: {my_run["title"]}')
+        for i, title in enumerate(my_runs):
+            print(f'{i}: {title}')
 
-            if path.exists(my_run["title"]) \
-               and not pathlib.Path(my_run["title"], "failed").exists():
-                old_dir = path.join(args.compare_dir, my_run["title"])
+            if path.exists(title) \
+               and not pathlib.Path(title, "failed").exists():
+                old_dir = path.join(args.compare_dir, title)
 
                 try:
-                    shutil.copytree(my_run["title"], old_dir, symlinks = True)
+                    shutil.copytree(title, old_dir, symlinks = True)
                 except FileExistsError:
-                    return_code = compare(my_run["title"], my_run,
+                    return_code = compare(title, my_runs[title],
                                           args.compare_dir, other_args)
 
                     if return_code != 0:
                         print("difference found")
                         cumul_return += 1
                 else:
-                    print("Archived", my_run["title"])
+                    print("Archived", title)
             else:
                 print("Does not exist or failed")
 
         print("Elapsed time:", time.perf_counter() - t0, "s")
         print("Number of successful runs with different results:", cumul_return)
     else:
-        allowed_keys = {"title", "command", "commands", "main_command",
-                        "description", "stdout", "symlink", "copy", "env",
-                        "stdin_filename", "input", "test_series_file",
-                        "create_file", "exclude_cmp"}
+        allowed_keys = {"command", "commands", "main_command", "description",
+                        "stdout", "symlink", "copy", "env", "stdin_filename",
+                        "input", "test_series_file", "create_file",
+                        "exclude_cmp"}
 
         while True:
             cumul_return = run_tests(my_runs, allowed_keys, args.compare_dir,
@@ -472,8 +470,8 @@ else:
 
             if args.cat:
                 with open(args.cat, "w") as f_out:
-                    for my_run in my_runs:
-                        fname = path.join(my_run["title"], "comparison.txt")
+                    for title in my_runs:
+                        fname = path.join(title, "comparison.txt")
 
                         if path.exists(fname):
                             with open(fname) as f_in:
@@ -485,24 +483,24 @@ else:
 
             if cumul_return == 0 or not reply.startswith("y"): break
 
-            for my_run in my_runs:
-                if path.exists(my_run["title"]) and not \
-                   pathlib.Path(my_run["title"], "failed").exists():
-                    fname =path.join(my_run["title"], "comparison.txt")
+            for title in my_runs:
+                if path.exists(title) and not \
+                   pathlib.Path(title, "failed").exists():
+                    fname = path.join(title, "comparison.txt")
 
                     if path.exists(fname):
-                        print("Replacing", my_run["title"])
-                        old_dir = path.join(args.compare_dir, my_run["title"])
+                        print("Replacing", title)
+                        old_dir = path.join(args.compare_dir, title)
                         if path.exists(old_dir): shutil.rmtree(old_dir)
                         os.remove(fname)
-                        shutil.move(my_run["title"], old_dir)
+                        shutil.move(title, old_dir)
 
         reply = input("Remove new runs? ")
         reply = reply.casefold()
 
         if reply.startswith("y"):
-            for my_run in my_runs:
+            for title in my_runs:
                 try:
-                    shutil.rmtree(my_run["title"])
+                    shutil.rmtree(title)
                 except FileNotFoundError:
                     pass
