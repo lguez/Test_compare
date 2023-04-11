@@ -186,8 +186,9 @@ def my_report(dcmp, detailed_diff_instance, file_out, level):
     return n_diff
 
 class detailed_diff:
-    def __init__(self, size_lim, diff_dbf_pyshp, diff_csv, diff_nc):
+    def __init__(self, size_lim, diff_dbf_pyshp, diff_csv, diff_nc, tolerance):
         self.size_lim = size_lim
+        self.tolerance = tolerance
 
         if diff_dbf_pyshp:
             self._diff_dbf = diff_dbf.diff_dbf
@@ -277,9 +278,9 @@ class detailed_diff:
 
     def _diff_csv_ndiff(self, path_1, path_2, detail_file, names = None):
         with tempfile.TemporaryFile("w+") as diff_out:
-            cp = subprocess.run(["ndiff", "-relerr", "1e-7", path_1, path_2],
-                                stdout = diff_out, stderr = subprocess.STDOUT,
-                                text = True)
+            cp = subprocess.run(["ndiff", "-relerr", self.tolerance, path_1,
+                                 path_2], stdout = diff_out,
+                                stderr = subprocess.STDOUT, text = True)
 
             if cp.returncode != 0:
                 detail_file.write('\n' + "*" * 10 + '\n\n')
@@ -289,7 +290,8 @@ class detailed_diff:
                 else:
                     detail_file.write(f"ndiff {names[0]} {names[1]}\n")
 
-                detail_file.write("Comparison with ndiff, tolerance 1e-7:\n")
+                detail_file.write("Comparison with ndiff, tolerance "
+                                  f"{self.tolerance}:\n")
                 cat_not_too_many(diff_out, self.size_lim, detail_file)
                 detail_file.write("\n")
 
@@ -298,9 +300,9 @@ class detailed_diff:
     def _diff_csv_numdiff(self, path_1, path_2, detail_file, names = None):
         with tempfile.TemporaryFile("w+") as diff_out:
             cp = subprocess.run(["numdiff", "--quiet", "--statistics",
-                                 "--relative-tolerance=1e-7", path_1, path_2],
-                                stdout = diff_out, stderr = subprocess.STDOUT,
-                                text = True)
+                                 f"--relative-tolerance={self.tolerance}",
+                                 path_1, path_2], stdout = diff_out,
+                                stderr = subprocess.STDOUT, text = True)
 
             if cp.returncode == 1:
                 detail_file.write('\n' + "*" * 10 + '\n\n')
@@ -310,7 +312,8 @@ class detailed_diff:
                 else:
                     detail_file.write(f"numdiff {names[0]} {names[1]}\n")
 
-                detail_file.write("Comparison with numdiff, tolerance 1e-7:\n")
+                detail_file.write("Comparison with numdiff, tolerance "
+                                  f"{self.tolerance}:\n")
                 cat_not_too_many(diff_out, self.size_lim, detail_file)
                 detail_file.write("\n")
             elif cp.returncode != 0:
@@ -361,7 +364,7 @@ def selective_diff(args, file_out = sys.stdout):
             diff_nc = None
 
         detailed_diff_instance = detailed_diff(args.limit, args.pyshp, diff_csv,
-                                               diff_nc)
+                                               diff_nc, args.tolerance)
 
     n_diff = my_report(dcmp, detailed_diff_instance, file_out, level = 1)
 
@@ -383,6 +386,9 @@ if __name__ == "__main__":
                        "to compare CSV files (default ndiff)")
     group.add_argument("--max_diff_rect", action = "store_true", help = "use "
                        "max_diff_rect to compare CSV files (default ndiff)")
+    parser.add_argument("-t", "--tolerance", default = "1e-7", help = "maximum "
+                        "relative error for comparison of CSV files with ndiff "
+                        "or numdiff")
 
     # NetCDF files:
     group = parser.add_mutually_exclusive_group()
