@@ -77,7 +77,7 @@ description file, they should not be specified in the file containing
 string substitutions.
 
 There may be several JSON test description files on the command
-line. If two tests have the same name, the second one will be skipped.
+line. If two tests have the same title, the last one will be kept.
 
 """
 
