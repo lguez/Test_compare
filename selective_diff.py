@@ -38,7 +38,7 @@ def diff_txt(path_1, path_2, size_lim, detail_file):
     """Process path_1 and path_2 as text files."""
 
     detail_file.write('\n' + "*" * 10 + '\n\n')
-    detail_file.write(f"diff {path_1} {path_2}\n")
+    detail_file.write(f"diff_txt {path_1} {path_2}\n")
     with open(path_1) as f: fromlines = f.readlines()
     with open(path_2) as f: tolines = f.readlines()
     my_diff = difflib.unified_diff(fromlines, tolines, fromfile = path_1,
@@ -59,7 +59,7 @@ def diff_png(path_1, path_2, detail_file):
             n_diff = 0
         else:
             detail_file.write('\n' + "*" * 10 + '\n\n')
-            detail_file.write(f"diff {path_1} {path_2}\n")
+            detail_file.write(f"diff_png {path_1} {path_2}\n")
             diff_img, distorsion = image2.compare(image1, metric = "absolute")
             detail_file.write(f"Number of different pixels: {distorsion}\n")
             filename = path.join(path.dirname(path_2), "diff_image.png")
@@ -73,9 +73,9 @@ def max_diff_rect(path_1, path_2, detail_file, names = None):
     detail_file.write('\n' + "*" * 10 + '\n\n')
 
     if names is None:
-        detail_file.write(f"diff {path_1} {path_2}\n")
+        detail_file.write(f"max_diff_rect {path_1} {path_2}\n")
     else:
-        detail_file.write(f"diff {names[0]} {names[1]}\n")
+        detail_file.write(f"max_diff_rect {names[0]} {names[1]}\n")
 
     with tempfile.TemporaryFile("w+") as diff_out:
         subprocess.run(["max_diff_rect", path_1, path_2],
@@ -89,7 +89,7 @@ def max_diff_rect(path_1, path_2, detail_file, names = None):
 
 def max_diff_nc(path_1, path_2, detail_file):
     detail_file.write('\n' + "*" * 10 + '\n\n')
-    detail_file.write(f"diff {path_1} {path_2}\n")
+    detail_file.write(f"max_diff_nc {path_1} {path_2}\n")
 
     with tempfile.TemporaryFile("w+") as diff_out:
         subprocess.run(["max_diff_nc.sh", path_1, path_2], text = True,
@@ -107,7 +107,7 @@ def nccmp_Ziemlinski(path_1, path_2, detail_file):
 
         if cp.returncode != 0:
             detail_file.write('\n' + "*" * 10 + '\n\n')
-            detail_file.write(f"diff {path_1} {path_2}\n")
+            detail_file.write(f"nccmp_Ziemlinski {path_1} {path_2}\n")
             detail_file.write("Comparison with nccmp by Ziemlinski:\n")
             diff_out.seek(0)
             detail_file.writelines(diff_out)
@@ -285,9 +285,9 @@ class detailed_diff:
                 detail_file.write('\n' + "*" * 10 + '\n\n')
 
                 if names is None:
-                    detail_file.write(f"diff {path_1} {path_2}\n")
+                    detail_file.write(f"ndiff {path_1} {path_2}\n")
                 else:
-                    detail_file.write(f"diff {names[0]} {names[1]}\n")
+                    detail_file.write(f"ndiff {names[0]} {names[1]}\n")
 
                 detail_file.write("Comparison with ndiff, tolerance 1e-7:\n")
                 cat_not_too_many(diff_out, self.size_lim, detail_file)
@@ -306,9 +306,9 @@ class detailed_diff:
                 detail_file.write('\n' + "*" * 10 + '\n\n')
 
                 if names is None:
-                    detail_file.write(f"diff {path_1} {path_2}\n")
+                    detail_file.write(f"numdiff {path_1} {path_2}\n")
                 else:
-                    detail_file.write(f"diff {names[0]} {names[1]}\n")
+                    detail_file.write(f"numdiff {names[0]} {names[1]}\n")
 
                 detail_file.write("Comparison with numdiff, tolerance 1e-7:\n")
                 cat_not_too_many(diff_out, self.size_lim, detail_file)
