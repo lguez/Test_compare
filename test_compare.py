@@ -218,11 +218,11 @@ def run_single_test(title, my_run, path_failed):
 
     with open(stdout_filename, "w") as stdout, open(stderr_filename, "w") \
          as stderr:
-        cp = subprocess.run(commands[main_command], stdout = stdout,
-                            stderr = stderr, universal_newlines = True,
-                            **other_kwargs)
+        comp_proc = subprocess.run(commands[main_command], stdout = stdout,
+                                   stderr = stderr, universal_newlines = True,
+                                   **other_kwargs)
 
-    if cp.returncode == 0:
+    if comp_proc.returncode == 0:
         for command in commands[main_command + 1:]:
             subprocess.run(command, check = True)
 
@@ -237,7 +237,7 @@ def run_single_test(title, my_run, path_failed):
         path_failed.touch()
         print("failed")
 
-    return cp.returncode
+    return comp_proc.returncode
 
 def run_tests(my_runs, allowed_keys, compare_dir, other_args):
     """my_runs should be a dictionary of dictionaries. allowed_keys should
@@ -325,23 +325,23 @@ def compare(title, my_run, compare_dir, other_args):
     fname = path.join(title, "comparison.txt")
 
     with open(fname, "w") as f:
-        cp = subprocess.run(subprocess_args, stdout = f,
-                            stderr = subprocess.STDOUT)
+        comp_proc = subprocess.run(subprocess_args, stdout = f,
+                                   stderr = subprocess.STDOUT)
         f.write("\n" + ("*" * 10 + "\n") * 2 + "\n")
 
-    if cp.returncode == 0:
+    if comp_proc.returncode == 0:
         os.remove(fname)
-    elif cp.returncode != 1:
+    elif comp_proc.returncode != 1:
         print("Problem in selective_diff.py, return code "
               "should be 0 or 1.\nSee \"comparison.txt\".")
-        cp.check_returncode()
+        comp_proc.check_returncode()
 
     t1 = time.perf_counter()
     line = "Elapsed time for comparison: {:.0f} s\n".format(t1 - t0)
     fname = path.join(title, "timing_test_compare.txt")
     with open(fname, "a") as f: f.write(line)
 
-    return cp.returncode
+    return comp_proc.returncode
 
 parser = argparse.ArgumentParser(description = __doc__, formatter_class \
                                  = argparse.RawDescriptionHelpFormatter,
