@@ -464,8 +464,9 @@ else:
                         "stdout", "symlink", "copy", "env", "stdin_filename",
                         "input", "test_series_file", "create_file",
                         "exclude_cmp"}
+        run_again = True
 
-        while True:
+        while run_again:
             cumul_return = run_tests(my_runs, allowed_keys, args.compare_dir,
                                      other_args)
 
@@ -478,28 +479,32 @@ else:
                             with open(fname) as f_in:
                                 for line in f_in: f_out.write(line)
 
-            if cumul_return != 0:
+            if cumul_return == 0:
+                run_again = False
+            else:
                 reply = input("Replace old runs with difference? ")
                 reply = reply.casefold()
+                run_again = reply.startswith("y")
 
-            if cumul_return == 0 or not reply.startswith("y"): break
+                if run_again:
+                    for title in my_runs:
+                        if path.exists(title) and not \
+                           pathlib.Path(title, "failed").exists():
+                            fname = path.join(title, "comparison.txt")
 
-            for title in my_runs:
-                if path.exists(title) and not \
-                   pathlib.Path(title, "failed").exists():
-                    fname = path.join(title, "comparison.txt")
+                            if path.exists(fname):
+                                print("Replacing", title)
+                                old_dir = path.join(args.compare_dir, title)
+                                if path.exists(old_dir): shutil.rmtree(old_dir)
+                                os.remove(fname)
 
-                    if path.exists(fname):
-                        print("Replacing", title)
-                        old_dir = path.join(args.compare_dir, title)
-                        if path.exists(old_dir): shutil.rmtree(old_dir)
-                        os.remove(fname)
+                                for dirpath, dirnames, filenames in \
+                                    os.walk(title):
+                                    if "diff_image.png" in filenames:
+                                        os.remove(path.join(dirpath,
+                                                            "diff_image.png"))
 
-                        for dirpath, dirnames, filenames in os.walk(title):
-                            if "diff_image.png" in filenames:
-                                os.remove(path.join(dirpath, "diff_image.png"))
-
-                        shutil.move(title, old_dir)
+                                shutil.move(title, old_dir)
 
         reply = input("Remove new runs? ")
         reply = reply.casefold()
