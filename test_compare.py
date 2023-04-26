@@ -442,7 +442,9 @@ else:
                 old_dir = path.join(args.compare_dir, title)
 
                 try:
-                    shutil.copytree(title, old_dir, symlinks = True)
+                    shutil.copytree(title, old_dir, symlinks = True,
+                                    ignore =
+                                    shutil.ignore_patterns("diff_image.png"))
                 except FileExistsError:
                     return_code = compare(title, my_runs[title],
                                           args.compare_dir, other_args)
@@ -492,6 +494,11 @@ else:
                         old_dir = path.join(args.compare_dir, title)
                         if path.exists(old_dir): shutil.rmtree(old_dir)
                         os.remove(fname)
+
+                        for dirpath, dirnames, filenames in os.walk(title):
+                            if "diff_image.png" in filenames:
+                                os.remove(path.join(dirpath, "diff_image.png"))
+
                         shutil.move(title, old_dir)
 
         reply = input("Remove new runs? ")
