@@ -10,7 +10,10 @@ import argparse
 import sys
 
 def compare_rings(ax, detail_file, r_old, r_new, marker, i, j, k = None):
-    """r_old and r_new are LinearRing objects from the geometry module."""
+    """r_old and r_new are LinearRing objects from the geometry
+    module. marker is not used if ax is none.
+
+    """
 
     detail_file.write(f"\nShape {i}")
     if j is not None: detail_file.write(f", part {j}")
@@ -67,10 +70,11 @@ def compare_rings(ax, detail_file, r_old, r_new, marker, i, j, k = None):
 
 def compare_poly(ax, p_old, p_new, i, j = None,
                  detail_file = sys.stdout, marker = itertools.repeat(None)):
-    """
-    p_old and p_new are polygon objects from the geometry module.
-    i: shape number
-    j: polygon number for a multi-polygon
+    """p_old and p_new are polygon objects from the geometry module. i:
+    shape number j: polygon number for a multi-polygon. If ax is equal
+    to None then we do not plot, so we do not set a default value for
+    ax.
+
     """
 
     compare_rings(ax, detail_file, p_old.exterior, p_new.exterior,
