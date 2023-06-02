@@ -65,7 +65,8 @@ def compare_rings(ax, detail_file, r_old, r_new, marker, i, j, k = None):
             explain = validation.explain_validity(r_new)
             detail_file.write(f"new: {explain}\n")
 
-def compare_poly(ax, detail_file, p_old, p_new, marker, i, j = None):
+def compare_poly(ax, p_old, p_new, i, j = None,
+                 detail_file = sys.stdout, marker = itertools.repeat(None)):
     """
     p_old and p_new are polygon objects from the geometry module.
     i: shape number
@@ -133,11 +134,12 @@ def diff_shp(old, new, report_identical = False, plot = False,
                         if g_old.geom_type == "MultiPolygon":
                             for j, (p_old, p_new) in enumerate(zip(g_old,
                                                                    g_new)):
-                                compare_poly(ax, detail_file, p_old, p_new,
-                                             marker, i, j)
+                                compare_poly(ax, p_old, p_new, i, j,
+                                             detail_file, marker)
                         elif g_old.geom_type == "Polygon":
-                            compare_poly(ax, detail_file, g_old, g_new, marker,
-                                         i)
+                            compare_poly(ax, g_old, g_new, i,
+                                         detail_file = detail_file,
+                                         marker = marker)
                         elif g_old.geom_type == "Point":
                             abs_rel_diff = np.abs(np.array(g_new.coords)
                                                   / np.array(g_old.coords) - 1)
