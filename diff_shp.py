@@ -45,7 +45,7 @@ def compare_rings(ax, detail_file, r_old, r_new, marker, i, j, k = None):
                         label = "old " + my_label)
 
             x, y = r_new.xy
-            ax.plot(x, y, marker = next(marker), label =  "new " + my_label,
+            ax.plot(x, y, marker = marker, label =  "new " + my_label,
                     color = l[0].get_color())
 
         if r_old.is_valid and r_new.is_valid:
@@ -73,10 +73,11 @@ def compare_poly(ax, p_old, p_new, i, j = None,
     j: polygon number for a multi-polygon
     """
 
-    compare_rings(ax, detail_file, p_old.exterior, p_new.exterior, marker, i, j)
+    compare_rings(ax, detail_file, p_old.exterior, p_new.exterior,
+                  next(marker), i, j)
 
     for k, (r_old, r_new) in enumerate(zip(p_old.interiors, p_new.interiors)):
-        compare_rings(ax, detail_file, r_old, r_new, marker, i, j, k)
+        compare_rings(ax, detail_file, r_old, r_new, next(marker), i, j, k)
 
 def diff_shp(old, new, report_identical = False, plot = False,
              detail_file = sys.stdout):
