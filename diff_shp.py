@@ -152,6 +152,8 @@ def diff_shp(old, new, report_identical = False, plot = False,
                                           f"{g_old.geom_type}"
                                           f"{g_new.geom_type}\n")
 
+    detail_file.write("\n")
+
     if plot:
         ax.legend()
         plt.show()
