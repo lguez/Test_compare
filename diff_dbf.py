@@ -31,29 +31,37 @@ def diff_dbf(old, new, report_identical = False, quiet = False):
                   min(reader_old.numRecords, reader_new.numRecords),
                   "records...")
 
-    max_diff = 0.
+    if reader_old.fields == reader_new.fields:
+        max_diff = 0.
 
-    for i, (r_old, r_new) in enumerate(zip(reader_old.iterRecords(),
-                                           reader_new.iterRecords())):
-        if r_new == r_old:
-            if report_identical:
-                print("\nAttributes for shape", i, "are identical.")
-        else:
-            diff_found = True
+        for i, (r_old, r_new) in enumerate(zip(reader_old.iterRecords(),
+                                               reader_new.iterRecords())):
+            if r_new == r_old:
+                if report_identical:
+                    print("\nAttributes for shape", i, "are identical.")
+            else:
+                diff_found = True
 
-            if not quiet:
-                current_diff = abs(np.array(r_new) / np.array(r_old) - 1)
-                # (Note that a mixture of int and float in a record
-                # will create a float array.)
+                if not quiet:
+                    current_diff = abs(np.array(r_new) / np.array(r_old) - 1)
+                    # (Note that a mixture of int and float in a record
+                    # will create a float array.)
 
-                print("\nAttributes for shape", i,
-                      "differ. Absolute value of relative difference:")
-                print(current_diff)
-                max_diff = np.maximum(max_diff, current_diff)
+                    print("\nAttributes for shape", i,
+                          "differ. Absolute value of relative difference:")
+                    print(current_diff)
+                    max_diff = np.maximum(max_diff, current_diff)
 
-    if not quiet and diff_found:
-        print("Indices above are 0-based.\n")
-        print("Maximum over all records:", max_diff)
+        if not quiet and diff_found:
+            print("Indices above are 0-based.\n")
+            print("Maximum over all records:", max_diff)
+    else:
+        diff_found = True
+
+        if not quiet:
+            print("Not the same fields:")
+            print("Old fields:", reader_old.fields[1:])
+            print("New fields:", reader_new.fields[1:])
 
     if diff_found:
         return 1
