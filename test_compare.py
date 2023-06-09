@@ -389,6 +389,8 @@ else:
     if args.substitutions:
         with open(args.substitutions) as subst_file:
             substitutions = json.load(subst_file)
+            assert "PWD" not in substitutions
+            assert "tests_old_dir" not in substitutions
     else:
         substitutions = {}
 
