@@ -16,6 +16,7 @@ import fnmatch
 import io
 from wand import image
 import diff_gv
+import traceback
 
 def cat_not_too_many(file_in, size_lim, file_out):
     """file_in and file_out should be existing file objects."""
@@ -367,7 +368,11 @@ def selective_diff(args, file_out = sys.stdout):
         detailed_diff_instance = detailed_diff(args.limit, args.pyshp, diff_csv,
                                                diff_nc, args.tolerance)
 
-    n_diff = my_report(dcmp, detailed_diff_instance, file_out, level = 1)
+    try:
+        n_diff = my_report(dcmp, detailed_diff_instance, file_out, level = 1)
+    except Exception:
+        traceback.print_exc()
+        sys.exit(2)
 
     if n_diff != 0:
         print("\nNumber of differences:", n_diff, file = file_out)
