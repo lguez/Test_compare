@@ -104,7 +104,7 @@ def diff_shp(old, new, report_identical = False, plot = False,
         marker_iter = itertools.cycle(["+", "v", "^", "x"])
     else:
         ax = None
-        marker_iter = None
+        marker_iter = itertools.repeat(None)
 
     detail_file.write("Difference in vertices:\n")
 
