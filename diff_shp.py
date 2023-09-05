@@ -69,7 +69,8 @@ def compare_rings(ax, detail_file, r_old, r_new, marker, i, j, k = None):
             detail_file.write(f"new: {explain}\n")
 
 def compare_poly(ax, p_old, p_new, i, j = None,
-                 detail_file = sys.stdout, marker = itertools.repeat(None)):
+                 detail_file = sys.stdout,
+                 marker_iter = itertools.repeat(None)):
     """p_old and p_new are polygon objects from the geometry module. i:
     shape number j: polygon number for a multi-polygon. If ax is equal
     to None then we do not plot, so we do not set a default value for
@@ -78,10 +79,10 @@ def compare_poly(ax, p_old, p_new, i, j = None,
     """
 
     compare_rings(ax, detail_file, p_old.exterior, p_new.exterior,
-                  next(marker), i, j)
+                  next(marker_iter), i, j)
 
     for k, (r_old, r_new) in enumerate(zip(p_old.interiors, p_new.interiors)):
-        compare_rings(ax, detail_file, r_old, r_new, next(marker), i, j, k)
+        compare_rings(ax, detail_file, r_old, r_new, next(marker_iter), i, j, k)
 
 def diff_shp(old, new, report_identical = False, plot = False,
              detail_file = sys.stdout):
@@ -100,10 +101,10 @@ def diff_shp(old, new, report_identical = False, plot = False,
 
     if plot:
         fig, ax = plt.subplots()
-        marker = itertools.cycle(["+", "v", "^", "x"])
+        marker_iter = itertools.cycle(["+", "v", "^", "x"])
     else:
         ax = None
-        marker = None
+        marker_iter = None
 
     detail_file.write("Difference in vertices:\n")
 
@@ -140,11 +141,11 @@ def diff_shp(old, new, report_identical = False, plot = False,
                             for j, (p_old, p_new) in enumerate(zip(g_old,
                                                                    g_new)):
                                 compare_poly(ax, p_old, p_new, i, j,
-                                             detail_file, marker)
+                                             detail_file, marker_iter)
                         elif g_old.geom_type == "Polygon":
                             compare_poly(ax, g_old, g_new, i,
                                          detail_file = detail_file,
-                                         marker = marker)
+                                         marker_iter = marker_iter)
                         elif g_old.geom_type == "Point":
                             abs_rel_diff = np.abs(np.array(g_new.coords)
                                                   / np.array(g_old.coords) - 1)
