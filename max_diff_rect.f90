@@ -53,12 +53,6 @@ program max_diff_rect
   print *, "Enter namelist rectangle for first file:"
   read(unit = *, nml = rectangle)
   call csvread(filename1, data_old, first_r, first_c, last_r, last_c)
-
-  if (.not. allocated(data_old)) then
-     print *, "max_diff_rect: could not read from " // filename1
-     stop 1
-  end if
-
   n_rows = size(data_old, 1)
   n_col = size(data_old, 2)
   print *, "Enter namelist rectangle for second file (default values are ", &
@@ -74,12 +68,6 @@ program max_diff_rect
        stop 'Numbers of columns differ.'
 
   call csvread(filename2, data_new, first_r, first_c, last_r, last_c)
-
-  if (.not. allocated(data_new)) then
-     print *, "max_diff_rect: could not read from " // filename2
-     stop 1
-  end if
-
   call assert(shape(data_old) == shape(data_new), 'Shapes should be identical.')
   allocate(valid(size(data_old, 1), size(data_old, 2)), &
        valid_1d(size(data_old, 1)))
