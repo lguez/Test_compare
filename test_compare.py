@@ -357,11 +357,12 @@ parser.add_argument("-s", "--substitutions", help="JSON input file containing "
                     "abbreviations for directory names")
 parser.add_argument("--clean", help = """
 Remove any existing run directories in the current directory. With -t, remove 
-only the selected run directory, if it exists.""",
+only the selected run directories, if they exist.""",
                     action = "store_true")
 parser.add_argument("-l", "--list", help = "just list the titles",
                     action = "store_true")
-parser.add_argument("-t", "--title", help = "select a title in JSON file")
+parser.add_argument("-t", "--title", nargs = "+",
+                    help = "select titles in JSON file")
 parser.add_argument("--cat", help = "cat files comparison.txt",
                     metavar = "FILE")
 parser.add_argument("--re_compar", help = "redo comparison (but do not re-run)",
@@ -420,10 +421,15 @@ else:
             my_runs.update(series)
 
     if args.title:
-        if args.title not in my_runs:
-            sys.exit(args.title + " is not a title in the JSON input file.")
+        selected_runs = {}
 
-        my_runs = {args.title: my_runs[args.title]}
+        for t in args.title:
+            try:
+                selected_runs[t] = my_runs[t]
+            except KeyError:
+                sys.exit(t + " is not a title in the JSON input file.")
+
+        my_runs = selected_runs
 
     print("Number of runs:", len(my_runs))
 
