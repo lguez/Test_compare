@@ -19,7 +19,8 @@ include the keys:
 "stdin_filename" or "input", "create_file", "exclude_cmp"
 
 "commands" is a list of commands, "command" is a single command. A
-command is a list of strings or a single string. (The command includes
+command is a list of strings or a single string. If the command is a
+single string then it is split at whitespace. (The command includes
 the executable file.)
 
 "main_command" should be an integer value giving the 0-based index of
@@ -165,14 +166,18 @@ def run_single_test(title, my_run, path_failed):
         else:
             main_command = len(commands) - 1
 
+    split_commands = []
+
+    for command in commands:
+        if isinstance(command, str): command = command.split()
+        split_commands.append(command)
+
+    commands = split_commands
+
     if "stdout" in my_run:
         stdout_filename = my_run["stdout"]
     else:
-        if isinstance(commands[main_command], list):
-             stdout_filename = commands[main_command][0]
-        else:
-             stdout_filename = commands[main_command]
-
+        stdout_filename = commands[main_command][0]
         stdout_filename = path.basename(stdout_filename)
         stdout_filename = path.splitext(stdout_filename)[0] + "_stdout.txt"
 
