@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 project(Max_diff_rect LANGUAGES Fortran)
-option(FETCH "Download")
+option(FETCH "Download Jumble")
 
 if(FETCH)
   include(FetchContent)
