@@ -96,6 +96,7 @@ import tempfile
 import time
 import string
 import pathlib
+import yachalk
 
 def get_all_required(title, my_run):
     found = True
@@ -240,7 +241,7 @@ def run_single_test(title, my_run, path_failed):
     else:
         os.chdir("..")
         path_failed.touch()
-        print("failed")
+        print(yachalk.chalk.red("failed"))
 
     return comp_proc.returncode
 
