@@ -8,7 +8,10 @@ import sys
 from os import path
 import io
 
-def nccmp(f1, f2, silent = False, data_only = False, detail_file = sys.stdout, ign_att = None):
+
+def nccmp(
+    f1, f2, silent=False, data_only=False, detail_file=sys.stdout, ign_att=None
+):
     """f1 and f2 can be either filenames or open file objects. ign_att may
     be a list of global attributes.
 
@@ -49,34 +52,46 @@ def nccmp(f1, f2, silent = False, data_only = False, detail_file = sys.stdout, i
                 del dict_1[attribute]
                 del dict_2[attribute]
 
-        diff_found = compare_util.diff_dict(dict_1, dict_2,
-                                            silent, tag, detail_subfile)
+        diff_found = compare_util.diff_dict(
+            dict_1, dict_2, silent, tag, detail_subfile
+        )
 
         if not silent or not diff_found:
-            for tag, v1, v2 in [("Data_model", file_1.data_model,
-                                 file_2.data_model),
-                                ("Disk_format", file_1.disk_format,
-                                 file_2.disk_format),
-                                ("File_format", file_1.file_format,
-                                 file_2.file_format),
-                                ("Dimension names", file_1.dimensions.keys(),
-                                 file_2.dimensions.keys()),
-                                ("Variable names", vars1, vars2),
-                                ("Group names", groups1, groups2)]:
-                diff_found \
-                    = compare_util.cmp(v1, v2, silent, tag, detail_subfile) \
+            for tag, v1, v2 in [
+                ("Data_model", file_1.data_model, file_2.data_model),
+                ("Disk_format", file_1.disk_format, file_2.disk_format),
+                ("File_format", file_1.file_format, file_2.file_format),
+                (
+                    "Dimension names",
+                    file_1.dimensions.keys(),
+                    file_2.dimensions.keys(),
+                ),
+                ("Variable names", vars1, vars2),
+                ("Group names", groups1, groups2),
+            ]:
+                diff_found = (
+                    compare_util.cmp(v1, v2, silent, tag, detail_subfile)
                     or diff_found
-                if diff_found and silent: break
+                )
+                if diff_found and silent:
+                    break
 
         if not silent or not diff_found:
             for x in file_1.dimensions:
                 if x in file_2.dimensions:
                     tag = f"Size of dimension {x}"
-                    diff_found \
-                        = compare_util.cmp(len(file_1.dimensions[x]),
-                                           len(file_2.dimensions[x]), silent,
-                                           tag, detail_subfile) or diff_found
-                    if diff_found and silent: break
+                    diff_found = (
+                        compare_util.cmp(
+                            len(file_1.dimensions[x]),
+                            len(file_2.dimensions[x]),
+                            silent,
+                            tag,
+                            detail_subfile,
+                        )
+                        or diff_found
+                    )
+                    if diff_found and silent:
+                        break
 
         inters_vars = vars1 & vars2
 
@@ -96,19 +111,28 @@ def nccmp(f1, f2, silent = False, data_only = False, detail_file = sys.stdout, i
             except TypeError:
                 dict_2 = file_2[x].__dict__
 
-            diff_found \
-                = compare_util.diff_dict(dict_1, dict_2, silent, tag,
-                                         detail_subfile) or diff_found
+            diff_found = (
+                compare_util.diff_dict(
+                    dict_1, dict_2, silent, tag, detail_subfile
+                )
+                or diff_found
+            )
 
             if not silent or not diff_found:
                 for attribute in ["dtype", "dimensions", "shape"]:
                     tag = f"{attribute} of variable {path.join(file_1.path, x)}"
-                    diff_found = \
-                        compare_util.cmp(file_1[x].__getattribute__(attribute),
-                                         file_2[x].__getattribute__(attribute),
-                                         silent, tag, detail_subfile) \
-                                         or diff_found
-                    if diff_found and silent: break
+                    diff_found = (
+                        compare_util.cmp(
+                            file_1[x].__getattribute__(attribute),
+                            file_2[x].__getattribute__(attribute),
+                            silent,
+                            tag,
+                            detail_subfile,
+                        )
+                        or diff_found
+                    )
+                    if diff_found and silent:
+                        break
 
     if not silent or not diff_found:
         # Compare the data part:
@@ -116,21 +140,27 @@ def nccmp(f1, f2, silent = False, data_only = False, detail_file = sys.stdout, i
 
         for x in vars1 & vars2:
             tag = f"Variable {path.join(file_1.path, x)}"
-            diff_found \
-                = compare_util.cmp_ndarr(file_1[x], file_2[x], silent, tag,
-                                         detail_subfile) or diff_found
+            diff_found = (
+                compare_util.cmp_ndarr(
+                    file_1[x], file_2[x], silent, tag, detail_subfile
+                )
+                or diff_found
+            )
             # (Note: call to cmp_ndarr first to avoid short-circuit)
 
-            if diff_found and silent: break
+            if diff_found and silent:
+                break
 
     if diff_found:
-        detail_file.write('\n' + "*" * 10 + '\n\n')
+        detail_file.write("\n" + "*" * 10 + "\n\n")
 
         if isinstance(f1, str):
             detail_file.write(f"diff {f1} {f2}\nroot group:\n\n")
         else:
-            detail_file.write(f"diff {file_1.filepath()} {file_2.filepath()}\n"
-                              f"group {file_1.path}:\n\n")
+            detail_file.write(
+                f"diff {file_1.filepath()} {file_2.filepath()}\n"
+                f"group {file_1.path}:\n\n"
+            )
 
         detail_diag = detail_subfile.getvalue()
         detail_file.write(detail_diag)
@@ -143,8 +173,10 @@ def nccmp(f1, f2, silent = False, data_only = False, detail_file = sys.stdout, i
 
     while len(inters_groups) != 0 and (not silent or not diff_found):
         x = inters_groups.pop()
-        diff_found = nccmp(file_1[x], file_2[x], silent, data_only,
-                           detail_file) == 1 or diff_found
+        diff_found = (
+            nccmp(file_1[x], file_2[x], silent, data_only, detail_file) == 1
+            or diff_found
+        )
 
     if isinstance(f1, str):
         file_1.close()
@@ -155,18 +187,23 @@ def nccmp(f1, f2, silent = False, data_only = False, detail_file = sys.stdout, i
     else:
         return 0
 
+
 if __name__ == "__main__":
     import argparse
     import sys
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("netCDF_file", nargs = 2)
-    parser.add_argument("-s", "--silent", action = "store_true")
-    parser.add_argument("-d", "--data-only", action = "store_true",
-                        help = "compare only data")
-    parser.add_argument("--ign_att", nargs = "+",
-                        help = "list of global attributes to ignore")
+    parser.add_argument("netCDF_file", nargs=2)
+    parser.add_argument("-s", "--silent", action="store_true")
+    parser.add_argument(
+        "-d", "--data-only", action="store_true", help="compare only data"
+    )
+    parser.add_argument(
+        "--ign_att", nargs="+", help="list of global attributes to ignore"
+    )
     args = parser.parse_args()
 
-    nccmp_return = nccmp(*args.netCDF_file, args.silent, args.data_only, ign_att = args.ign_att)
+    nccmp_return = nccmp(
+        *args.netCDF_file, args.silent, args.data_only, ign_att=args.ign_att
+    )
     sys.exit(nccmp_return)
