@@ -8,8 +8,11 @@ import sys
 from os import path
 import io
 
-def nccmp(f1, f2, silent = False, data_only = False, detail_file = sys.stdout):
-    """f1 and f2 can be either filenames or open file objects."""
+def nccmp(f1, f2, silent = False, data_only = False, detail_file = sys.stdout, ign_att = None):
+    """f1 and f2 can be either filenames or open file objects. ign_att may
+    be a list of global attributes.
+
+    """
 
     if isinstance(f1, str):
         file_1 = netCDF4.Dataset(f1)
@@ -34,7 +37,19 @@ def nccmp(f1, f2, silent = False, data_only = False, detail_file = sys.stdout):
         # Compare metadata:
 
         tag = "All attributes of the dataset"
-        diff_found = compare_util.diff_dict(file_1.__dict__, file_2.__dict__,
+
+        if ign_att is None:
+            dict_1 = file_1.__dict__
+            dict_2 = file_2.__dict__
+        else:
+            dict_1 = file_1.__dict__.copy()
+            dict_2 = file_2.__dict__.copy()
+
+            for attribute in ign_att:
+                del dict_1[attribute]
+                del dict_2[attribute]
+
+        diff_found = compare_util.diff_dict(dict_1, dict_2,
                                             silent, tag, detail_subfile)
 
         if not silent or not diff_found:
@@ -149,7 +164,9 @@ if __name__ == "__main__":
     parser.add_argument("-s", "--silent", action = "store_true")
     parser.add_argument("-d", "--data-only", action = "store_true",
                         help = "compare only data")
+    parser.add_argument("--ign_att", nargs = "+",
+                        help = "list of global attributes to ignore")
     args = parser.parse_args()
 
-    nccmp_return = nccmp(*args.netCDF_file, args.silent, args.data_only)
+    nccmp_return = nccmp(*args.netCDF_file, args.silent, args.data_only, ign_att = args.ign_att)
     sys.exit(nccmp_return)
