@@ -219,10 +219,11 @@ def my_report(dcmp, detailed_diff_instance, file_out, level):
 
 
 class detailed_diff:
-    def __init__(self, size_lim, diff_dbf_pyshp, diff_csv, diff_nc, tolerance):
+    def __init__(self, size_lim, diff_dbf_pyshp, diff_csv, diff_nc, tolerance, ign_att = None):
         self.size_lim = size_lim
         self.tolerance = tolerance
         self.diff_nc = diff_nc
+        self.ign_att = ign_att
 
         if diff_dbf_pyshp:
             self._diff_dbf = diff_dbf.diff_dbf
@@ -265,7 +266,7 @@ class detailed_diff:
                     path_1, path_2, detail_file=detail_file
                 )
             else:
-                n_diff = nccmp.nccmp(path_1, path_2, detail_file=detail_file)
+                n_diff = nccmp.nccmp(path_1, path_2, detail_file=detail_file, ign_att = self.ign_att)
         elif suffix == ".shp":
             n_diff = diff_shp.diff_shp(path_1, path_2, detail_file=detail_file)
         elif suffix == ".png":
@@ -428,7 +429,7 @@ def selective_diff(args, file_out=sys.stdout):
             diff_nc = None
 
         detailed_diff_instance = detailed_diff(
-            args.limit, args.pyshp, diff_csv, diff_nc, args.tolerance
+            args.limit, args.pyshp, diff_csv, diff_nc, args.tolerance, args.ign_att
         )
 
     try:
@@ -491,6 +492,9 @@ if __name__ == "__main__":
         action="store_true",
         help="use nccmp by Ziemlinski to compare NetCDF files "
         "(default nccmp.py)",
+    )
+    parser.add_argument(
+        "--ign_att", nargs="+", help="list of global attributes of NetCDF file to ignore"
     )
 
     parser.add_argument(
