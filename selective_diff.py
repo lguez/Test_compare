@@ -401,7 +401,21 @@ class detailed_diff:
         return cp.returncode
 
 
-def selective_diff(directory, exclude = None, brief = False, numdiff = False, max_diff_rect = False, ncdump = False, max_diff_nc = False, Ziemlinski = False, limit = 50, pyshp = False, tolerance = 1e-7, ign_att = None, file_out=sys.stdout):
+def selective_diff(
+    directory,
+    exclude=None,
+    brief=False,
+    numdiff=False,
+    max_diff_rect=False,
+    ncdump=False,
+    max_diff_nc=False,
+    Ziemlinski=False,
+    limit=50,
+    pyshp=False,
+    tolerance=1e-7,
+    ign_att=None,
+    file_out=sys.stdout,
+):
     if not path.isdir(directory[0]) or not path.isdir(directory[1]):
         print("\nBad directories: ", *directory, file=sys.stderr)
         sys.exit(2)
@@ -442,12 +456,7 @@ def selective_diff(directory, exclude = None, brief = False, numdiff = False, ma
             diff_nc = None
 
         detailed_diff_instance = detailed_diff(
-            limit,
-            pyshp,
-            diff_csv,
-            diff_nc,
-            tolerance,
-            ign_att,
+            limit, pyshp, diff_csv, diff_nc, tolerance, ign_att
         )
 
     try:
