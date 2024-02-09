@@ -190,6 +190,7 @@ class detailed_diff:
     def __init__(self, size_lim, diff_dbf_pyshp, diff_csv, diff_nc, tolerance):
         self.size_lim = size_lim
         self.tolerance = tolerance
+        self.diff_nc = diff_nc
 
         if diff_dbf_pyshp:
             self._diff_dbf = diff_dbf.diff_dbf
@@ -202,15 +203,6 @@ class detailed_diff:
             self._diff_csv = max_diff_rect
         else:
             self._diff_csv = self._diff_csv_ndiff
-
-        if diff_nc == "ncdump":
-            self._diff_nc = self._diff_nc_ncdump
-        elif diff_nc == "max_diff_nc":
-            self._diff_nc = max_diff_nc
-        elif diff_nc == "Ziemlinski":
-            self._diff_nc = nccmp_Ziemlinski
-        else:
-            self._diff_nc = nccmp.nccmp
 
     def diff(self, path_1, path_2, detail_file):
         suffix = pathlib.PurePath(path_1).suffix
@@ -225,7 +217,14 @@ class detailed_diff:
         elif suffix == ".csv":
             n_diff = self._diff_csv(path_1, path_2, detail_file)
         elif suffix == ".nc":
-            n_diff = self._diff_nc(path_1, path_2, detail_file = detail_file)
+            if self.diff_nc == "ncdump":
+                n_diff = self._diff_nc_ncdump(path_1, path_2, detail_file = detail_file)
+            elif self.diff_nc == "max_diff_nc":
+                n_diff = max_diff_nc(path_1, path_2, detail_file = detail_file)
+            elif self.diff_nc == "Ziemlinski":
+                n_diff = nccmp_Ziemlinski(path_1, path_2, detail_file = detail_file)
+            else:
+                n_diff = nccmp.nccmp(path_1, path_2, detail_file = detail_file)
         elif suffix == ".shp":
             n_diff = diff_shp.diff_shp(path_1, path_2,
                                        detail_file = detail_file)
