@@ -2,12 +2,13 @@
 
 """Requires Python >= 3.6."""
 
-import netCDF4
-import compare_util
 import sys
 from os import path
 import io
 
+import netCDF4
+
+import compare_util
 
 def nccmp(
     f1, f2, silent=False, data_only=False, detail_file=sys.stdout, ign_att=None
