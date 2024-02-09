@@ -401,53 +401,53 @@ class detailed_diff:
         return cp.returncode
 
 
-def selective_diff(args, file_out=sys.stdout):
-    if not path.isdir(args.directory[0]) or not path.isdir(args.directory[1]):
-        print("\nBad directories: ", *args.directory, file=sys.stderr)
+def selective_diff(directory, exclude = None, brief = False, numdiff = False, max_diff_rect = False, ncdump = False, max_diff_nc = False, Ziemlinski = False, limit = 50, pyshp = False, tolerance = 1e-7, ign_att = None, file_out=sys.stdout):
+    if not path.isdir(directory[0]) or not path.isdir(directory[1]):
+        print("\nBad directories: ", *directory, file=sys.stderr)
         sys.exit(2)
 
     # Construct a list of files to ignore:
 
     ignore = set()
 
-    if args.exclude:
-        for my_dir in args.directory:
+    if exclude:
+        for my_dir in directory:
             for dirpath, dirnames, filenames in os.walk(my_dir):
-                for pattern in args.exclude:
+                for pattern in exclude:
                     list_match = fnmatch.filter(filenames, pattern)
                     ignore.update(list_match)
 
     # done
 
-    dcmp = filecmp.dircmp(*args.directory, list(ignore))
+    dcmp = filecmp.dircmp(*directory, list(ignore))
 
     # Use command-line options to define a detailed_diff instance:
-    if args.brief:
+    if brief:
         detailed_diff_instance = None
     else:
-        if args.numdiff:
+        if numdiff:
             diff_csv = "numdiff"
-        elif args.max_diff_rect:
+        elif max_diff_rect:
             diff_csv = "max_diff_rect"
         else:
             diff_csv = None
 
-        if args.ncdump:
+        if ncdump:
             diff_nc = "ncdump"
-        elif args.max_diff_nc:
+        elif max_diff_nc:
             diff_nc = "max_diff_nc"
-        elif args.Ziemlinski:
+        elif Ziemlinski:
             diff_nc = "Ziemlinski"
         else:
             diff_nc = None
 
         detailed_diff_instance = detailed_diff(
-            args.limit,
-            args.pyshp,
+            limit,
+            pyshp,
             diff_csv,
             diff_nc,
-            args.tolerance,
-            args.ign_att,
+            tolerance,
+            ign_att,
         )
 
     try:
@@ -541,4 +541,4 @@ if __name__ == "__main__":
         help="exclude files that match shell pattern PAT",
     )
     args = parser.parse_args()
-    selective_diff(args)
+    selective_diff(**vars(args))
