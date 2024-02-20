@@ -1,4 +1,5 @@
 import sys
+import io
 
 import numpy as np
 from numpy import ma
@@ -15,32 +16,47 @@ def cmp(v1, v2, silent = False, tag = None, detail_file = sys.stdout):
     return diff_found
 
 def diff_dict(d1, d2, silent = False, tag = None, detail_file = sys.stdout):
-    try:
-        diff_found = d1 != d2
-    except ValueError:
-        # This happens if values are numpy arrays with more than one
-        # element. Let us just move past that for now.
-        diff_found = True
-    
-    if diff_found and not silent:
-        if tag: detail_file.write(f"{tag}:\n\n")
+    if silent:
+        diff_found = d1.keys() != d2.keys()
+
+        if not diff_found:
+            # {d1.keys() == d2.keys()}
+            for k in d1:
+                if np.any(d1[k] != d2[k]):
+                    diff_found = True
+                    break
+    else:
+        # We need to insert a header before detailed diagnostic, but only
+        # if we find differences, so create a new text stream:
+        detail_subfile = io.StringIO()
+
+        if tag: detail_subfile.write(f"{tag}:\n\n")
         keys_1 = d1.keys()
         keys_2 = d2.keys()
+        diff_found = False
 
         for k in keys_1 ^ keys_2:
+            diff_found = True
             if k in d1:
-                detail_file.write(f"{k} in first dictionary only\n")
+                detail_subfile.write(f"{k} in first dictionary only\n")
             else:
-                detail_file.write(f"{k} in second dictionary only\n")
+                detail_subfile.write(f"{k} in second dictionary only\n")
 
-            detail_file.write("-----------\n\n")
+            detail_subfile.write("-----------\n\n")
 
         for k in keys_1 & keys_2:
             if np.any(d1[k] != d2[k]):
-                detail_file.write(f"Different values for key {k}:\n\n")
-                detail_file.write(f"{d1[k]}\n\n")
-                detail_file.write(f"{d2[k]}\n")
-                detail_file.write("-----------\n\n")
+                diff_found = True
+                detail_subfile.write(f"Different values for key {k}:\n\n")
+                detail_subfile.write(f"{d1[k]}\n\n")
+                detail_subfile.write(f"{d2[k]}\n")
+                detail_subfile.write("-----------\n\n")
+
+        if diff_found:
+            detail_diag = detail_subfile.getvalue()
+            detail_file.write(detail_diag)
+
+        detail_subfile.close()
 
     return diff_found
 
