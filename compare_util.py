@@ -1,6 +1,7 @@
+import sys
+
 import numpy as np
 from numpy import ma
-import sys
 
 def cmp(v1, v2, silent = False, tag = None, detail_file = sys.stdout):
     diff_found = v1 != v2
