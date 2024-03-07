@@ -97,6 +97,7 @@ import time
 import string
 import pathlib
 import yachalk
+import selective_diff
 
 def get_all_required(title, my_run):
     found = True
@@ -319,33 +320,31 @@ def run_tests(my_runs, allowed_keys, compare_dir):
 def compare(title, my_run, compare_dir):
     t0 = time.perf_counter()
     old_dir = path.join(compare_dir, title)
-    subprocess_args = ["selective_diff.py", "--exclude=timing_test_compare.txt",
-                       "--exclude=comparison.txt", old_dir, title]
+    subprocess_args = {"exclude": ["timing_test_compare.txt",
+                       "comparison.txt"]}
 
     if "exclude_cmp" in my_run:
         assert isinstance(my_run["exclude_cmp"], list)
-        for pat in my_run["exclude_cmp"]: subprocess_args[1:1] = ["-x",  pat]
+        subprocess_args["exclude"] += my_run["exclude_cmp"]
 
     fname = path.join(title, "comparison.txt")
 
     with open(fname, "w") as f:
-        comp_proc = subprocess.run(subprocess_args, stdout = f,
-                                   stderr = subprocess.STDOUT)
+        comp_proc = selective_diff.selective_diff([old_dir, title], **subprocess_args, file_out = f)
         f.write("\n" + ("*" * 10 + "\n") * 2 + "\n")
 
-    if comp_proc.returncode == 0:
+    if comp_proc == 0:
         os.remove(fname)
-    elif comp_proc.returncode != 1:
-        print("Problem in selective_diff.py, return code "
+    elif comp_proc != 1:
+        sys.exit("Problem in selective_diff.py, return code "
               "should be 0 or 1.\nSee \"comparison.txt\".")
-        comp_proc.check_returncode()
 
     t1 = time.perf_counter()
     line = "Elapsed time for comparison: {:.0f} s\n".format(t1 - t0)
     fname = path.join(title, "timing_test_compare.txt")
     with open(fname, "a") as f: f.write(line)
 
-    return comp_proc.returncode
+    return comp_proc
 
 parser = argparse.ArgumentParser(description = __doc__, formatter_class \
                                  = argparse.RawDescriptionHelpFormatter)
