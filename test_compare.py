@@ -16,7 +16,7 @@ must thus include either the key "command" or "commands", and may also
 include the keys:
 
 "main_command", "description", "stdout", "symlink", "copy", "env", either
-"stdin_filename" or "input", "create_file", "exclude_cmp"
+"stdin_filename" or "input", "create_file", "sel_diff_args"
 
 "commands" is a list of commands, "command" is a single command. A
 command is a list of strings or a single string. If the command is a
@@ -322,11 +322,11 @@ def compare(title, my_run, compare_dir):
     old_dir = path.join(compare_dir, title)
     subprocess_args = {"exclude": []}
 
-    if "exclude_cmp" in my_run:
-        subprocess_args |= my_run["exclude_cmp"]
+    if "sel_diff_args" in my_run:
+        subprocess_args |= my_run["sel_diff_args"]
 
     subprocess_args["exclude"] = subprocess_args["exclude"][:] + ["timing_test_compare.txt", "comparison.txt"]
-    # (Copy so  we do not modify my_run["exclude_cmp"]["exclude"].)
+    # (Copy so  we do not modify my_run["sel_diff_args"]["exclude"].)
 
     fname = path.join(title, "comparison.txt")
 
@@ -472,7 +472,7 @@ else:
         allowed_keys = {"command", "commands", "main_command", "description",
                         "stdout", "symlink", "copy", "env", "stdin_filename",
                         "input", "test_series_file", "create_file",
-                        "exclude_cmp"}
+                        "sel_diff_args"}
         run_again = True
 
         while run_again:
