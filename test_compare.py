@@ -320,12 +320,13 @@ def run_tests(my_runs, allowed_keys, compare_dir):
 def compare(title, my_run, compare_dir):
     t0 = time.perf_counter()
     old_dir = path.join(compare_dir, title)
-    subprocess_args = {"exclude": ["timing_test_compare.txt",
-                       "comparison.txt"]}
+    subprocess_args = {"exclude": []}
 
     if "exclude_cmp" in my_run:
-        assert isinstance(my_run["exclude_cmp"], list)
-        subprocess_args["exclude"] += my_run["exclude_cmp"]
+        subprocess_args |= my_run["exclude_cmp"]
+
+    subprocess_args["exclude"] = subprocess_args["exclude"][:] + ["timing_test_compare.txt", "comparison.txt"]
+    # (Copy so  we do not modify my_run["exclude_cmp"]["exclude"].)
 
     fname = path.join(title, "comparison.txt")
 
