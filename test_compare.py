@@ -320,18 +320,18 @@ def run_tests(my_runs, allowed_keys, compare_dir):
 def compare(title, my_run, compare_dir):
     t0 = time.perf_counter()
     old_dir = path.join(compare_dir, title)
-    subprocess_args = {"exclude": []}
+    sel_diff_args = {"exclude": []}
 
     if "sel_diff_args" in my_run:
-        subprocess_args |= my_run["sel_diff_args"]
+        sel_diff_args |= my_run["sel_diff_args"]
 
-    subprocess_args["exclude"] = subprocess_args["exclude"][:] + ["timing_test_compare.txt", "comparison.txt"]
+    sel_diff_args["exclude"] = sel_diff_args["exclude"][:] + ["timing_test_compare.txt", "comparison.txt"]
     # (Copy so  we do not modify my_run["sel_diff_args"]["exclude"].)
 
     fname = path.join(title, "comparison.txt")
 
     with open(fname, "w") as f:
-        return_code = selective_diff.selective_diff([old_dir, title], **subprocess_args, file_out = f)
+        return_code = selective_diff.selective_diff([old_dir, title], **sel_diff_args, file_out = f)
         f.write("\n" + ("*" * 10 + "\n") * 2 + "\n")
 
     if return_code == 0:
