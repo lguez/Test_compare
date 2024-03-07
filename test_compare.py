@@ -330,12 +330,12 @@ def compare(title, my_run, compare_dir):
     fname = path.join(title, "comparison.txt")
 
     with open(fname, "w") as f:
-        comp_proc = selective_diff.selective_diff([old_dir, title], **subprocess_args, file_out = f)
+        return_code = selective_diff.selective_diff([old_dir, title], **subprocess_args, file_out = f)
         f.write("\n" + ("*" * 10 + "\n") * 2 + "\n")
 
-    if comp_proc == 0:
+    if return_code == 0:
         os.remove(fname)
-    elif comp_proc != 1:
+    elif return_code != 1:
         sys.exit("Problem in selective_diff.py, return code "
               "should be 0 or 1.\nSee \"comparison.txt\".")
 
@@ -344,7 +344,7 @@ def compare(title, my_run, compare_dir):
     fname = path.join(title, "timing_test_compare.txt")
     with open(fname, "a") as f: f.write(line)
 
-    return comp_proc
+    return return_code
 
 parser = argparse.ArgumentParser(description = __doc__, formatter_class \
                                  = argparse.RawDescriptionHelpFormatter)
