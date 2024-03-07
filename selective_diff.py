@@ -395,7 +395,7 @@ class detailed_diff:
             elif cp.returncode != 0:
                 diff_out.seek(0)
                 sys.stdout.writelines(diff_out)
-                print("selective_diff.py: error from numdiff")
+                print("selective_diff: error from numdiff")
                 sys.exit(2)
 
         return cp.returncode
