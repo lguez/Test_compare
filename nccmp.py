@@ -203,7 +203,6 @@ if __name__ == "__main__":
         "--ign_att", nargs="+", help="list of global attributes to ignore"
     )
     args = parser.parse_args()
-
     nccmp_return = nccmp(
         *args.netCDF_file, args.silent, args.data_only, ign_att=args.ign_att
     )

@@ -64,6 +64,9 @@ If "stdout" is not present then the file name for standard output is
 constructed from the name of the main command (determined by
 "main_command").
 
+If present, "sel_diff_args" must be a dictionary. The keys must be
+arguments of the function "selective_diff".
+
 The required files and executables must be specified in the JSON input
 file with absolute paths. File arguments in commands, if any, also
 have to be specified with absolute paths.
@@ -89,13 +92,13 @@ import glob
 import json
 import os
 from os import path
+import pathlib
 import shutil
+import string
 import subprocess
 import sys
 import tempfile
 import time
-import string
-import pathlib
 
 import yachalk
 
@@ -369,8 +372,8 @@ def compare(title, my_run, compare_dir):
         os.remove(fname)
     elif return_code != 1:
         sys.exit(
-            "Problem in selective_diff.py, return code "
-            'should be 0 or 1.\nSee "comparison.txt".'
+            "Problem in selective_diff.py, return code should be 0 or 1.\n"
+            'See "comparison.txt".'
         )
 
     t1 = time.perf_counter()
