@@ -245,7 +245,7 @@ def run_single_test(title, my_run, path_failed):
 
     return comp_proc.returncode
 
-def run_tests(my_runs, allowed_keys, compare_dir, other_args):
+def run_tests(my_runs, allowed_keys, compare_dir):
     """my_runs should be a dictionary of dictionaries. allowed_keys should
     be a set.
 
@@ -294,8 +294,7 @@ def run_tests(my_runs, allowed_keys, compare_dir, other_args):
                     try:
                         shutil.copytree(title, old_dir, symlinks = True)
                     except FileExistsError:
-                        return_code = compare(title, my_run, compare_dir,
-                                              other_args)
+                        return_code = compare(title, my_run, compare_dir)
 
                         if return_code != 0:
                             print("difference found")
@@ -317,12 +316,11 @@ def run_tests(my_runs, allowed_keys, compare_dir, other_args):
 
     return cumul_return
 
-def compare(title, my_run, compare_dir, other_args):
+def compare(title, my_run, compare_dir):
     t0 = time.perf_counter()
     old_dir = path.join(compare_dir, title)
     subprocess_args = ["selective_diff.py", "--exclude=timing_test_compare.txt",
                        "--exclude=comparison.txt", old_dir, title]
-    subprocess_args[1:1] = other_args
 
     if "exclude_cmp" in my_run:
         assert isinstance(my_run["exclude_cmp"], list)
@@ -350,11 +348,7 @@ def compare(title, my_run, compare_dir, other_args):
     return comp_proc.returncode
 
 parser = argparse.ArgumentParser(description = __doc__, formatter_class \
-                                 = argparse.RawDescriptionHelpFormatter,
-                                 epilog = 'Remaining options are passed on to '
-                                 '"selective_diff.py". Use long form for '
-                                 'options of "selective_diff.py" with '
-                                 'arguments.')
+                                 = argparse.RawDescriptionHelpFormatter)
 parser.add_argument("compare_dir", help = "Directory containing old runs "
                     "for comparison, after running the tests")
 parser.add_argument("test_descr", nargs = "+",
@@ -373,7 +367,7 @@ parser.add_argument("--cat", help = "cat files comparison.txt",
                     metavar = "FILE")
 parser.add_argument("--re_compar", help = "redo comparison (but do not re-run)",
                     action = "store_true")
-args, other_args = parser.parse_known_args()
+args = parser.parse_args()
 
 my_runs = {}
 
@@ -462,7 +456,7 @@ else:
                                     shutil.ignore_patterns("diff_image.png"))
                 except FileExistsError:
                     return_code = compare(title, my_runs[title],
-                                          args.compare_dir, other_args)
+                                          args.compare_dir)
 
                     if return_code != 0:
                         print("difference found")
@@ -482,8 +476,7 @@ else:
         run_again = True
 
         while run_again:
-            cumul_return = run_tests(my_runs, allowed_keys, args.compare_dir,
-                                     other_args)
+            cumul_return = run_tests(my_runs, allowed_keys, args.compare_dir)
 
             if args.cat:
                 with open(args.cat, "w") as f_out:
