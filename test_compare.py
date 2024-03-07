@@ -99,6 +99,7 @@ import pathlib
 import yachalk
 import selective_diff
 
+
 def get_all_required(title, my_run):
     found = True
 
@@ -108,34 +109,47 @@ def get_all_required(title, my_run):
 
             for required_item in my_run[required_type]:
                 if isinstance(required_item, list):
-                    found = get_single_required(required_item[0], title, my_run,
-                                                required_item[1], required_type)
+                    found = get_single_required(
+                        required_item[0],
+                        title,
+                        my_run,
+                        required_item[1],
+                        required_type,
+                    )
                 else:
                     # Wildcards allowed
                     expanded_list = glob.glob(required_item)
 
                     if len(expanded_list) == 0:
-                        print(f"\n{sys.argv[0]}: required {required_item} "
-                              "does not exist.\n")
+                        print(
+                            f"\n{sys.argv[0]}: required {required_item} "
+                            "does not exist.\n"
+                        )
                         found = False
                     else:
                         for expanded_item in expanded_list:
                             base_dest = path.basename(expanded_item)
-                            found = get_single_required(expanded_item, title,
-                                                        my_run, base_dest,
-                                                        required_type)
-                            if not found: break
+                            found = get_single_required(
+                                expanded_item,
+                                title,
+                                my_run,
+                                base_dest,
+                                required_type,
+                            )
+                            if not found:
+                                break
 
-                if not found: break
+                if not found:
+                    break
 
-            if not found: break
+            if not found:
+                break
 
     return found
 
-def get_single_required(src, title, my_run, base_dest, required_type):
-    """If src exists then symlink or copy src to title/base_dest.
 
-    """
+def get_single_required(src, title, my_run, base_dest, required_type):
+    """If src exists then symlink or copy src to title/base_dest."""
 
     found = path.exists(src)
 
@@ -156,6 +170,7 @@ def get_single_required(src, title, my_run, base_dest, required_type):
 
     return found
 
+
 def run_single_test(title, my_run, path_failed):
     if "command" in my_run:
         commands = [my_run["command"]]
@@ -171,7 +186,9 @@ def run_single_test(title, my_run, path_failed):
     split_commands = []
 
     for command in commands:
-        if isinstance(command, str): command = command.split()
+        if isinstance(command, str):
+            command = command.split()
+
         split_commands.append(command)
 
     commands = split_commands
@@ -215,23 +232,28 @@ def run_single_test(title, my_run, path_failed):
             f.write(my_run["create_file"][1])
 
     with open("test.json", "w") as f:
-        json.dump(my_run, f, indent = 3, sort_keys = True)
+        json.dump(my_run, f, indent=3, sort_keys=True)
         f.write("\n")
 
     t0 = time.perf_counter()
 
     for command in commands[:main_command]:
-        subprocess.run(command, check = True)
+        subprocess.run(command, check=True)
 
-    with open(stdout_filename, "w") as stdout, open(stderr_filename, "w") \
-         as stderr:
-        comp_proc = subprocess.run(commands[main_command], stdout = stdout,
-                                   stderr = stderr, universal_newlines = True,
-                                   **other_kwargs)
+    with open(stdout_filename, "w") as stdout, open(
+        stderr_filename, "w"
+    ) as stderr:
+        comp_proc = subprocess.run(
+            commands[main_command],
+            stdout=stdout,
+            stderr=stderr,
+            universal_newlines=True,
+            **other_kwargs,
+        )
 
     if comp_proc.returncode == 0:
-        for command in commands[main_command + 1:]:
-            subprocess.run(command, check = True)
+        for command in commands[main_command + 1 :]:
+            subprocess.run(command, check=True)
 
         with open("timing_test_compare.txt", "w") as f:
             t1 = time.perf_counter()
@@ -245,6 +267,7 @@ def run_single_test(title, my_run, path_failed):
         print(yachalk.chalk.red("failed"))
 
     return comp_proc.returncode
+
 
 def run_tests(my_runs, allowed_keys, compare_dir):
     """my_runs should be a dictionary of dictionaries. allowed_keys should
@@ -260,7 +283,7 @@ def run_tests(my_runs, allowed_keys, compare_dir):
 
     for i, title in enumerate(my_runs):
         my_run = my_runs[title]
-        print(i, end = ": ")
+        print(i, end=": ")
         path_failed = pathlib.Path(title, "failed")
         previous_failed = path_failed.exists()
 
@@ -281,7 +304,7 @@ def run_tests(my_runs, allowed_keys, compare_dir):
                 print("Replacing", title, "because previous run failed...")
                 shutil.rmtree(title)
             else:
-                print("Creating", title + "...", flush = True)
+                print("Creating", title + "...", flush=True)
 
             os.mkdir(title)
             found = get_all_required(title, my_run)
@@ -293,7 +316,7 @@ def run_tests(my_runs, allowed_keys, compare_dir):
                     old_dir = path.join(compare_dir, title)
 
                     try:
-                        shutil.copytree(title, old_dir, symlinks = True)
+                        shutil.copytree(title, old_dir, symlinks=True)
                     except FileExistsError:
                         return_code = compare(title, my_run, compare_dir)
 
@@ -317,6 +340,7 @@ def run_tests(my_runs, allowed_keys, compare_dir):
 
     return cumul_return
 
+
 def compare(title, my_run, compare_dir):
     t0 = time.perf_counter()
     old_dir = path.join(compare_dir, title)
@@ -325,48 +349,73 @@ def compare(title, my_run, compare_dir):
     if "sel_diff_args" in my_run:
         sel_diff_args |= my_run["sel_diff_args"]
 
-    sel_diff_args["exclude"] = sel_diff_args["exclude"][:] + ["timing_test_compare.txt", "comparison.txt"]
+    sel_diff_args["exclude"] = sel_diff_args["exclude"][:] + [
+        "timing_test_compare.txt",
+        "comparison.txt",
+    ]
     # (Copy so  we do not modify my_run["sel_diff_args"]["exclude"].)
 
     fname = path.join(title, "comparison.txt")
 
     with open(fname, "w") as f:
-        return_code = selective_diff.selective_diff([old_dir, title], **sel_diff_args, file_out = f)
+        return_code = selective_diff.selective_diff(
+            [old_dir, title], **sel_diff_args, file_out=f
+        )
         f.write("\n" + ("*" * 10 + "\n") * 2 + "\n")
 
     if return_code == 0:
         os.remove(fname)
     elif return_code != 1:
-        sys.exit("Problem in selective_diff.py, return code "
-              "should be 0 or 1.\nSee \"comparison.txt\".")
+        sys.exit(
+            "Problem in selective_diff.py, return code "
+            'should be 0 or 1.\nSee "comparison.txt".'
+        )
 
     t1 = time.perf_counter()
     line = "Elapsed time for comparison: {:.0f} s\n".format(t1 - t0)
     fname = path.join(title, "timing_test_compare.txt")
-    with open(fname, "a") as f: f.write(line)
+
+    with open(fname, "a") as f:
+        f.write(line)
 
     return return_code
 
-parser = argparse.ArgumentParser(description = __doc__, formatter_class \
-                                 = argparse.RawDescriptionHelpFormatter)
-parser.add_argument("compare_dir", help = "Directory containing old runs "
-                    "for comparison, after running the tests")
-parser.add_argument("test_descr", nargs = "+",
-                    help = "JSON file containing description of tests")
-parser.add_argument("-s", "--substitutions", help="JSON input file containing "
-                    "abbreviations for directory names")
-parser.add_argument("--clean", help = """
+
+parser = argparse.ArgumentParser(
+    description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+)
+parser.add_argument(
+    "compare_dir",
+    help="Directory containing old runs for comparison, after running the "
+    "tests",
+)
+parser.add_argument(
+    "test_descr", nargs="+", help="JSON file containing description of tests"
+)
+parser.add_argument(
+    "-s",
+    "--substitutions",
+    help="JSON input file containing " "abbreviations for directory names",
+)
+parser.add_argument(
+    "--clean",
+    help="""
 Remove any existing run directories in the current directory. With -t, remove 
 only the selected run directories, if they exist.""",
-                    action = "store_true")
-parser.add_argument("-l", "--list", help = "just list the titles",
-                    action = "store_true")
-parser.add_argument("-t", "--title", nargs = "+",
-                    help = "select titles in JSON file")
-parser.add_argument("--cat", help = "cat files comparison.txt",
-                    metavar = "FILE")
-parser.add_argument("--re_compar", help = "redo comparison (but do not re-run)",
-                    action = "store_true")
+    action="store_true",
+)
+parser.add_argument(
+    "-l", "--list", help="just list the titles", action="store_true"
+)
+parser.add_argument(
+    "-t", "--title", nargs="+", help="select titles in JSON file"
+)
+parser.add_argument("--cat", help="cat files comparison.txt", metavar="FILE")
+parser.add_argument(
+    "--re_compar",
+    help="redo comparison (but do not re-run)",
+    action="store_true",
+)
 args = parser.parse_args()
 
 my_runs = {}
@@ -382,7 +431,8 @@ if args.list:
             input_file.close()
             my_runs.update(series)
 
-    for title in my_runs: print(title)
+    for title in my_runs:
+        print(title)
 else:
     if not path.isdir(args.compare_dir):
         sys.exit("Directory " + args.compare_dir + " not found.")
@@ -405,7 +455,7 @@ else:
         except FileNotFoundError:
             print("Skipping", test_descr, ", not found")
         else:
-            with tempfile.TemporaryFile(mode = "w+") as json_substituted:
+            with tempfile.TemporaryFile(mode="w+") as json_substituted:
                 for line in input_file:
                     line = string.Template(line).substitute(substitutions)
                     json_substituted.write(line)
@@ -444,19 +494,25 @@ else:
         cumul_return = 0
 
         for i, title in enumerate(my_runs):
-            print(f'{i}: {title}')
+            print(f"{i}: {title}")
 
-            if path.exists(title) \
-               and not pathlib.Path(title, "failed").exists():
+            if (
+                path.exists(title)
+                and not pathlib.Path(title, "failed").exists()
+            ):
                 old_dir = path.join(args.compare_dir, title)
 
                 try:
-                    shutil.copytree(title, old_dir, symlinks = True,
-                                    ignore =
-                                    shutil.ignore_patterns("diff_image.png"))
+                    shutil.copytree(
+                        title,
+                        old_dir,
+                        symlinks=True,
+                        ignore=shutil.ignore_patterns("diff_image.png"),
+                    )
                 except FileExistsError:
-                    return_code = compare(title, my_runs[title],
-                                          args.compare_dir)
+                    return_code = compare(
+                        title, my_runs[title], args.compare_dir
+                    )
 
                     if return_code != 0:
                         print("difference found")
@@ -469,10 +525,21 @@ else:
         print("Elapsed time:", time.perf_counter() - t0, "s")
         print("Number of successful runs with different results:", cumul_return)
     else:
-        allowed_keys = {"command", "commands", "main_command", "description",
-                        "stdout", "symlink", "copy", "env", "stdin_filename",
-                        "input", "test_series_file", "create_file",
-                        "sel_diff_args"}
+        allowed_keys = {
+            "command",
+            "commands",
+            "main_command",
+            "description",
+            "stdout",
+            "symlink",
+            "copy",
+            "env",
+            "stdin_filename",
+            "input",
+            "test_series_file",
+            "create_file",
+            "sel_diff_args",
+        }
         run_again = True
 
         while run_again:
@@ -485,7 +552,8 @@ else:
 
                         if path.exists(fname):
                             with open(fname) as f_in:
-                                for line in f_in: f_out.write(line)
+                                for line in f_in:
+                                    f_out.write(line)
 
             if cumul_return == 0:
                 run_again = False
@@ -496,21 +564,28 @@ else:
 
                 if run_again:
                     for title in my_runs:
-                        if path.exists(title) and not \
-                           pathlib.Path(title, "failed").exists():
+                        if (
+                            path.exists(title)
+                            and not pathlib.Path(title, "failed").exists()
+                        ):
                             fname = path.join(title, "comparison.txt")
 
                             if path.exists(fname):
                                 print("Replacing", title)
                                 old_dir = path.join(args.compare_dir, title)
-                                if path.exists(old_dir): shutil.rmtree(old_dir)
+
+                                if path.exists(old_dir):
+                                    shutil.rmtree(old_dir)
+
                                 os.remove(fname)
 
-                                for dirpath, dirnames, filenames in \
-                                    os.walk(title):
+                                for dirpath, dirnames, filenames in os.walk(
+                                    title
+                                ):
                                     if "diff_image.png" in filenames:
-                                        os.remove(path.join(dirpath,
-                                                            "diff_image.png"))
+                                        os.remove(
+                                            path.join(dirpath, "diff_image.png")
+                                        )
 
                                 shutil.move(title, old_dir)
 
