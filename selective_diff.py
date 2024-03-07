@@ -465,9 +465,11 @@ def selective_diff(
         traceback.print_exc()
         sys.exit(2)
 
-    if n_diff != 0:
+    if n_diff == 0:
+        return 0
+    else:
         print("\nNumber of differences:", n_diff, file=file_out)
-        sys.exit(1)
+        return 1
 
 
 if __name__ == "__main__":
