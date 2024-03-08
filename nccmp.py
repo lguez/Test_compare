@@ -50,8 +50,11 @@ def nccmp(
             dict_2 = file_2.__dict__.copy()
 
             for attribute in ign_att:
-                del dict_1[attribute]
-                del dict_2[attribute]
+                try:
+                    del dict_1[attribute]
+                    del dict_2[attribute]
+                except KeyError:
+                    pass
 
         diff_found = compare_util.diff_dict(
             dict_1, dict_2, silent, tag, detail_subfile
