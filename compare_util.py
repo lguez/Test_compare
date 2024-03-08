@@ -5,13 +5,16 @@ import numpy as np
 from numpy import ma
 
 def cmp(v1, v2, silent = False, tag = None, detail_file = sys.stdout):
-    diff_found = v1 != v2
-    
-    if diff_found and not silent:
-        if tag: detail_file.write(f"{tag}:\n\n")
-        detail_file.write(f"{v1}\n\n")
-        detail_file.write(f"{v2}\n")
-        detail_file.write("-------------\n\n")
+    if isinstance(v1, set) and isinstance(v2, set):
+        diff_found = diff_set(v1, v2, silent, tag, detail_file)
+    else:
+        diff_found = v1 != v2
+
+        if diff_found and not silent:
+            if tag: detail_file.write(f"{tag}:\n\n")
+            detail_file.write(f"{v1}\n\n")
+            detail_file.write(f"{v2}\n")
+            detail_file.write("-------------\n\n")
 
     return diff_found
 
