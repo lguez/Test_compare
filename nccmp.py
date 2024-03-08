@@ -67,11 +67,11 @@ def nccmp(
                 ("File_format", file_1.file_format, file_2.file_format),
                 (
                     "Dimension names",
-                    file_1.dimensions.keys(),
-                    file_2.dimensions.keys(),
+                    set(file_1.dimensions.keys()),
+                    set(file_2.dimensions.keys()),
                 ),
-                ("Variable names", vars1, vars2),
-                ("Group names", groups1, groups2),
+                ("Variable names", set(vars1), set(vars2)),
+                ("Group names", set(groups1), set(groups2)),
             ]:
                 diff_found = (
                     compare_util.cmp(v1, v2, silent, tag, detail_subfile)
