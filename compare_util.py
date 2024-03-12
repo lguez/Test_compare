@@ -37,15 +37,19 @@ def diff_dict(d1, d2, silent = False, tag = None, detail_file = sys.stdout):
         keys_1 = d1.keys()
         keys_2 = d2.keys()
         diff_found = False
+        diff_keys = keys_1 - keys_2
 
-        for k in keys_1 ^ keys_2:
+        if len(diff_keys) != 0:
             diff_found = True
-            if k in d1:
-                detail_subfile.write(f"{k} in first dictionary only\n")
-            else:
-                detail_subfile.write(f"{k} in second dictionary only\n")
+            detail_subfile.write(f"{diff_keys} in first dictionary only\n\n")
 
-            detail_subfile.write("-----------\n\n")
+        diff_keys = keys_2 - keys_1
+
+        if len(diff_keys) != 0:
+            diff_found = True
+            detail_subfile.write(f"{diff_keys} in second dictionary only\n\n")
+
+        detail_subfile.write("-----------\n\n")
 
         for k in keys_1 & keys_2:
             if np.any(d1[k] != d2[k]):
