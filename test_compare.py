@@ -301,7 +301,7 @@ def run_tests(my_runs, allowed_keys, compare_dir):
                 print("difference found")
         else:
             if not set(my_run) <= allowed_keys:
-                print("bad keys:")
+                print(f"bad keys in {title}:")
                 print(set(my_run) - allowed_keys)
                 sys.exit(1)
 
