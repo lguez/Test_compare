@@ -524,8 +524,8 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--ign_att",
-        nargs="+",
-        help="list of global attributes of NetCDF file to ignore",
+        action="append",
+        help="global attribute of NetCDF file to ignore",
     )
 
     parser.add_argument(

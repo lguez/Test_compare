@@ -203,7 +203,7 @@ if __name__ == "__main__":
         "-d", "--data-only", action="store_true", help="compare only data"
     )
     parser.add_argument(
-        "--ign_att", nargs="+", help="list of global attributes to ignore"
+        "--ign_att", action="append", help="global attribute to ignore"
     )
     args = parser.parse_args()
     nccmp_return = nccmp(
