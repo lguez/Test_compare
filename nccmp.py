@@ -52,6 +52,10 @@ def nccmp(
             for attribute in ign_att:
                 try:
                     del dict_1[attribute]
+                except KeyError:
+                    pass
+
+                try:
                     del dict_2[attribute]
                 except KeyError:
                     pass
