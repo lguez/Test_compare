@@ -46,6 +46,7 @@ def nccmp(
             dict_1 = file_1.__dict__
             dict_2 = file_2.__dict__
         else:
+            assert isinstance(ign_att, list)
             dict_1 = file_1.__dict__.copy()
             dict_2 = file_2.__dict__.copy()
 
