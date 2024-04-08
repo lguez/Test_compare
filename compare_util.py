@@ -72,13 +72,16 @@ def diff_set(v1, v2, silent = False, tag = None, detail_file = sys.stdout):
 
     if diff_found and not silent:
         if tag: detail_file.write(f"{tag}:\n\n")
+        my_diff = v1 - v2
 
-        for k in v1 ^ v2:
-            if k in v1:
-                detail_file.write(f"{k} in first set only\n")
-            else:
-                detail_file.write(f"{k} in second set only\n")
+        if len(my_diff) != 0:
+            detail_file.write(f"{my_diff} in first set only\n")
+            detail_file.write("-----------\n\n")
 
+        my_diff = v2 - v1
+
+        if len(my_diff) != 0:
+            detail_file.write(f"{my_diff} in second set only\n")
             detail_file.write("-----------\n\n")
 
     return diff_found
