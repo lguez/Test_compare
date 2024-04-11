@@ -10,6 +10,7 @@ import netCDF4
 
 import compare_util
 
+
 def nccmp(
     f1, f2, silent=False, data_only=False, detail_file=sys.stdout, ign_att=None
 ):
@@ -144,8 +145,8 @@ def nccmp(
                         break
 
     if not silent or not diff_found:
-        # Compare the data part:
-        # Note that we cannot reuse inters_vars, which has been emptied.
+        # Compare the data part. Note that we cannot reuse
+        # inters_vars, which has been emptied.
 
         for x in vars1 & vars2:
             tag = f"Variable {path.join(file_1.path, x)}"
