@@ -147,19 +147,37 @@ def nccmp(
     if not silent or not diff_found:
         # Compare the data part. Note that we cannot reuse
         # inters_vars, which has been emptied.
+        diff_content = []
+        diff_shape = []
 
         for x in vars1 & vars2:
-            tag = f"Variable {path.join(file_1.path, x)}"
-            diff_found = (
-                compare_util.cmp_ndarr(
-                    file_1[x], file_2[x], silent, tag, detail_subfile
-                )
-                or diff_found
-            )
-            # (Note: call to cmp_ndarr first to avoid short-circuit)
+            return_code = compare_util.cmp_ndarr(file_1[x], file_2[x])
+            diff_found = return_code != 0 or diff_found
+
+            if not silent:
+                if return_code == 1:
+                    diff_content.append(x)
+                elif return_code == 2:
+                    diff_shape.append(x)
 
             if diff_found and silent:
                 break
+
+        if not silent:
+            if diff_content:
+                detail_subfile.write(
+                    f"Variables in group {file_1.path} with different "
+                    "content:\n"
+                )
+                print(diff_content, file=detail_subfile)
+                detail_subfile.write("-------------\n\n")
+
+            if diff_shape:
+                detail_subfile.write(
+                    f"Variables in group {file_1.path} with different shapes:\n"
+                )
+                print(diff_shape, file=detail_subfile)
+                detail_subfile.write("-------------\n\n")
 
     if diff_found and not silent:
         detail_file.write("\n" + "*" * 10 + "\n\n")

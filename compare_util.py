@@ -102,19 +102,23 @@ def diff_set(v1, v2, silent=False, tag=None, detail_file=sys.stdout):
     return diff_found
 
 
-def cmp_ndarr(v1, v2, silent=False, tag=None, detail_file=sys.stdout):
-    """v1 and v2 are numpy arrays. Return True if a difference is
-    found. Do not write anything to detail_file if silent."""
+def cmp_ndarr(v1, v2):
+    """v1 and v2 are numpy arrays. Return 0 if no difference is found, 1
+    if difference in content, 2 if difference in shapes. Do not write
+    anything.
+
+    """
 
     if v1.shape == v2.shape:
         if v1.size == 0:
-            diff_found = False
+            return_code = 0
         else:
             mask1 = ma.getmaskarray(v1[:])
             mask2 = ma.getmaskarray(v2[:])
-            diff_found = np.any(mask1 != mask2)
 
-            if not diff_found:
+            if np.any(mask1 != mask2):
+                return_code = 1
+            else:
                 try:
                     compressed1 = v1[:].compressed()
                     compressed2 = v2[:].compressed()
@@ -122,22 +126,8 @@ def cmp_ndarr(v1, v2, silent=False, tag=None, detail_file=sys.stdout):
                     compressed1 = v1[:]
                     compressed2 = v2[:]
 
-                diff_found = np.any(compressed1 != compressed2)
-
-            if diff_found and not silent:
-                if tag:
-                    detail_file.write(f"{tag}:\n")
-
-                detail_file.write("Different content\n")
-                detail_file.write("-------------\n\n")
+                return_code = 1 if np.any(compressed1 != compressed2) else 0
     else:
-        if not silent:
-            if tag:
-                detail_file.write(f"{tag}:\n")
+        return_code = 2
 
-            detail_file.write("cmp_ndarr: shapes differ\n")
-            detail_file.write("-------------\n\n")
-
-        diff_found = True
-
-    return diff_found
+    return return_code
