@@ -4,21 +4,29 @@ import io
 import numpy as np
 from numpy import ma
 
-def cmp(v1, v2, silent = False, tag = None, detail_file = sys.stdout):
+
+def cmp(v1, v2, silent=False, tag=None, detail_file=sys.stdout):
+    """Do not write anything to detail_file if silent."""
+
     if isinstance(v1, set) and isinstance(v2, set):
         diff_found = diff_set(v1, v2, silent, tag, detail_file)
     else:
         diff_found = v1 != v2
 
         if diff_found and not silent:
-            if tag: detail_file.write(f"{tag}:\n\n")
+            if tag:
+                detail_file.write(f"{tag}:\n\n")
+
             detail_file.write(f"{v1}\n\n")
             detail_file.write(f"{v2}\n")
             detail_file.write("-------------\n\n")
 
     return diff_found
 
-def diff_dict(d1, d2, silent = False, tag = None, detail_file = sys.stdout):
+
+def diff_dict(d1, d2, silent=False, tag=None, detail_file=sys.stdout):
+    """Do not write anything to detail_file if silent."""
+
     if silent:
         diff_found = d1.keys() != d2.keys()
 
@@ -33,7 +41,9 @@ def diff_dict(d1, d2, silent = False, tag = None, detail_file = sys.stdout):
         # if we find differences, so create a new text stream:
         detail_subfile = io.StringIO()
 
-        if tag: detail_subfile.write(f"{tag}:\n\n")
+        if tag:
+            detail_subfile.write(f"{tag}:\n\n")
+
         keys_1 = d1.keys()
         keys_2 = d2.keys()
         diff_found = False
@@ -67,11 +77,16 @@ def diff_dict(d1, d2, silent = False, tag = None, detail_file = sys.stdout):
 
     return diff_found
 
-def diff_set(v1, v2, silent = False, tag = None, detail_file = sys.stdout):
+
+def diff_set(v1, v2, silent=False, tag=None, detail_file=sys.stdout):
+    """Do not write anything to detail_file if silent."""
+
     diff_found = v1 != v2
 
     if diff_found and not silent:
-        if tag: detail_file.write(f"{tag}:\n\n")
+        if tag:
+            detail_file.write(f"{tag}:\n\n")
+
         my_diff = v1 - v2
 
         if len(my_diff) != 0:
@@ -86,10 +101,11 @@ def diff_set(v1, v2, silent = False, tag = None, detail_file = sys.stdout):
 
     return diff_found
 
-def cmp_ndarr(v1, v2, silent = False, tag = None, detail_file = sys.stdout):
+
+def cmp_ndarr(v1, v2, silent=False, tag=None, detail_file=sys.stdout):
     """v1 and v2 are numpy arrays. Return True if a difference is
-    found."""
-    
+    found. Do not write anything to detail_file if silent."""
+
     if v1.shape == v2.shape:
         if v1.size == 0:
             diff_found = False
@@ -109,12 +125,16 @@ def cmp_ndarr(v1, v2, silent = False, tag = None, detail_file = sys.stdout):
                 diff_found = np.any(compressed1 != compressed2)
 
             if diff_found and not silent:
-                if tag: detail_file.write(f"{tag}:\n")
+                if tag:
+                    detail_file.write(f"{tag}:\n")
+
                 detail_file.write("Different content\n")
                 detail_file.write("-------------\n\n")
     else:
         if not silent:
-            if tag: detail_file.write(f"{tag}:\n")
+            if tag:
+                detail_file.write(f"{tag}:\n")
+
             detail_file.write("cmp_ndarr: shapes differ\n")
             detail_file.write("-------------\n\n")
 
