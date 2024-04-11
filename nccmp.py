@@ -160,7 +160,7 @@ def nccmp(
             if diff_found and silent:
                 break
 
-    if diff_found:
+    if diff_found and not silent:
         detail_file.write("\n" + "*" * 10 + "\n\n")
 
         if isinstance(f1, str):
