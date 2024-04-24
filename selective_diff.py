@@ -341,7 +341,7 @@ class detailed_diff:
     def _diff_csv_ndiff(self, path_1, path_2, detail_file, names=None):
         with tempfile.TemporaryFile("w+") as diff_out:
             cp = subprocess.run(
-                ["ndiff", "-relerr", self.tolerance, path_1, path_2],
+                ["ndiff", "-relerr", str(self.tolerance), path_1, path_2],
                 stdout=diff_out,
                 stderr=subprocess.STDOUT,
                 text=True,
@@ -498,7 +498,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-t",
         "--tolerance",
-        default="1e-7",
+        default=1e-7, type=float,
         help="maximum "
         "relative error for comparison of CSV files with ndiff or numdiff",
     )
