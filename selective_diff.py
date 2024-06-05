@@ -281,10 +281,7 @@ class detailed_diff:
         elif (
             suffix == ".txt"
             or suffix == ".json"
-            or (
-                suffix not in [".nc", ".csv", ".gv"]
-                and "text" in magic.from_file(path.realpath(path_1))
-            )
+            or "text" in magic.from_file(path.realpath(path_1))
         ):
             n_diff = diff_txt(path_1, path_2, self.size_lim, detail_file)
         else:
