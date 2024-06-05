@@ -11,9 +11,12 @@ import tempfile
 import fnmatch
 import io
 import traceback
+import json
+import pprint
 
 import magic
 from wand import image
+import jsondiff
 
 import diff_dbf
 import diff_shp
@@ -77,6 +80,21 @@ def diff_png(path_1, path_2, detail_file):
             diff_img.save(filename=filename)
             detail_file.write(f"See {filename}\n\n")
             n_diff = 1
+
+    return n_diff
+
+
+def diff_json(path_1, path_2, detail_file):
+    with open(path_1) as f_obj_1, open(path_2) as f_obj_2:
+        my_diff = jsondiff.diff(f_obj_1, f_obj_2, load=True, syntax="explicit")
+
+    if my_diff:
+        detail_file.write("\n" + "*" * 10 + "\n\n")
+        detail_file.write(f"diff_json {path_1} {path_2}\n")
+        pprint.pp(my_diff, stream=detail_file)
+        n_diff = 1
+    else:
+        n_diff = 0
 
     return n_diff
 
@@ -278,10 +296,10 @@ class detailed_diff:
             n_diff = diff_png(path_1, path_2, detail_file)
         elif suffix == ".gv":
             n_diff = diff_gv.diff_gv(path_1, path_2, detail_file)
-        elif (
-            suffix == ".txt"
-            or suffix == ".json"
-            or "text" in magic.from_file(path.realpath(path_1))
+        elif suffix == ".json":
+            n_diff = diff_json(path_1, path_2, detail_file)
+        elif suffix == ".txt" or "text" in magic.from_file(
+            path.realpath(path_1)
         ):
             n_diff = diff_txt(path_1, path_2, self.size_lim, detail_file)
         else:
