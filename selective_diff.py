@@ -249,16 +249,15 @@ class detailed_diff:
 
     def diff(self, path_1, path_2, detail_file):
         suffix = pathlib.PurePath(path_1).suffix
-        text_file = (
+
+        if (
             suffix == ".txt"
             or suffix == ".json"
             or (
                 suffix not in [".nc", ".csv", ".gv"]
                 and "text" in magic.from_file(path.realpath(path_1))
             )
-        )
-
-        if text_file:
+        ):
             n_diff = diff_txt(path_1, path_2, self.size_lim, detail_file)
         elif suffix == ".dbf":
             n_diff = self._diff_dbf(path_1, path_2, detail_file)
