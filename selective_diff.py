@@ -514,7 +514,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "-t",
         "--tolerance",
-        default=1e-7, type=float,
+        default=1e-7,
+        type=float,
         help="maximum "
         "relative error for comparison of CSV files with ndiff or numdiff",
     )
