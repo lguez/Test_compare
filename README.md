@@ -23,7 +23,7 @@ Note that arguments should be two directories, not two files.
 Dependencies: [python3-wand](https://github.com/emcconville/wand),
 [networkx](https://networkx.org),
 [python-magic](https://github.com/ahupp/python-magic), ndiff,
-matplotlib, netCDF4.
+matplotlib, netCDF4, yachalk.
 
 # `test_compare`
 
