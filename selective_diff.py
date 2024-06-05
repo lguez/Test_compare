@@ -250,16 +250,7 @@ class detailed_diff:
     def diff(self, path_1, path_2, detail_file):
         suffix = pathlib.PurePath(path_1).suffix
 
-        if (
-            suffix == ".txt"
-            or suffix == ".json"
-            or (
-                suffix not in [".nc", ".csv", ".gv"]
-                and "text" in magic.from_file(path.realpath(path_1))
-            )
-        ):
-            n_diff = diff_txt(path_1, path_2, self.size_lim, detail_file)
-        elif suffix == ".dbf":
+        if suffix == ".dbf":
             n_diff = self._diff_dbf(path_1, path_2, detail_file)
         elif suffix == ".csv":
             n_diff = self._diff_csv(path_1, path_2, detail_file)
@@ -287,6 +278,15 @@ class detailed_diff:
             n_diff = diff_png(path_1, path_2, detail_file)
         elif suffix == ".gv":
             n_diff = diff_gv.diff_gv(path_1, path_2, detail_file)
+        elif (
+            suffix == ".txt"
+            or suffix == ".json"
+            or (
+                suffix not in [".nc", ".csv", ".gv"]
+                and "text" in magic.from_file(path.realpath(path_1))
+            )
+        ):
+            n_diff = diff_txt(path_1, path_2, self.size_lim, detail_file)
         else:
             detail_file.write("\n" + "*" * 10 + "\n\n")
             detail_file.write(f"diff {path_1} {path_2}\n")
