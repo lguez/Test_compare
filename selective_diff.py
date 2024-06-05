@@ -5,18 +5,20 @@ import sys
 import filecmp
 import difflib
 from os import path
-import magic
-import diff_dbf
-import diff_shp
 import subprocess
 import os
 import tempfile
-import nccmp
 import fnmatch
 import io
-from wand import image
-import diff_gv
 import traceback
+
+import magic
+from wand import image
+
+import diff_dbf
+import diff_shp
+import nccmp
+import diff_gv
 
 
 def cat_not_too_many(file_in, size_lim, file_out):
