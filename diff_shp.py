@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 
 import itertools
+from os import path
+import argparse
+import sys
+
 import shapefile
 import numpy as np
 from matplotlib import pyplot as plt
 from shapely import geometry, validation
-from os import path
-import argparse
-import sys
 
 def compare_rings(ax, detail_file, r_old, r_new, marker, i, j, k = None):
     """r_old and r_new are LinearRing objects from the geometry
