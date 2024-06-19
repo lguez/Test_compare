@@ -130,36 +130,41 @@ def diff_shp(old, new, report_identical = False, plot = False,
                     detail_file.write(f"Numbers of parts in shape {i} differ:"
                                       f"{nparts_old} {nparts_new}\n")
                 else:
-                    # Suppress possible warning about orientation of polygon:
-                    shapefile.VERBOSE = False
-
-                    g_old = geometry.shape(s_old.__geo_interface__)
-                    g_new = geometry.shape(s_new.__geo_interface__)
-                    shapefile.VERBOSE = True
-
-                    if g_old.geom_type == g_new.geom_type:
-                        if g_old.geom_type == "MultiPolygon":
-                            for j, (p_old, p_new) in enumerate(zip(g_old,
-                                                                   g_new)):
-                                compare_poly(ax, p_old, p_new, i, j,
-                                             detail_file, marker_iter)
-                        elif g_old.geom_type == "Polygon":
-                            compare_poly(ax, g_old, g_new, i,
-                                         detail_file = detail_file,
-                                         marker_iter = marker_iter)
-                        elif g_old.geom_type == "Point":
-                            abs_rel_diff = np.abs(np.array(g_new.coords)
-                                                  / np.array(g_old.coords) - 1)
-                            detail_file.write\
-                                ("Absolute value of relative difference: "
-                                 f"{abs_rel_diff}\n")
-                        else:
-                            detail_file.write("Geometry type not supported:"
-                                              f"{g_old.geom_type}\n")
+                    if len(s_old.points) == 0:
+                        detail_file.write(f"No point in old shape {i}\n")
+                    elif len(s_new.points) == 0:
+                        detail_file.write(f"No point in new shape {i}\n")
                     else:
-                        detail_file.write("Geometry types differ:"
-                                          f"{g_old.geom_type}"
-                                          f"{g_new.geom_type}\n")
+                        # Suppress possible warning about orientation of polygon:
+                        shapefile.VERBOSE = False
+
+                        g_old = geometry.shape(s_old.__geo_interface__)
+                        g_new = geometry.shape(s_new.__geo_interface__)
+                        shapefile.VERBOSE = True
+
+                        if g_old.geom_type == g_new.geom_type:
+                            if g_old.geom_type == "MultiPolygon":
+                                for j, (p_old, p_new) in enumerate(zip(g_old,
+                                                                       g_new)):
+                                    compare_poly(ax, p_old, p_new, i, j,
+                                                 detail_file, marker_iter)
+                            elif g_old.geom_type == "Polygon":
+                                compare_poly(ax, g_old, g_new, i,
+                                             detail_file = detail_file,
+                                             marker_iter = marker_iter)
+                            elif g_old.geom_type == "Point":
+                                abs_rel_diff = np.abs(np.array(g_new.coords)
+                                                      / np.array(g_old.coords) - 1)
+                                detail_file.write\
+                                    ("Absolute value of relative difference: "
+                                     f"{abs_rel_diff}\n")
+                            else:
+                                detail_file.write("Geometry type not supported:"
+                                                  f"{g_old.geom_type}\n")
+                        else:
+                            detail_file.write("Geometry types differ:"
+                                              f"{g_old.geom_type}"
+                                              f"{g_new.geom_type}\n")
 
     detail_file.write("\n")
 
