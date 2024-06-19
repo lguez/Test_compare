@@ -13,7 +13,7 @@ from shapely import geometry, validation
 
 def compare_rings(ax, detail_file, r_old, r_new, marker, i, j, k=None):
     """r_old and r_new are LinearRing objects from the geometry
-    module. marker is not used if ax is none.
+    module. marker is not used if ax is None.
 
     """
 
@@ -28,7 +28,7 @@ def compare_rings(ax, detail_file, r_old, r_new, marker, i, j, k=None):
 
     if r_old.equals(r_new):
         detail_file.write(
-            "This is just a difference by permutation or " "ordering.\n"
+            "This is just a difference by permutation or ordering.\n"
         )
     else:
         len_old = len(r_old.coords)
@@ -36,7 +36,7 @@ def compare_rings(ax, detail_file, r_old, r_new, marker, i, j, k=None):
 
         if len_new != len_old:
             detail_file.write(
-                f"Numbers of points differ: {len_old} " f"{len_new}\n"
+                f"Numbers of points differ: {len_old} {len_new}\n"
             )
 
         if ax:
@@ -171,7 +171,8 @@ def diff_shp(
                         detail_file.write(f"No point in new shape {i}\n")
                     else:
                         # Suppress possible warning about orientation
-                        # of polygon:
+                        # of polygon (only is effective with version
+                        # >= 2.2.0 of pyshp):
                         shapefile.VERBOSE = False
 
                         g_old = geometry.shape(s_old.__geo_interface__)
@@ -219,8 +220,7 @@ def diff_shp(
                         else:
                             detail_file.write(
                                 "Geometry types differ:"
-                                f"{g_old.geom_type}"
-                                f"{g_new.geom_type}\n"
+                                f"{g_old.geom_type} {g_new.geom_type}\n"
                             )
 
     detail_file.write("\n")
