@@ -102,6 +102,7 @@ import yachalk
 
 import read_runs
 import compare_single_test
+import cat_compar
 
 
 def get_all_required(title, my_run):
@@ -481,14 +482,7 @@ else:
             cumul_return = run_tests(my_runs, allowed_keys, args.compare_dir)
 
             if args.cat:
-                with open(args.cat, "w") as f_out:
-                    for title in my_runs:
-                        fname = path.join(title, "comparison.txt")
-
-                        if path.exists(fname):
-                            with open(fname) as f_in:
-                                for line in f_in:
-                                    f_out.write(line)
+                cat_compar.cat_compar(args.cat, my_runs)
 
             if cumul_return == 0:
                 run_again = False
