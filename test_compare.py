@@ -385,9 +385,9 @@ parser.add_argument(
 )
 args = parser.parse_args()
 
-my_runs = {}
-
 if args.list:
+    my_runs = {}
+
     for test_descr in args.test_descr:
         try:
             input_file = open(test_descr)
@@ -401,6 +401,8 @@ if args.list:
     for title in my_runs:
         print(title)
 else:
+    my_runs = {}
+
     if not path.isdir(args.compare_dir):
         sys.exit("Directory " + args.compare_dir + " not found.")
 
