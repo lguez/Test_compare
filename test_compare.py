@@ -387,6 +387,7 @@ args = parser.parse_args()
 if args.list:
     my_runs = {}
 
+    # Faster read than read_runs, without substitutions:
     for test_descr in args.test_descr:
         try:
             input_file = open(test_descr)
