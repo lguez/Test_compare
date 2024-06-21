@@ -86,7 +86,6 @@ line. If two tests have the same title, the last one will be kept.
 """
 
 import argparse
-import csv
 import datetime
 import glob
 import json
