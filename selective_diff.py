@@ -521,8 +521,8 @@ if __name__ == "__main__":
         "--tolerance",
         default=1e-7,
         type=float,
-        help="maximum "
-        "relative error for comparison of CSV files with ndiff or numdiff",
+        help="maximum relative error for comparison of CSV files with ndiff "
+        "or numdiff and comparison of SHP files (default 1e-7)",
     )
 
     # NetCDF files:
