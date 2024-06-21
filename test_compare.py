@@ -323,7 +323,7 @@ def run_tests(my_runs, allowed_keys, compare_dir):
                     try:
                         shutil.copytree(title, old_dir, symlinks=True)
                     except FileExistsError:
-                        return_code = compare_single_test.compare(
+                        return_code = compare_single_test.compare_single_test(
                             title, my_run, compare_dir
                         )
 

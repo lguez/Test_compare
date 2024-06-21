@@ -5,7 +5,7 @@ import sys
 
 import selective_diff
 
-def compare(title, my_run, compare_dir):
+def compare_single_test(title, my_run, compare_dir):
     t0 = time.perf_counter()
     old_dir = path.join(compare_dir, title)
     sel_diff_args = {"exclude": []}
