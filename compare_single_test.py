@@ -5,10 +5,14 @@ import sys
 
 import selective_diff
 
-def compare_single_test(title, my_run, compare_dir):
+def compare_single_test(title, my_run, compare_dir, sel_diff_args=None):
     t0 = time.perf_counter()
     old_dir = path.join(compare_dir, title)
-    sel_diff_args = {"exclude": []}
+
+    if sel_diff_args is None:
+        sel_diff_args = {"exclude": []}
+    else:
+        sel_diff_args = {"exclude": []} | sel_diff_args
 
     if "sel_diff_args" in my_run:
         sel_diff_args |= my_run["sel_diff_args"]

@@ -6,10 +6,12 @@ from os import path
 import pathlib
 import argparse
 
+import selective_diff
 import read_runs
 import compare_single_test
 
 parser = argparse.ArgumentParser()
+selective_diff.add_options(parser)
 parser.add_argument(
     "compare_dir",
     help="Directory containing old runs for comparison, after running the "
@@ -31,6 +33,10 @@ print("Number of runs:", len(my_runs))
 print("Starting comparisons at", datetime.datetime.now())
 t0 = time.perf_counter()
 cumul_return = 0
+sel_diff_args = vars(args).copy()
+
+for x in ["compare_dir", "test_descr", "substitutions", "cat"]:
+    del sel_diff_args[x]
 
 for i, title in enumerate(my_runs):
     print(f"{i}: {title}")
@@ -40,7 +46,7 @@ for i, title in enumerate(my_runs):
 
         if path.exists(old_dir):
             return_code = compare_single_test.compare_single_test(
-                title, my_runs[title], args.compare_dir
+                title, my_runs[title], args.compare_dir, sel_diff_args
             )
 
             if return_code != 0:
