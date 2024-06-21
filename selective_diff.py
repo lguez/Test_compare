@@ -291,7 +291,12 @@ class detailed_diff:
                     ign_att=self.ign_att,
                 )
         elif suffix == ".shp":
-            n_diff = diff_shp.diff_shp(path_1, path_2, detail_file=detail_file)
+            n_diff = diff_shp.diff_shp(
+                path_1,
+                path_2,
+                detail_file=detail_file,
+                tolerance=self.tolerance,
+            )
         elif suffix == ".png":
             n_diff = diff_png(path_1, path_2, detail_file)
         elif suffix == ".gv":
