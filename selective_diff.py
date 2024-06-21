@@ -493,11 +493,7 @@ def selective_diff(
         return 1
 
 
-if __name__ == "__main__":
-    import argparse
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument("directory", nargs=2)
+def add_options(parser):
     parser.add_argument(
         "--pyshp",
         action="store_true",
@@ -573,5 +569,13 @@ if __name__ == "__main__":
         default=[],
         help="exclude files that match shell pattern PAT",
     )
+
+
+if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    add_options(parser)
+    parser.add_argument("directory", nargs=2)
     args = parser.parse_args()
     selective_diff(**vars(args))
