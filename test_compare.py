@@ -378,11 +378,6 @@ parser.add_argument(
     "-t", "--title", nargs="+", help="select titles in JSON file"
 )
 parser.add_argument("--cat", help="cat files comparison.txt", metavar="FILE")
-parser.add_argument(
-    "--re_compar",
-    help="redo comparison (but do not re-run)",
-    action="store_true",
-)
 args = parser.parse_args()
 
 if args.list:
@@ -424,42 +419,6 @@ else:
             if path.exists(title):
                 print("Removing", title + "...")
                 shutil.rmtree(title)
-    elif args.re_compar:
-        print("Starting comparisons at", datetime.datetime.now())
-        t0 = time.perf_counter()
-        cumul_return = 0
-
-        for i, title in enumerate(my_runs):
-            print(f"{i}: {title}")
-
-            if (
-                path.exists(title)
-                and not pathlib.Path(title, "failed").exists()
-            ):
-                old_dir = path.join(args.compare_dir, title)
-
-                try:
-                    shutil.copytree(
-                        title,
-                        old_dir,
-                        symlinks=True,
-                        ignore=shutil.ignore_patterns("diff_image.png"),
-                    )
-                except FileExistsError:
-                    return_code = compare(
-                        title, my_runs[title], args.compare_dir
-                    )
-
-                    if return_code != 0:
-                        print("difference found")
-                        cumul_return += 1
-                else:
-                    print("Archived", title)
-            else:
-                print("Does not exist or failed")
-
-        print("Elapsed time:", time.perf_counter() - t0, "s")
-        print("Number of successful runs with different results:", cumul_return)
     else:
         allowed_keys = {
             "command",
