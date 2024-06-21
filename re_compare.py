@@ -9,6 +9,7 @@ import argparse
 import selective_diff
 import read_runs
 import compare_single_test
+import cat_compar
 
 parser = argparse.ArgumentParser()
 selective_diff.add_options(parser)
@@ -25,6 +26,7 @@ parser.add_argument(
     "--substitutions",
     help="JSON input file containing " "abbreviations for directory names",
 )
+parser.add_argument("--cat", help="cat files comparison.txt", metavar="FILE")
 args = parser.parse_args()
 my_runs = read_runs.read_runs(
     args.compare_dir, args.substitutions, args.test_descr
@@ -56,6 +58,9 @@ for i, title in enumerate(my_runs):
             print(old_dir, "does not exist")
     else:
         print("Does not exist or failed")
+
+if args.cat:
+    cat_compar.cat_compar(args.cat, my_runs)
 
 print("Elapsed time:", time.perf_counter() - t0, "s")
 print("Number of successful runs with different results:", cumul_return)
