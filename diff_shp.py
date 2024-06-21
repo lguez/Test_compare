@@ -11,7 +11,9 @@ from matplotlib import pyplot as plt
 from shapely import geometry, validation
 
 
-def compare_rings(ax, detail_file, r_old, r_new, marker, i, j, k=None):
+def compare_rings(
+    ax, detail_file, r_old, r_new, marker, i, j, k=None, tolerance=0.0
+):
     """r_old and r_new are LinearRing objects from the geometry
     module. marker is not used if ax is None.
 
@@ -73,10 +75,15 @@ def compare_rings(ax, detail_file, r_old, r_new, marker, i, j, k=None):
             pr_new = geometry.Polygon(r_new)
             sym_diff = pr_new.symmetric_difference(pr_old)
             if pr_old.area != 0:
-                detail_file.write(
-                    "Area of symmetric difference / area of old "
-                    f"shape: {sym_diff.area / pr_old.area}\n"
-                )
+                my_diff = sym_diff.area / pr_old.area
+
+                if my_diff <= tolerance:
+                    detail_file.write("Negligible difference\n")
+                else:
+                    detail_file.write(
+                        "Area of symmetric difference / area of old "
+                        f"shape: {my_diff}\n"
+                    )
             else:
                 detail_file.write(
                     "Area of old shape is 0. \n"
@@ -98,6 +105,7 @@ def compare_poly(
     j=None,
     detail_file=sys.stdout,
     marker_iter=itertools.repeat(None),
+    tolerance=0.0,
 ):
     """p_old and p_new are polygon objects from the geometry module. i:
     shape number j: polygon number for a multi-polygon. If ax is equal
@@ -107,15 +115,29 @@ def compare_poly(
     """
 
     compare_rings(
-        ax, detail_file, p_old.exterior, p_new.exterior, next(marker_iter), i, j
+        ax,
+        detail_file,
+        p_old.exterior,
+        p_new.exterior,
+        next(marker_iter),
+        i,
+        j,
+        tolerance=tolerance,
     )
 
     for k, (r_old, r_new) in enumerate(zip(p_old.interiors, p_new.interiors)):
-        compare_rings(ax, detail_file, r_old, r_new, next(marker_iter), i, j, k)
+        compare_rings(
+            ax, detail_file, r_old, r_new, next(marker_iter), i, j, k, tolerance
+        )
 
 
 def diff_shp(
-    old, new, report_identical=False, plot=False, detail_file=sys.stdout
+    old,
+    new,
+    report_identical=False,
+    plot=False,
+    detail_file=sys.stdout,
+    tolerance=0.0,
 ):
     detail_file.write("\n" + "*" * 10 + "\n\n")
     detail_file.write(f"diff {old} {new}\n")
@@ -192,6 +214,7 @@ def diff_shp(
                                         j,
                                         detail_file,
                                         marker_iter,
+                                        tolerance,
                                     )
                             elif g_old.geom_type == "Polygon":
                                 compare_poly(
@@ -201,6 +224,7 @@ def diff_shp(
                                     i,
                                     detail_file=detail_file,
                                     marker_iter=marker_iter,
+                                    tolerance=tolerance,
                                 )
                             elif g_old.geom_type == "Point":
                                 abs_rel_diff = np.abs(
@@ -246,6 +270,13 @@ if __name__ == "__main__":
         help="report when vertices are the same",
     )
     parser.add_argument("-p", "--plot", action="store_true")
+    parser.add_argument(
+        "-t",
+        "--tolerance",
+        default=0.0,
+        type=float,
+        help="maximum relative error for comparison of area of symmetric difference",
+    )
     args = parser.parse_args()
 
     if path.isdir(args.new):
@@ -255,5 +286,11 @@ if __name__ == "__main__":
     else:
         new = args.new
 
-    ret_code = diff_shp(args.old, new, args.report_identical, args.plot)
+    ret_code = diff_shp(
+        args.old,
+        new,
+        args.report_identical,
+        args.plot,
+        tolerance=args.tolerance,
+    )
     sys.exit(ret_code)
