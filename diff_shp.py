@@ -62,10 +62,7 @@ def diff_shp(
         ax.legend()
         plt.show()
 
-    if diff_found:
-        return 1
-    else:
-        return 0
+    return 1 if diff_found else 0
 
 
 if __name__ == "__main__":
