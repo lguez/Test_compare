@@ -119,3 +119,5 @@ def diff_shapes(
         if diff_found or report_identical:
             detail_diag = detail_subfile.getvalue()
             detail_file.write(detail_diag)
+
+    return 1 if diff_found else 0
