@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 
 import itertools
-from os import path
-import argparse
 import sys
 
 import shapefile
@@ -70,6 +68,9 @@ def diff_shp(
 
 
 if __name__ == "__main__":
+    from os import path
+    import argparse
+
     parser = argparse.ArgumentParser()
     parser.add_argument("old", help="shapefile")
     parser.add_argument("new", help="shapefile or directory")
