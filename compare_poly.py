@@ -5,7 +5,16 @@ from shapely import geometry, validation
 
 
 def compare_rings(
-    ax, detail_file, r_old, r_new, marker, i, j, k=None, tolerance=0.0
+    ax,
+    detail_file,
+    r_old,
+    r_new,
+    marker,
+    i,
+    j,
+    k=None,
+    tolerance=0.0,
+    report_identical=False,
 ):
     """r_old and r_new are LinearRing objects from the geometry
     module. marker is not used if ax is None.
@@ -22,17 +31,19 @@ def compare_rings(
         detail_file.write(f", interior {k}:\n")
 
     if r_old.equals(r_new):
-        detail_file.write(
-            "This is just a difference by permutation or ordering.\n"
-        )
+        if report_identical:
+            detail_file.write(
+                "This is just a difference by permutation or ordering.\n"
+            )
     else:
         len_old = len(r_old.coords)
         len_new = len(r_new.coords)
 
         if len_new != len_old:
-            detail_file.write(
-                f"Numbers of points differ: {len_old} {len_new}\n"
-            )
+            if report_identical:
+                detail_file.write(
+                    f"Numbers of points differ: {len_old} {len_new}\n"
+                )
 
         if ax:
             my_label = str(i)
@@ -71,7 +82,8 @@ def compare_rings(
                 my_diff = sym_diff.area / pr_old.area
 
                 if my_diff <= tolerance:
-                    detail_file.write("Negligible difference\n")
+                    if report_identical:
+                        detail_file.write("Negligible difference\n")
                 else:
                     detail_file.write(
                         "Area of symmetric difference / area of old "
@@ -99,6 +111,7 @@ def compare_poly(
     detail_file=sys.stdout,
     marker_iter=itertools.repeat(None),
     tolerance=0.0,
+    report_identical=False,
 ):
     """p_old and p_new are polygon objects from the geometry module. i:
     shape number j: polygon number for a multi-polygon. If ax is equal
@@ -116,9 +129,19 @@ def compare_poly(
         i,
         j,
         tolerance=tolerance,
+        report_identical=report_identical,
     )
 
     for k, (r_old, r_new) in enumerate(zip(p_old.interiors, p_new.interiors)):
         compare_rings(
-            ax, detail_file, r_old, r_new, next(marker_iter), i, j, k, tolerance
+            ax,
+            detail_file,
+            r_old,
+            r_new,
+            next(marker_iter),
+            i,
+            j,
+            k,
+            tolerance,
+            report_identical,
         )

@@ -57,6 +57,7 @@ def diff_shapes(
                                     detail_file,
                                     marker_iter,
                                     tolerance,
+                                    report_identical,
                                 )
                         elif g_old.geom_type == "Polygon":
                             compare_poly.compare_poly(
@@ -67,6 +68,7 @@ def diff_shapes(
                                 detail_file=detail_file,
                                 marker_iter=marker_iter,
                                 tolerance=tolerance,
+                                report_identical=report_identical,
                             )
                         elif g_old.geom_type == "Point":
                             abs_rel_diff = np.abs(
