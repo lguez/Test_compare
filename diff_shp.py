@@ -85,7 +85,8 @@ if __name__ == "__main__":
         "--tolerance",
         default=0.0,
         type=float,
-        help="maximum relative error for comparison of area of symmetric difference",
+        help="maximum relative error for comparison of area of symmetric "
+        "difference (default 0.)",
     )
     args = parser.parse_args()
 
