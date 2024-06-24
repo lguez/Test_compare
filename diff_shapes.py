@@ -6,14 +6,23 @@ import compare_poly
 
 
 def diff_shapes(
-    s_old, s_new, report_identical, detail_file, i, ax, marker_iter, tolerance
+    s_old,
+    s_new,
+    report_identical,
+    detail_file,
+    i_shape,
+    ax,
+    marker_iter,
+    tolerance,
 ):
     if s_old.points == s_new.points:
         if report_identical:
-            detail_file.write(f"\nVertices for shape {i} are identical.\n")
+            detail_file.write(
+                f"\nVertices for shape {i_shape} are identical.\n"
+            )
     else:
         diff_found = True
-        detail_file.write(f"\nVertices for shape {i} differ.\n")
+        detail_file.write(f"\nVertices for shape {i_shape} differ.\n")
 
         if s_old.shapeType == shapefile.NULL:
             detail_file.write("Old shape is NULL.\n")
@@ -25,14 +34,14 @@ def diff_shapes(
 
             if nparts_old != nparts_new:
                 detail_file.write(
-                    f"Numbers of parts in shape {i} differ:"
+                    f"Numbers of parts in shape {i_shape} differ:"
                     f"{nparts_old} {nparts_new}\n"
                 )
             else:
                 if len(s_old.points) == 0:
-                    detail_file.write(f"No point in old shape {i}\n")
+                    detail_file.write(f"No point in old shape {i_shape}\n")
                 elif len(s_new.points) == 0:
-                    detail_file.write(f"No point in new shape {i}\n")
+                    detail_file.write(f"No point in new shape {i_shape}\n")
                 else:
                     # Suppress possible warning about orientation
                     # of polygon (only is effective with version
@@ -52,7 +61,7 @@ def diff_shapes(
                                     ax,
                                     p_old,
                                     p_new,
-                                    i,
+                                    i_shape,
                                     j,
                                     detail_file,
                                     marker_iter,
@@ -64,7 +73,7 @@ def diff_shapes(
                                 ax,
                                 g_old,
                                 g_new,
-                                i,
+                                i_shape,
                                 detail_file=detail_file,
                                 marker_iter=marker_iter,
                                 tolerance=tolerance,

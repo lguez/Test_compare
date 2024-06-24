@@ -43,7 +43,7 @@ def diff_shp(
 
     detail_file.write("Difference in vertices:\n")
 
-    for i, (s_old, s_new) in enumerate(
+    for i_shape, (s_old, s_new) in enumerate(
         zip(reader_old.iterShapes(), reader_new.iterShapes())
     ):
         diff_shapes.diff_shapes(
@@ -51,7 +51,7 @@ def diff_shp(
             s_new,
             report_identical,
             detail_file,
-            i,
+            i_shape,
             ax,
             marker_iter,
             tolerance,
