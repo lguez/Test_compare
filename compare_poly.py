@@ -165,3 +165,5 @@ def compare_poly(
             tolerance,
             report_identical,
         )
+
+    return 0 if ret_code == 0 else 1

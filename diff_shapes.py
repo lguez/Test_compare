@@ -48,7 +48,7 @@ def diff_shapes(
                             for j, (p_old, p_new) in enumerate(
                                 zip(g_old, g_new)
                             ):
-                                compare_poly.compare_poly(
+                                ret_code += compare_poly.compare_poly(
                                     ax,
                                     p_old,
                                     p_new,
@@ -60,7 +60,7 @@ def diff_shapes(
                                     report_identical,
                                 )
                         elif g_old.geom_type == "Polygon":
-                            compare_poly.compare_poly(
+                            ret_code = compare_poly.compare_poly(
                                 ax,
                                 g_old,
                                 g_new,
