@@ -56,6 +56,7 @@ def diff_shp(
             tolerance,
         )
 
+    diff_found = diff_found or ret_code != 0
     detail_file.write("\n")
 
     if plot:
