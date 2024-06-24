@@ -118,6 +118,8 @@ def compare_rings(
         detail_diag = detail_subfile.getvalue()
         detail_file.write(detail_diag)
 
+    return 1 if diff_found else 0
+
 
 
 def compare_poly(
@@ -138,7 +140,7 @@ def compare_poly(
 
     """
 
-    compare_rings(
+    ret_code = compare_rings(
         ax,
         detail_file,
         p_old.exterior,
@@ -151,7 +153,7 @@ def compare_poly(
     )
 
     for k, (r_old, r_new) in enumerate(zip(p_old.interiors, p_new.interiors)):
-        compare_rings(
+        ret_code += compare_rings(
             ax,
             detail_file,
             r_old,
