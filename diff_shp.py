@@ -60,12 +60,14 @@ def diff_shp(
 
     diff_found = diff_found or ret_code != 0
     detail_subfile.write("\n")
-    detail_diag = detail_subfile.getvalue()
-    detail_file.write(detail_diag)
 
-    if plot:
-        ax.legend()
-        plt.show()
+    if diff_found or report_identical:
+        detail_diag = detail_subfile.getvalue()
+        detail_file.write(detail_diag)
+
+        if plot:
+            ax.legend()
+            plt.show()
 
     return 1 if diff_found else 0
 
