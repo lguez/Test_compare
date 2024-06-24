@@ -40,6 +40,8 @@ def compare_rings(
             detail_subfile.write(
                 "This is just a difference by permutation or ordering.\n"
             )
+
+        diff_found = False
     else:
         len_old = len(r_old.coords)
         len_new = len(r_new.coords)
@@ -89,25 +91,32 @@ def compare_rings(
                 if my_diff <= tolerance:
                     if report_identical:
                         detail_subfile.write("Negligible difference\n")
+
+                    diff_found = False
                 else:
                     detail_subfile.write(
                         "Area of symmetric difference / area of old "
                         f"shape: {my_diff}\n"
                     )
+                    diff_found = True
             else:
                 detail_subfile.write(
                     "Area of old shape is 0. \n"
                     "Note this should never be in a polygon shapefile.\n"
                 )
+                diff_found = True
         else:
             detail_subfile.write("Cannot compute symmetric difference.\n")
             explain = validation.explain_validity(r_old)
             detail_subfile.write(f"old: {explain}\n")
             explain = validation.explain_validity(r_new)
             detail_subfile.write(f"new: {explain}\n")
+            diff_found = True
 
-    detail_diag = detail_subfile.getvalue()
-    detail_file.write(detail_diag)
+    if diff_found or report_identical:
+        detail_diag = detail_subfile.getvalue()
+        detail_file.write(detail_diag)
+
 
 
 def compare_poly(
