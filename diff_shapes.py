@@ -1,3 +1,5 @@
+import io
+
 import shapefile
 from shapely import geometry
 import numpy as np
@@ -23,31 +25,32 @@ def diff_shapes(
                 f"\nVertices for shape {i_shape} are identical.\n"
             )
     else:
-        detail_file.write(f"\nVertices for shape {i_shape} differ.\n")
+        detail_subfile = io.StringIO()
+        detail_subfile.write(f"\nVertices for shape {i_shape} differ.\n")
 
         if s_old.shapeType == shapefile.NULL:
             diff_found = True
-            detail_file.write("Old shape is NULL.\n")
+            detail_subfile.write("Old shape is NULL.\n")
         elif s_new.shapeType == shapefile.NULL:
             diff_found = True
-            detail_file.write("New shape is NULL.\n")
+            detail_subfile.write("New shape is NULL.\n")
         else:
             nparts_old = len(s_old.parts)
             nparts_new = len(s_new.parts)
 
             if nparts_old != nparts_new:
                 diff_found = True
-                detail_file.write(
+                detail_subfile.write(
                     f"Numbers of parts in shape {i_shape} differ:"
                     f"{nparts_old} {nparts_new}\n"
                 )
             else:
                 if len(s_old.points) == 0:
                     diff_found = True
-                    detail_file.write(f"No point in old shape {i_shape}\n")
+                    detail_subfile.write(f"No point in old shape {i_shape}\n")
                 elif len(s_new.points) == 0:
                     diff_found = True
-                    detail_file.write(f"No point in new shape {i_shape}\n")
+                    detail_subfile.write(f"No point in new shape {i_shape}\n")
                 else:
                     # Suppress possible warning about orientation
                     # of polygon (only is effective with version
@@ -71,7 +74,7 @@ def diff_shapes(
                                     p_new,
                                     i_shape,
                                     j,
-                                    detail_file,
+                                    detail_subfile,
                                     marker_iter,
                                     tolerance,
                                     report_identical,
@@ -84,7 +87,7 @@ def diff_shapes(
                                 g_old,
                                 g_new,
                                 i_shape,
-                                detail_file=detail_file,
+                                detail_file=detail_subfile,
                                 marker_iter=marker_iter,
                                 tolerance=tolerance,
                                 report_identical=report_identical,
@@ -96,19 +99,22 @@ def diff_shapes(
                                 - 1
                             )
                             diff_found = abs_rel_diff > tolerance
-                            detail_file.write(
+                            detail_subfile.write(
                                 "Absolute value of relative difference: "
                                 f"{abs_rel_diff}\n"
                             )
                         else:
                             diff_found = True
-                            detail_file.write(
+                            detail_subfile.write(
                                 "Geometry type not supported:"
                                 f"{g_old.geom_type}\n"
                             )
                     else:
                         diff_found = True
-                        detail_file.write(
+                        detail_subfile.write(
                             "Geometry types differ:"
                             f"{g_old.geom_type} {g_new.geom_type}\n"
                         )
+
+        detail_diag = detail_subfile.getvalue()
+        detail_file.write(detail_diag)
