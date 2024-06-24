@@ -116,5 +116,6 @@ def diff_shapes(
                             f"{g_old.geom_type} {g_new.geom_type}\n"
                         )
 
-        detail_diag = detail_subfile.getvalue()
-        detail_file.write(detail_diag)
+        if diff_found or report_identical:
+            detail_diag = detail_subfile.getvalue()
+            detail_file.write(detail_diag)
