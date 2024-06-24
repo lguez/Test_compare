@@ -1,0 +1,10 @@
+jsondiff
+matplotlib
+netCDF4
+networkx
+numpy
+pyshp
+python-magic
+shapely
+Wand
+yachalk
