@@ -1,5 +1,6 @@
 import itertools
 import sys
+import io
 
 from shapely import geometry, validation
 
@@ -21,18 +22,22 @@ def compare_rings(
 
     """
 
-    detail_file.write(f"\nShape {i}")
+    # We need to insert a header before detailed diagnostic, but only
+    # if we find differences, so create a new text stream:
+    detail_subfile = io.StringIO()
+
+    detail_subfile.write(f"\nShape {i}")
     if j is not None:
-        detail_file.write(f", part {j}")
+        detail_subfile.write(f", part {j}")
 
     if k is None:
-        detail_file.write(", exterior:\n")
+        detail_subfile.write(", exterior:\n")
     else:
-        detail_file.write(f", interior {k}:\n")
+        detail_subfile.write(f", interior {k}:\n")
 
     if r_old.equals(r_new):
         if report_identical:
-            detail_file.write(
+            detail_subfile.write(
                 "This is just a difference by permutation or ordering.\n"
             )
     else:
@@ -41,7 +46,7 @@ def compare_rings(
 
         if len_new != len_old:
             if report_identical:
-                detail_file.write(
+                detail_subfile.write(
                     f"Numbers of points differ: {len_old} {len_new}\n"
                 )
 
@@ -83,23 +88,26 @@ def compare_rings(
 
                 if my_diff <= tolerance:
                     if report_identical:
-                        detail_file.write("Negligible difference\n")
+                        detail_subfile.write("Negligible difference\n")
                 else:
-                    detail_file.write(
+                    detail_subfile.write(
                         "Area of symmetric difference / area of old "
                         f"shape: {my_diff}\n"
                     )
             else:
-                detail_file.write(
+                detail_subfile.write(
                     "Area of old shape is 0. \n"
                     "Note this should never be in a polygon shapefile.\n"
                 )
         else:
-            detail_file.write("Cannot compute symmetric difference.\n")
+            detail_subfile.write("Cannot compute symmetric difference.\n")
             explain = validation.explain_validity(r_old)
-            detail_file.write(f"old: {explain}\n")
+            detail_subfile.write(f"old: {explain}\n")
             explain = validation.explain_validity(r_new)
-            detail_file.write(f"new: {explain}\n")
+            detail_subfile.write(f"new: {explain}\n")
+
+    detail_diag = detail_subfile.getvalue()
+    detail_file.write(detail_diag)
 
 
 def compare_poly(
