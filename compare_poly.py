@@ -85,6 +85,7 @@ def compare_rings(
             pr_old = geometry.Polygon(r_old)
             pr_new = geometry.Polygon(r_new)
             sym_diff = pr_new.symmetric_difference(pr_old)
+
             if pr_old.area != 0:
                 my_diff = sym_diff.area / pr_old.area
 
