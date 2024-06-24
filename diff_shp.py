@@ -2,6 +2,7 @@
 
 import itertools
 import sys
+import io
 
 import shapefile
 from matplotlib import pyplot as plt
@@ -17,20 +18,21 @@ def diff_shp(
     detail_file=sys.stdout,
     tolerance=0.0,
 ):
-    detail_file.write("\n" + "*" * 10 + "\n\n")
-    detail_file.write(f"diff {old} {new}\n")
+    detail_subfile = io.StringIO()
+    detail_subfile.write("\n" + "*" * 10 + "\n\n")
+    detail_subfile.write(f"diff {old} {new}\n")
     reader_old = shapefile.Reader(old)
     reader_new = shapefile.Reader(new)
     diff_found = False
 
     if reader_old.numRecords != reader_new.numRecords:
         diff_found = True
-        detail_file.write(
+        detail_subfile.write(
             "Not the same number of records: "
             f"{reader_old.numRecords} {reader_new.numRecords}\n"
         )
         n_rec = min(reader_old.numRecords, reader_new.numRecords)
-        detail_file.write(f"Comparing the first {n_rec} records...\n")
+        detail_subfile.write(f"Comparing the first {n_rec} records...\n")
 
     if plot:
         fig, ax = plt.subplots()
@@ -39,7 +41,7 @@ def diff_shp(
         ax = None
         marker_iter = itertools.repeat(None)
 
-    detail_file.write("Difference in vertices:\n")
+    detail_subfile.write("Difference in vertices:\n")
     ret_code = 0
 
     for i_shape, (s_old, s_new) in enumerate(
@@ -49,7 +51,7 @@ def diff_shp(
             s_old,
             s_new,
             report_identical,
-            detail_file,
+            detail_subfile,
             i_shape,
             ax,
             marker_iter,
@@ -57,7 +59,9 @@ def diff_shp(
         )
 
     diff_found = diff_found or ret_code != 0
-    detail_file.write("\n")
+    detail_subfile.write("\n")
+    detail_diag = detail_subfile.getvalue()
+    detail_file.write(detail_diag)
 
     if plot:
         ax.legend()
