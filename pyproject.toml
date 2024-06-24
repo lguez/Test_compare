@@ -1,0 +1,34 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "Test_compare"
+version = "0.6"
+authors = [
+  { name="Lionel GUEZ", email="guez@lmd.ipsl.fr" },
+]
+description = "Testing by comparison to previous runs"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/lguez/Test_compare"
+Issues = "https://github.com/lguez/Test_compare/issues"
+
+[tool.hatch.build.targets.sdist]
+exclude = ["*~"]
+
+[project.scripts]
+test_compare = "Test_compare.test_compare:main_cli"
+diff_dbf = "Test_compare.diff_dbf:main_cli"
+diff_gv = "Test_compare.diff_gv:main_cli"
+diff_shp = "Test_compare.diff_shp:main_cli"
+nccmp = "Test_compare.nccmp:main_cli"
+re_compare = "Test_compare.re_compare:main_cli"
+selective_diff = "Test_compare.selective_diff:main_cli"
