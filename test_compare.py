@@ -349,7 +349,8 @@ def run_tests(my_runs, allowed_keys, compare_dir):
 
 def main_cli():
     parser = argparse.ArgumentParser(
-        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+        description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
         "compare_dir",
@@ -357,7 +358,9 @@ def main_cli():
         "tests",
     )
     parser.add_argument(
-        "test_descr", nargs="+", help="JSON file containing description of tests"
+        "test_descr",
+        nargs="+",
+        help="JSON file containing description of tests",
     )
     parser.add_argument(
         "-s",
@@ -377,7 +380,9 @@ def main_cli():
     parser.add_argument(
         "-t", "--title", nargs="+", help="select titles in JSON file"
     )
-    parser.add_argument("--cat", help="cat files comparison.txt", metavar="FILE")
+    parser.add_argument(
+        "--cat", help="cat files comparison.txt", metavar="FILE"
+    )
     args = parser.parse_args()
 
     if args.list:
@@ -438,7 +443,9 @@ def main_cli():
             run_again = True
 
             while run_again:
-                cumul_return = run_tests(my_runs, allowed_keys, args.compare_dir)
+                cumul_return = run_tests(
+                    my_runs, allowed_keys, args.compare_dir
+                )
 
                 if args.cat:
                     cat_compar.cat_compar(args.cat, my_runs)
@@ -472,7 +479,9 @@ def main_cli():
                                     ):
                                         if "diff_image.png" in filenames:
                                             os.remove(
-                                                path.join(dirpath, "diff_image.png")
+                                                path.join(
+                                                    dirpath, "diff_image.png"
+                                                )
                                             )
 
                                     shutil.move(title, old_dir)
