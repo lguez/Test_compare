@@ -347,141 +347,142 @@ def run_tests(my_runs, allowed_keys, compare_dir):
     return cumul_return
 
 
-parser = argparse.ArgumentParser(
-    description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
-)
-parser.add_argument(
-    "compare_dir",
-    help="Directory containing old runs for comparison, after running the "
-    "tests",
-)
-parser.add_argument(
-    "test_descr", nargs="+", help="JSON file containing description of tests"
-)
-parser.add_argument(
-    "-s",
-    "--substitutions",
-    help="JSON input file containing " "abbreviations for directory names",
-)
-parser.add_argument(
-    "--clean",
-    help="""
-Remove any existing run directories in the current directory. With -t, remove 
-only the selected run directories, if they exist.""",
-    action="store_true",
-)
-parser.add_argument(
-    "-l", "--list", help="just list the titles", action="store_true"
-)
-parser.add_argument(
-    "-t", "--title", nargs="+", help="select titles in JSON file"
-)
-parser.add_argument("--cat", help="cat files comparison.txt", metavar="FILE")
-args = parser.parse_args()
-
-if args.list:
-    my_runs = {}
-
-    # Faster read than read_runs, without substitutions:
-    for test_descr in args.test_descr:
-        try:
-            input_file = open(test_descr)
-        except FileNotFoundError:
-            print("Skipping", test_descr, ", not found")
-        else:
-            series = json.load(input_file)
-            input_file.close()
-            my_runs.update(series)
-
-    for title in my_runs:
-        print(title)
-else:
-    my_runs = read_runs.read_runs(
-        args.compare_dir, args.substitutions, args.test_descr
+def main_cli():
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
+    parser.add_argument(
+        "compare_dir",
+        help="Directory containing old runs for comparison, after running the "
+        "tests",
+    )
+    parser.add_argument(
+        "test_descr", nargs="+", help="JSON file containing description of tests"
+    )
+    parser.add_argument(
+        "-s",
+        "--substitutions",
+        help="JSON input file containing " "abbreviations for directory names",
+    )
+    parser.add_argument(
+        "--clean",
+        help="""
+    Remove any existing run directories in the current directory. With -t, remove 
+    only the selected run directories, if they exist.""",
+        action="store_true",
+    )
+    parser.add_argument(
+        "-l", "--list", help="just list the titles", action="store_true"
+    )
+    parser.add_argument(
+        "-t", "--title", nargs="+", help="select titles in JSON file"
+    )
+    parser.add_argument("--cat", help="cat files comparison.txt", metavar="FILE")
+    args = parser.parse_args()
 
-    if args.title:
-        selected_runs = {}
+    if args.list:
+        my_runs = {}
 
-        for t in args.title:
+        # Faster read than read_runs, without substitutions:
+        for test_descr in args.test_descr:
             try:
-                selected_runs[t] = my_runs[t]
-            except KeyError:
-                sys.exit(t + " is not a title in the JSON input file.")
-
-        my_runs = selected_runs
-
-    print("Number of runs:", len(my_runs))
-
-    if args.clean:
-        for title in my_runs:
-            if path.exists(title):
-                print("Removing", title + "...")
-                shutil.rmtree(title)
-    else:
-        allowed_keys = {
-            "command",
-            "commands",
-            "main_command",
-            "description",
-            "stdout",
-            "symlink",
-            "copy",
-            "env",
-            "stdin_filename",
-            "input",
-            "test_series_file",
-            "create_file",
-            "sel_diff_args",
-        }
-        run_again = True
-
-        while run_again:
-            cumul_return = run_tests(my_runs, allowed_keys, args.compare_dir)
-
-            if args.cat:
-                cat_compar.cat_compar(args.cat, my_runs)
-
-            if cumul_return == 0:
-                run_again = False
+                input_file = open(test_descr)
+            except FileNotFoundError:
+                print("Skipping", test_descr, ", not found")
             else:
-                reply = input("Replace old runs with difference? ")
-                reply = reply.casefold()
-                run_again = reply.startswith("y")
+                series = json.load(input_file)
+                input_file.close()
+                my_runs.update(series)
 
-                if run_again:
-                    for title in my_runs:
-                        if (
-                            path.exists(title)
-                            and not pathlib.Path(title, "failed").exists()
-                        ):
-                            fname = path.join(title, "comparison.txt")
+        for title in my_runs:
+            print(title)
+    else:
+        my_runs = read_runs.read_runs(
+            args.compare_dir, args.substitutions, args.test_descr
+        )
 
-                            if path.exists(fname):
-                                print("Replacing", title)
-                                old_dir = path.join(args.compare_dir, title)
+        if args.title:
+            selected_runs = {}
 
-                                if path.exists(old_dir):
-                                    shutil.rmtree(old_dir)
-
-                                os.remove(fname)
-
-                                for dirpath, dirnames, filenames in os.walk(
-                                    title
-                                ):
-                                    if "diff_image.png" in filenames:
-                                        os.remove(
-                                            path.join(dirpath, "diff_image.png")
-                                        )
-
-                                shutil.move(title, old_dir)
-
-        reply = input("Remove new runs? ")
-        reply = reply.casefold()
-
-        if reply.startswith("y"):
-            for title in my_runs:
+            for t in args.title:
                 try:
+                    selected_runs[t] = my_runs[t]
+                except KeyError:
+                    sys.exit(t + " is not a title in the JSON input file.")
+
+            my_runs = selected_runs
+
+        print("Number of runs:", len(my_runs))
+
+        if args.clean:
+            for title in my_runs:
+                if path.exists(title):
+                    print("Removing", title + "...")
                     shutil.rmtree(title)
-                except FileNotFoundError:
-                    pass
+        else:
+            allowed_keys = {
+                "command",
+                "commands",
+                "main_command",
+                "description",
+                "stdout",
+                "symlink",
+                "copy",
+                "env",
+                "stdin_filename",
+                "input",
+                "test_series_file",
+                "create_file",
+                "sel_diff_args",
+            }
+            run_again = True
+
+            while run_again:
+                cumul_return = run_tests(my_runs, allowed_keys, args.compare_dir)
+
+                if args.cat:
+                    cat_compar.cat_compar(args.cat, my_runs)
+
+                if cumul_return == 0:
+                    run_again = False
+                else:
+                    reply = input("Replace old runs with difference? ")
+                    reply = reply.casefold()
+                    run_again = reply.startswith("y")
+
+                    if run_again:
+                        for title in my_runs:
+                            if (
+                                path.exists(title)
+                                and not pathlib.Path(title, "failed").exists()
+                            ):
+                                fname = path.join(title, "comparison.txt")
+
+                                if path.exists(fname):
+                                    print("Replacing", title)
+                                    old_dir = path.join(args.compare_dir, title)
+
+                                    if path.exists(old_dir):
+                                        shutil.rmtree(old_dir)
+
+                                    os.remove(fname)
+
+                                    for dirpath, dirnames, filenames in os.walk(
+                                        title
+                                    ):
+                                        if "diff_image.png" in filenames:
+                                            os.remove(
+                                                path.join(dirpath, "diff_image.png")
+                                            )
+
+                                    shutil.move(title, old_dir)
+
+            reply = input("Remove new runs? ")
+            reply = reply.casefold()
+
+            if reply.startswith("y"):
+                for title in my_runs:
+                    try:
+                        shutil.rmtree(title)
+                    except FileNotFoundError:
+                        pass
