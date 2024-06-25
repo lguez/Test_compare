@@ -7,7 +7,7 @@ import io
 import shapefile
 from matplotlib import pyplot as plt
 
-import diff_shapes
+from . import diff_shapes
 
 
 def diff_shp(

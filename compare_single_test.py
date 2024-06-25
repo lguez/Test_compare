@@ -3,7 +3,7 @@ from os import path
 import os
 import sys
 
-import selective_diff
+from . import selective_diff
 
 def compare_single_test(title, my_run, compare_dir, sel_diff_args=None):
     t0 = time.perf_counter()

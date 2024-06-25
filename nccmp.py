@@ -8,7 +8,7 @@ import io
 
 import netCDF4
 
-import compare_util
+from . import compare_util
 
 
 def nccmp(

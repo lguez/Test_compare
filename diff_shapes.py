@@ -4,7 +4,7 @@ import shapefile
 from shapely import geometry
 import numpy as np
 
-import compare_poly
+from . import compare_poly
 
 
 def diff_shapes(
