@@ -6,10 +6,10 @@ from os import path
 import pathlib
 import argparse
 
-import selective_diff
-import read_runs
-import compare_single_test
-import cat_compar
+from . import selective_diff
+from . import read_runs
+from . import compare_single_test
+from . import cat_compar
 
 def main_cli():
     parser = argparse.ArgumentParser()
