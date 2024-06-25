@@ -571,7 +571,7 @@ def add_options(parser):
     )
 
 
-if __name__ == "__main__":
+def main_cli():
     import argparse
 
     parser = argparse.ArgumentParser()

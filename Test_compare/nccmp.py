@@ -216,7 +216,7 @@ def nccmp(
         return 0
 
 
-if __name__ == "__main__":
+def main_cli():
     import argparse
     import sys
 

@@ -11,56 +11,57 @@ import read_runs
 import compare_single_test
 import cat_compar
 
-parser = argparse.ArgumentParser()
-selective_diff.add_options(parser)
-parser.add_argument(
-    "compare_dir",
-    help="Directory containing old runs for comparison, after running the "
-    "tests",
-)
-parser.add_argument(
-    "test_descr", nargs="+", help="JSON file containing description of tests"
-)
-parser.add_argument(
-    "-s",
-    "--substitutions",
-    help="JSON input file containing " "abbreviations for directory names",
-)
-parser.add_argument("--cat", help="cat files comparison.txt", metavar="FILE")
-args = parser.parse_args()
-my_runs = read_runs.read_runs(
-    args.compare_dir, args.substitutions, args.test_descr
-)
-print("Number of runs:", len(my_runs))
-print("Starting comparisons at", datetime.datetime.now())
-t0 = time.perf_counter()
-cumul_return = 0
-sel_diff_args = vars(args).copy()
+def main_cli():
+    parser = argparse.ArgumentParser()
+    selective_diff.add_options(parser)
+    parser.add_argument(
+        "compare_dir",
+        help="Directory containing old runs for comparison, after running the "
+        "tests",
+    )
+    parser.add_argument(
+        "test_descr", nargs="+", help="JSON file containing description of tests"
+    )
+    parser.add_argument(
+        "-s",
+        "--substitutions",
+        help="JSON input file containing " "abbreviations for directory names",
+    )
+    parser.add_argument("--cat", help="cat files comparison.txt", metavar="FILE")
+    args = parser.parse_args()
+    my_runs = read_runs.read_runs(
+        args.compare_dir, args.substitutions, args.test_descr
+    )
+    print("Number of runs:", len(my_runs))
+    print("Starting comparisons at", datetime.datetime.now())
+    t0 = time.perf_counter()
+    cumul_return = 0
+    sel_diff_args = vars(args).copy()
 
-for x in ["compare_dir", "test_descr", "substitutions", "cat"]:
-    del sel_diff_args[x]
+    for x in ["compare_dir", "test_descr", "substitutions", "cat"]:
+        del sel_diff_args[x]
 
-for i, title in enumerate(my_runs):
-    print(f"{i}: {title}")
+    for i, title in enumerate(my_runs):
+        print(f"{i}: {title}")
 
-    if path.exists(title) and not pathlib.Path(title, "failed").exists():
-        old_dir = path.join(args.compare_dir, title)
+        if path.exists(title) and not pathlib.Path(title, "failed").exists():
+            old_dir = path.join(args.compare_dir, title)
 
-        if path.exists(old_dir):
-            return_code = compare_single_test.compare_single_test(
-                title, my_runs[title], args.compare_dir, sel_diff_args
-            )
+            if path.exists(old_dir):
+                return_code = compare_single_test.compare_single_test(
+                    title, my_runs[title], args.compare_dir, sel_diff_args
+                )
 
-            if return_code != 0:
-                print("difference found")
-                cumul_return += 1
+                if return_code != 0:
+                    print("difference found")
+                    cumul_return += 1
+            else:
+                print(old_dir, "does not exist")
         else:
-            print(old_dir, "does not exist")
-    else:
-        print("Does not exist or failed")
+            print("Does not exist or failed")
 
-if args.cat:
-    cat_compar.cat_compar(args.cat, my_runs)
+    if args.cat:
+        cat_compar.cat_compar(args.cat, my_runs)
 
-print("Elapsed time:", time.perf_counter() - t0, "s")
-print("Number of successful runs with different results:", cumul_return)
+    print("Elapsed time:", time.perf_counter() - t0, "s")
+    print("Number of successful runs with different results:", cumul_return)

@@ -72,7 +72,7 @@ def diff_shp(
     return 1 if diff_found else 0
 
 
-if __name__ == "__main__":
+def main_cli():
     from os import path
     import argparse
 

@@ -68,7 +68,7 @@ def diff_dbf(old, new, report_identical = False, quiet = False):
     else:
         return 0
 
-if __name__ == "__main__":
+def main_cli():
     import argparse
     import sys
     
