@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
-"""Requires Python >= 3.5.
-
+"""
 This script chains runs in directories which do not pre-exist and are
 created.
 
@@ -84,6 +83,8 @@ There may be several JSON test description files on the command
 line. If two tests have the same title, the last one will be kept.
 
 """
+
+# Requires Python >= 3.5
 
 import argparse
 import datetime
@@ -370,8 +371,8 @@ def main_cli():
     parser.add_argument(
         "--clean",
         help="""
-    Remove any existing run directories in the current directory. With -t, remove 
-    only the selected run directories, if they exist.""",
+    Remove any existing run directories in the current directory. With -t,
+    remove only the selected run directories, if they exist.""",
         action="store_true",
     )
     parser.add_argument(
