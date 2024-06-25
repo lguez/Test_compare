@@ -11,6 +11,7 @@ from . import read_runs
 from . import compare_single_test
 from . import cat_compar
 
+
 def main_cli():
     parser = argparse.ArgumentParser()
     selective_diff.add_options(parser)
@@ -20,14 +21,18 @@ def main_cli():
         "tests",
     )
     parser.add_argument(
-        "test_descr", nargs="+", help="JSON file containing description of tests"
+        "test_descr",
+        nargs="+",
+        help="JSON file containing description of tests",
     )
     parser.add_argument(
         "-s",
         "--substitutions",
         help="JSON input file containing " "abbreviations for directory names",
     )
-    parser.add_argument("--cat", help="cat files comparison.txt", metavar="FILE")
+    parser.add_argument(
+        "--cat", help="cat files comparison.txt", metavar="FILE"
+    )
     args = parser.parse_args()
     my_runs = read_runs.read_runs(
         args.compare_dir, args.substitutions, args.test_descr
