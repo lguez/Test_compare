@@ -454,7 +454,7 @@ def main_cli():
                 )
 
                 if args.cat:
-                    cat_compar.cat_compar(args.cat, my_runs)
+                    cat_compar.cat_compar(args.cat, list(my_runs))
 
                 if cumul_return == 0:
                     run_again = False

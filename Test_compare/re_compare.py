@@ -71,7 +71,7 @@ def main_cli():
             print("Does not exist or failed")
 
     if args.cat:
-        cat_compar.cat_compar(args.cat, my_runs)
+        cat_compar.cat_compar(args.cat, list(my_runs))
 
     print("Elapsed time:", time.perf_counter() - t0, "s")
     print("Number of successful runs with different results:", cumul_return)
