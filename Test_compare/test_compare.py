@@ -323,8 +323,13 @@ def run_tests(my_runs, allowed_keys, compare_dir):
                     try:
                         shutil.copytree(title, old_dir, symlinks=True)
                     except FileExistsError:
+                        if "sel_diff_args" in my_run:
+                            run_sel_diff_args = my_run["sel_diff_args"]
+                        else:
+                            run_sel_diff_args = None
+
                         return_code = compare_single_test.compare_single_test(
-                            title, my_run, compare_dir
+                            title, run_sel_diff_args, compare_dir
                         )
 
                         if return_code != 0:
