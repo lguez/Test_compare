@@ -47,7 +47,12 @@ def main_cli():
 
             if path.exists(old_dir):
                 if "sel_diff_args" in my_runs[title]:
-                    sel_diff_args |= my_runs[title]["sel_diff_args"]
+                    for k, v in my_runs[title]["sel_diff_args"].items():
+                        if k in sel_diff_args:
+                            if isinstance(v, list):
+                                sel_diff_args[k] += v
+                        else:
+                            sel_diff_args[k] = v
 
                 return_code = compare_single_test.compare_single_test(
                     title, args.compare_dir, sel_diff_args
