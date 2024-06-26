@@ -408,8 +408,9 @@ def main_cli():
         for title in my_runs:
             print(title)
     else:
-        my_runs = read_runs.read_runs(
-            args.compare_dir, args.test_descr, args.substitutions
+        my_runs = read_runs.read_runs(args.test_descr)
+        my_runs = read_runs.subst_runs(
+            my_runs, args.compare_dir, args.substitutions
         )
 
         if args.title:

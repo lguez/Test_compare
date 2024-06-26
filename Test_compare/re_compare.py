@@ -34,9 +34,7 @@ def main_cli():
         "--cat", help="cat files comparison.txt", metavar="FILE"
     )
     args = parser.parse_args()
-    my_runs = read_runs.read_runs(
-        args.compare_dir, args.test_descr, args.substitutions
-    )
+    my_runs = read_runs.read_runs(args.test_descr)
     print("Number of runs:", len(my_runs))
     print("Starting comparisons at", datetime.datetime.now())
     t0 = time.perf_counter()
