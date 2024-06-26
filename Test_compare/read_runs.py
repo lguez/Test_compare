@@ -6,7 +6,7 @@ import tempfile
 import string
 
 
-def read_runs(compare_dir, subst_fname, test_descr_flist):
+def read_runs(compare_dir, test_descr_flist, subst_fname):
     my_runs = {}
 
     if not path.isdir(compare_dir):

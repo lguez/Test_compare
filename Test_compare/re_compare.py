@@ -35,7 +35,7 @@ def main_cli():
     )
     args = parser.parse_args()
     my_runs = read_runs.read_runs(
-        args.compare_dir, args.substitutions, args.test_descr
+        args.compare_dir, args.test_descr, args.substitutions
     )
     print("Number of runs:", len(my_runs))
     print("Starting comparisons at", datetime.datetime.now())

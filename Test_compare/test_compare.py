@@ -409,7 +409,7 @@ def main_cli():
             print(title)
     else:
         my_runs = read_runs.read_runs(
-            args.compare_dir, args.substitutions, args.test_descr
+            args.compare_dir, args.test_descr, args.substitutions
         )
 
         if args.title:
