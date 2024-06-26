@@ -7,7 +7,7 @@ from . import selective_diff
 
 
 def compare_single_test(
-    title, run_sel_diff_args, compare_dir, sel_diff_args=None
+    title, compare_dir, sel_diff_args=None
 ):
     t0 = time.perf_counter()
     old_dir = path.join(compare_dir, title)
@@ -17,14 +17,11 @@ def compare_single_test(
     else:
         sel_diff_args = {"exclude": []} | sel_diff_args
 
-    if run_sel_diff_args is not None:
-        sel_diff_args |= run_sel_diff_args
-
     sel_diff_args["exclude"] = sel_diff_args["exclude"][:] + [
         "timing_test_compare.txt",
         "comparison.txt",
     ]
-    # (Copy so  we do not modify run_sel_diff_args["exclude"].)
+    # (Copy so  we do not modify sel_diff_args["exclude"].)
 
     fname = path.join(title, "comparison.txt")
 
