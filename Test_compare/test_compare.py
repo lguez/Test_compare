@@ -390,25 +390,12 @@ def main_cli():
         "--cat", help="cat files comparison.txt", metavar="FILE"
     )
     args = parser.parse_args()
+    my_runs = read_runs.read_runs(args.test_descr)
 
     if args.list:
-        my_runs = {}
-
-        # Faster read than read_runs, without substitutions:
-        for test_descr in args.test_descr:
-            try:
-                input_file = open(test_descr)
-            except FileNotFoundError:
-                print("Skipping", test_descr, ", not found")
-            else:
-                series = json.load(input_file)
-                input_file.close()
-                my_runs.update(series)
-
         for title in my_runs:
             print(title)
     else:
-        my_runs = read_runs.read_runs(args.test_descr)
         my_runs = read_runs.subst_runs(
             my_runs, args.compare_dir, args.substitutions
         )
