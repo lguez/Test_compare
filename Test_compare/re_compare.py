@@ -26,11 +26,6 @@ def main_cli():
         help="JSON file containing description of tests",
     )
     parser.add_argument(
-        "-s",
-        "--substitutions",
-        help="JSON input file containing " "abbreviations for directory names",
-    )
-    parser.add_argument(
         "--cat", help="cat files comparison.txt", metavar="FILE"
     )
     args = parser.parse_args()
@@ -41,7 +36,7 @@ def main_cli():
     cumul_return = 0
     sel_diff_args = vars(args).copy()
 
-    for x in ["compare_dir", "test_descr", "substitutions", "cat"]:
+    for x in ["compare_dir", "test_descr", "cat"]:
         del sel_diff_args[x]
 
     for i, title in enumerate(my_runs):
