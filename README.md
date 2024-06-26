@@ -1,12 +1,12 @@
 This repository contains seven tools:
 
-- `diff_dbf.py` compares dBase database files (`.dbf` file extension).
-- `diff_gv.py` compares files in Graphviz dot language.
-- `diff_shp.py` compares shapefiles.
+- `diff_dbf` compares dBase database files (`.dbf` file extension).
+- `diff_gv` compares files in Graphviz dot language.
+- `diff_shp` compares shapefiles.
 - `max_diff_rect` compares CSV files.
-- `nccmp.py` compares NetCDF files.
-- `selective_diff.py` compares directories.
-- `test_compare.py` launches user-defined processes and compares
+- `nccmp` compares NetCDF files.
+- `selective_diff` compares directories.
+- `test_compare` launches user-defined processes and compares
   results with previous runs.
 
 Each of these tools can be run directly on the command line. Some of
