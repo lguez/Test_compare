@@ -46,6 +46,9 @@ def main_cli():
             old_dir = path.join(args.compare_dir, title)
 
             if path.exists(old_dir):
+                # Merge options for selective_diff from the command
+                # line with options from the test description, giving
+                # priority to the command line:
                 if "sel_diff_args" in my_runs[title]:
                     for k, v in my_runs[title]["sel_diff_args"].items():
                         if k in sel_diff_args:
