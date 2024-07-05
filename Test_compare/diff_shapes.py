@@ -98,7 +98,7 @@ def diff_shapes(
                                 np.array(g_new.coords) / np.array(g_old.coords)
                                 - 1
                             )
-                            diff_found = abs_rel_diff > tolerance
+                            diff_found = np.max(abs_rel_diff) > tolerance
                             detail_subfile.write(
                                 "Absolute value of relative difference: "
                                 f"{abs_rel_diff}\n"
