@@ -24,14 +24,16 @@ def diff_shp(
     reader_old = shapefile.Reader(old)
     reader_new = shapefile.Reader(new)
     diff_found = False
+    num_records_old = len(reader_old)
+    num_records_new = len(reader_new)
 
-    if reader_old.numRecords != reader_new.numRecords:
+    if num_records_old != num_records_new:
         diff_found = True
         detail_subfile.write(
             "Not the same number of records: "
-            f"{reader_old.numRecords} {reader_new.numRecords}\n"
+            f"{num_records_old} {num_records_new}\n"
         )
-        n_rec = min(reader_old.numRecords, reader_new.numRecords)
+        n_rec = min(num_records_old, num_records_new)
         detail_subfile.write(f"Comparing the first {n_rec} records...\n")
 
     if plot:
