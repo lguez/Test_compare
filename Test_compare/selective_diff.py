@@ -86,7 +86,7 @@ def diff_png(path_1, path_2, detail_file):
 
 def diff_json(path_1, path_2, detail_file):
     with open(path_1) as f_obj_1, open(path_2) as f_obj_2:
-        my_diff = jsondiff.diff(f_obj_1, f_obj_2, load=True, syntax="explicit")
+        my_diff = jsondiff.diff(f_obj_1, f_obj_2, load=True, syntax="symmetric")
 
     if my_diff:
         detail_file.write("\n" + "*" * 10 + "\n\n")
