@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
-"""
-This script chains runs in directories which do not pre-exist and are
+"""This script chains runs in directories which do not pre-exist and are
 created.
 
 This script reads a JSON test description file. The test description
@@ -452,6 +451,7 @@ def main_cli():
                     run_again = reply.startswith("y")
 
                     if run_again:
+                        print()
                         for title in my_runs:
                             if (
                                 path.exists(title)
