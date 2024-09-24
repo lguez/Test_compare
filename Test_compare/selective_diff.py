@@ -174,7 +174,14 @@ def my_report(dcmp, detailed_diff_instance, file_out, level):
             n_diff += detailed_diff_instance.diff(path_1, path_2, detail_file)
 
     if n_diff != 0:
-        print(level * "#", "diff", dcmp.left, dcmp.right, "\n", file=file_out)
+        print(
+            "\n" + level * "#",
+            "diff",
+            dcmp.left,
+            dcmp.right,
+            "\n",
+            file=file_out,
+        )
 
         if dcmp.left_only:
             dcmp.left_only.sort()

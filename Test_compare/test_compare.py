@@ -24,20 +24,26 @@ the executable file.)
 "main_command" should be an integer value giving the 0-based index of
 the main command in the list "commands". If "main_command" is absent
 and "commands" is present then the last command is defined as the main
-command. "env", "stdin_filename", "stdout" and "input" apply to the
-main command only.
+command. "env", "stdin_filename", "input" apply to the main command
+only. The standard output of all the commands is redirected to the
+file pointed by "stdout".
 
 The difference between the keys "stdin_filename" and "input" is that
 "input" must be the content of standard input and "stdin_filename"
 must be the name of a file that will be redirected to standard
-input. The value of "input" is passed through to the "input" keyword
+input. "stdin_filename" may be a relative path: it is evaluated after
+changing directory to the directory of the test. "stdin_filename" may
+be the file created by "create_file": it is opened after creating the
+file. The value of "input" is passed through to the "input" keyword
 argument of "subprocess.run". Usually, the value of "input" should end
 with "\\n". If neither "stdin_filename" nor "input" is present, then
 we assume that the run does not need any input: no interaction is
 allowed.
 
 "create_file" is a list of two elements: the name of the file to
-create and its content.
+create and its content. The name of the file will normally be a
+relative path and the file will be created in the directory of the
+test.
 
 If present, "symlink" or "copy" must be a list. Each element of
 "symlink" or "copy" must itself be a string or a list of two strings
