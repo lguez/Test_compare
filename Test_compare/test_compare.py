@@ -211,12 +211,21 @@ def run_single_test(title, my_run, path_failed):
         shutil.rmtree(title)
         sys.exit(1)
 
+    os.chdir(title)
+
+    if "create_file" in my_run:
+        assert isinstance(my_run["create_file"], list)
+
+        with open(my_run["create_file"][0], "w") as f:
+            f.write(my_run["create_file"][1])
+
     other_kwargs = {}
 
     if "stdin_filename" in my_run:
         try:
             other_kwargs["stdin"] = open(my_run["stdin_filename"])
         except FileNotFoundError:
+            os.chdir("..")
             shutil.rmtree(title)
             raise
     elif "input" in my_run:
@@ -226,14 +235,6 @@ def run_single_test(title, my_run, path_failed):
 
     if "env" in my_run:
         other_kwargs["env"] = dict(os.environ, **my_run["env"])
-
-    os.chdir(title)
-
-    if "create_file" in my_run:
-        assert isinstance(my_run["create_file"], list)
-
-        with open(my_run["create_file"][0], "w") as f:
-            f.write(my_run["create_file"][1])
 
     with open("test.json", "w") as f:
         json.dump(my_run, f, indent=3, sort_keys=True)
