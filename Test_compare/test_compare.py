@@ -241,12 +241,19 @@ def run_single_test(title, my_run, path_failed):
 
     t0 = time.perf_counter()
 
-    for command in commands[:main_command]:
-        subprocess.run(command, check=True)
-
-    with open(stdout_filename, "w") as stdout, open(
-        stderr_filename, "w"
+    with open(stdout_filename, "a") as stdout, open(
+        stderr_filename, "a"
     ) as stderr:
+        for command in commands[:main_command]:
+            subprocess.run(
+                command,
+                check=True,
+                stdout=stdout,
+                stderr=stderr,
+                universal_newlines=True,
+            )
+            stdout.flush()
+
         comp_proc = subprocess.run(
             commands[main_command],
             stdout=stdout,
@@ -254,21 +261,29 @@ def run_single_test(title, my_run, path_failed):
             universal_newlines=True,
             **other_kwargs,
         )
+        stdout.flush()
 
-    if comp_proc.returncode == 0:
-        for command in commands[main_command + 1 :]:
-            subprocess.run(command, check=True)
+        if comp_proc.returncode == 0:
+            for command in commands[main_command + 1 :]:
+                subprocess.run(
+                    command,
+                    check=True,
+                    stdout=stdout,
+                    stderr=stderr,
+                    universal_newlines=True,
+                )
+                stdout.flush()
 
-        with open("timing_test_compare.txt", "w") as f:
-            t1 = time.perf_counter()
-            line = "Elapsed time for test: {:.0f} s\n".format(t1 - t0)
-            f.write(line)
+            with open("timing_test_compare.txt", "w") as f:
+                t1 = time.perf_counter()
+                line = "Elapsed time for test: {:.0f} s\n".format(t1 - t0)
+                f.write(line)
 
-        os.chdir("..")
-    else:
-        os.chdir("..")
-        path_failed.touch()
-        print(yachalk.chalk.red("failed"))
+            os.chdir("..")
+        else:
+            os.chdir("..")
+            path_failed.touch()
+            print(yachalk.chalk.red("failed"))
 
     return comp_proc.returncode
 
