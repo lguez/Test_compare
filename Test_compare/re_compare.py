@@ -52,10 +52,18 @@ def main_cli():
                 if "sel_diff_args" in my_runs[title]:
                     for k, v in my_runs[title]["sel_diff_args"].items():
                         if k in sel_diff_args_merge:
-                            if isinstance(v, list):
+                            if (
+                                isinstance(v, list)
+                                and sel_diff_args_merge[k] is not None
+                            ):
                                 sel_diff_args_merge[k] += v
+                            else:
+                                sel_diff_args_merge[k] = v
                         else:
-                            sel_diff_args_merge[k] = v
+                            sys.exit(
+                                f"Found {k} in sel_diff_args in test "
+                                "description, not known in selective_diff"
+                            )
 
                 return_code = compare_single_test.compare_single_test(
                     title, args.compare_dir, sel_diff_args_merge
