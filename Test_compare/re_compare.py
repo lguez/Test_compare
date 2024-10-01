@@ -34,10 +34,10 @@ def main_cli():
     print("Starting comparisons at", datetime.datetime.now())
     t0 = time.perf_counter()
     cumul_return = 0
-    sel_diff_args = vars(args).copy()
+    sel_diff_args_merge = vars(args).copy()
 
     for x in ["compare_dir", "test_descr", "cat"]:
-        del sel_diff_args[x]
+        del sel_diff_args_merge[x]
 
     for i, title in enumerate(my_runs):
         print(f"{i}: {title}")
@@ -51,14 +51,14 @@ def main_cli():
                 # priority to the command line:
                 if "sel_diff_args" in my_runs[title]:
                     for k, v in my_runs[title]["sel_diff_args"].items():
-                        if k in sel_diff_args:
+                        if k in sel_diff_args_merge:
                             if isinstance(v, list):
-                                sel_diff_args[k] += v
+                                sel_diff_args_merge[k] += v
                         else:
-                            sel_diff_args[k] = v
+                            sel_diff_args_merge[k] = v
 
                 return_code = compare_single_test.compare_single_test(
-                    title, args.compare_dir, sel_diff_args
+                    title, args.compare_dir, sel_diff_args_merge
                 )
 
                 if return_code != 0:
