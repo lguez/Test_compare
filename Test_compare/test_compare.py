@@ -290,10 +290,10 @@ def run_single_test(title, my_run, path_failed):
         print(yachalk.chalk.red("failed"))
         return_code = 1
     else:
-        with open("timing_test_compare.txt", "w") as f:
+        with open("timing_test_compare.txt", "w") as f_obj:
             t1 = time.perf_counter()
             line = "Elapsed time for test: {:.0f} s\n".format(t1 - t0)
-            f.write(line)
+            f_obj.write(line)
 
         os.chdir("..")
         return_code = 0
