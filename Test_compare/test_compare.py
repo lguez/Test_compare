@@ -284,7 +284,12 @@ def run_single_test(title, my_run, path_failed):
                     universal_newlines=True,
                 )
                 stdout.flush()
-
+    except subprocess.CalledProcessError:
+        os.chdir("..")
+        path_failed.touch()
+        print(yachalk.chalk.red("failed"))
+        return_code = 1
+    else:
         with open("timing_test_compare.txt", "w") as f:
             t1 = time.perf_counter()
             line = "Elapsed time for test: {:.0f} s\n".format(t1 - t0)
@@ -292,11 +297,6 @@ def run_single_test(title, my_run, path_failed):
 
         os.chdir("..")
         return_code = 0
-    except subprocess.CalledProcessError:
-        os.chdir("..")
-        path_failed.touch()
-        print(yachalk.chalk.red("failed"))
-        return_code = 1
 
     return return_code
 
