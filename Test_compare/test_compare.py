@@ -24,9 +24,12 @@ the executable file.)
 "main_command" should be an integer value giving the 0-based index of
 the main command in the list "commands". If "main_command" is absent
 and "commands" is present then the last command is defined as the main
-command. "env", "stdin_filename", "input" apply to the main command
-only. The standard output of all the commands is redirected to the
-file pointed by "stdout".
+command. The only difference between the main command and other
+commands is that "env", "stdin_filename" and "input" apply to the main
+command only.
+
+The standard output of all the commands is redirected to the file
+pointed by "stdout".
 
 The difference between the keys "stdin_filename" and "input" is that
 "input" must be the content of standard input and "stdin_filename"
