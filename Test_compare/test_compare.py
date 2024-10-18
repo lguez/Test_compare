@@ -251,30 +251,11 @@ def run_single_test(title, my_run, path_failed):
 
     t0 = time.perf_counter()
 
-    with open(stdout_filename, "a") as stdout, open(
-        stderr_filename, "a"
-    ) as stderr:
-        for command in commands[:main_command]:
-            subprocess.run(
-                command,
-                check=True,
-                stdout=stdout,
-                stderr=stderr,
-                universal_newlines=True,
-            )
-            stdout.flush()
-
-        comp_proc = subprocess.run(
-            commands[main_command],
-            stdout=stdout,
-            stderr=stderr,
-            universal_newlines=True,
-            **other_kwargs,
-        )
-        stdout.flush()
-
-        if comp_proc.returncode == 0:
-            for command in commands[main_command + 1 :]:
+    try:
+        with open(stdout_filename, "a") as stdout, open(
+            stderr_filename, "a"
+        ) as stderr:
+            for command in commands[:main_command]:
                 subprocess.run(
                     command,
                     check=True,
@@ -284,18 +265,45 @@ def run_single_test(title, my_run, path_failed):
                 )
                 stdout.flush()
 
-            with open("timing_test_compare.txt", "w") as f:
-                t1 = time.perf_counter()
-                line = "Elapsed time for test: {:.0f} s\n".format(t1 - t0)
-                f.write(line)
+            comp_proc = subprocess.run(
+                commands[main_command],
+                stdout=stdout,
+                stderr=stderr,
+                universal_newlines=True,
+                **other_kwargs,
+            )
+            stdout.flush()
 
-            os.chdir("..")
-        else:
-            os.chdir("..")
-            path_failed.touch()
-            print(yachalk.chalk.red("failed"))
+            if comp_proc.returncode == 0:
+                for command in commands[main_command + 1 :]:
+                    subprocess.run(
+                        command,
+                        check=True,
+                        stdout=stdout,
+                        stderr=stderr,
+                        universal_newlines=True,
+                    )
+                    stdout.flush()
 
-    return comp_proc.returncode
+                with open("timing_test_compare.txt", "w") as f:
+                    t1 = time.perf_counter()
+                    line = "Elapsed time for test: {:.0f} s\n".format(t1 - t0)
+                    f.write(line)
+
+                os.chdir("..")
+            else:
+                os.chdir("..")
+                path_failed.touch()
+                print(yachalk.chalk.red("failed"))
+
+        return_code = comp_proc.returncode
+    except subprocess.CalledProcessError:
+        os.chdir("..")
+        path_failed.touch()
+        print(yachalk.chalk.red("failed"))
+        return_code = 1
+
+    return return_code
 
 
 def run_tests(my_runs, allowed_keys, compare_dir):
