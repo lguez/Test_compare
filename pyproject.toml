@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "Test_compare"
-version = "0.6"
+version = "0.9"
 authors = [
   { name="Lionel GUEZ", email="guez@lmd.ipsl.fr" },
 ]
