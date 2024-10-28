@@ -24,5 +24,4 @@ def diff_gv(path_1, path_2, detail_file):
 def main_cli():
     import sys
     
-    returncode = diff_gv(sys.argv[1], sys.argv[2], sys.stdout)
-    sys.exit(returncode)
+    return diff_gv(sys.argv[1], sys.argv[2], sys.stdout)

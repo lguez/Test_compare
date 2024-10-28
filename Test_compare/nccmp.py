@@ -218,7 +218,6 @@ def nccmp(
 
 def main_cli():
     import argparse
-    import sys
 
     parser = argparse.ArgumentParser()
     parser.add_argument("netCDF_file", nargs=2)
@@ -230,7 +229,6 @@ def main_cli():
         "--ign_att", action="append", help="global attribute to ignore"
     )
     args = parser.parse_args()
-    nccmp_return = nccmp(
+    return nccmp(
         *args.netCDF_file, args.silent, args.data_only, ign_att=args.ign_att
     )
-    sys.exit(nccmp_return)

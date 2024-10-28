@@ -105,11 +105,10 @@ def main_cli():
     else:
         new = args.new
 
-    ret_code = diff_shp(
+    return diff_shp(
         args.old,
         new,
         args.report_identical,
         args.plot,
         tolerance=args.tolerance,
     )
-    sys.exit(ret_code)

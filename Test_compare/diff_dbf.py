@@ -81,7 +81,6 @@ def diff_dbf(old, new, report_identical=False, quiet=False):
 
 def main_cli():
     import argparse
-    import sys
 
     parser = argparse.ArgumentParser()
     parser.add_argument("old", help="dbf-file")
@@ -97,8 +96,4 @@ def main_cli():
         "-q", "--quiet", action="store_true", help="suppress all normal output"
     )
     args = parser.parse_args()
-
-    return_diff_dbf = diff_dbf(
-        args.old, args.new, args.report_identical, args.quiet
-    )
-    sys.exit(return_diff_dbf)
+    return diff_dbf(args.old, args.new, args.report_identical, args.quiet)
