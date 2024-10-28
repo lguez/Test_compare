@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """Requires Python >= 3.6."""
 
 import sys

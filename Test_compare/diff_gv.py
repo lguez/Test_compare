@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 from networkx import nx_agraph
 
 def diff_gv(path_1, path_2, detail_file):

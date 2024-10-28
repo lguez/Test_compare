@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import shapefile
 import numpy as np
 from os import path
