@@ -9,7 +9,7 @@ import traceback
 from . import detailed_diff
 
 
-def my_report(dcmp: filecmp.dircmp, detailed_diff_instance, file_out, level):
+def my_report(dcmp: filecmp.dircmp, d_diff, file_out, level):
 
     detail_file = io.StringIO()
     n_diff = (
@@ -19,13 +19,13 @@ def my_report(dcmp: filecmp.dircmp, detailed_diff_instance, file_out, level):
         + len(dcmp.funny_files)
     )
 
-    if detailed_diff_instance is None:
+    if d_diff is None:
         n_diff += len(dcmp.diff_files)
     else:
         for name in dcmp.diff_files:
             path_1 = path.join(dcmp.left, name)
             path_2 = path.join(dcmp.right, name)
-            n_diff += detailed_diff_instance.diff(path_1, path_2, detail_file)
+            n_diff += d_diff.diff(path_1, path_2, detail_file)
 
     if n_diff != 0:
         print(
@@ -92,9 +92,7 @@ def my_report(dcmp: filecmp.dircmp, detailed_diff_instance, file_out, level):
     detail_file.close()
 
     for sub_dcmp in dcmp.subdirs.values():
-        n_diff += my_report(
-            sub_dcmp, detailed_diff_instance, file_out, level + 1
-        )
+        n_diff += my_report(sub_dcmp, d_diff, file_out, level + 1)
 
     return n_diff
 
@@ -135,7 +133,7 @@ def selective_diff(
 
     # Use command-line options to define a detailed_diff instance:
     if brief:
-        detailed_diff_instance = None
+        d_diff = None
     else:
         if numdiff:
             diff_csv = "numdiff"
@@ -153,12 +151,12 @@ def selective_diff(
         else:
             diff_nc = None
 
-        detailed_diff_instance = detailed_diff.DetailedDiff(
+        d_diff = detailed_diff.DetailedDiff(
             limit, pyshp, diff_csv, diff_nc, tolerance, ign_att
         )
 
     try:
-        n_diff = my_report(dcmp, detailed_diff_instance, file_out, level=1)
+        n_diff = my_report(dcmp, d_diff, file_out, level=1)
     except Exception:
         traceback.print_exc()
         sys.exit(2)
