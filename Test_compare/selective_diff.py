@@ -154,8 +154,7 @@ def nccmp_Ziemlinski(path_1, path_2, detail_file):
     return cp.returncode
 
 
-def my_report(dcmp, detailed_diff_instance, file_out, level):
-    """dcmp should be an instance of filecmp.dircmp."""
+def my_report(dcmp: filecmp.dircmp, detailed_diff_instance, file_out, level):
 
     detail_file = io.StringIO()
     n_diff = (
