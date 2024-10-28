@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "Test_compare"
+name = "testcmp"
 version = "0.9"
 authors = [
   { name="Lionel GUEZ", email="guez@lmd.ipsl.fr" },
@@ -25,10 +25,10 @@ Issues = "https://github.com/lguez/Test_compare/issues"
 exclude = ["*~"]
 
 [project.scripts]
-test_compare = "Test_compare.test_compare:main_cli"
-diff_dbf = "Test_compare.diff_dbf:main_cli"
-diff_gv = "Test_compare.diff_gv:main_cli"
-diff_shp = "Test_compare.diff_shp:main_cli"
-nccmp = "Test_compare.nccmp:main_cli"
-re_compare = "Test_compare.re_compare:main_cli"
-selective_diff = "Test_compare.selective_diff:main_cli"
+test_compare = "testcmp.test_compare:main_cli"
+diff_dbf = "testcmp.diff_dbf:main_cli"
+diff_gv = "testcmp.diff_gv:main_cli"
+diff_shp = "testcmp.diff_shp:main_cli"
+nccmp = "testcmp.nccmp:main_cli"
+re_compare = "testcmp.re_compare:main_cli"
+selective_diff = "testcmp.selective_diff:main_cli"
