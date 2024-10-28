@@ -40,50 +40,64 @@ def my_report(dcmp: filecmp.dircmp, d_diff, file_out, level):
         if dcmp.left_only:
             dcmp.left_only.sort()
             print("Only in", dcmp.left, ":", file=file_out)
+
             for x in dcmp.left_only:
                 print(x, file=file_out)
+
             file_out.write("\n")
 
         if dcmp.right_only:
             dcmp.right_only.sort()
             print("Only in", dcmp.right, ":", file=file_out)
+
             for x in dcmp.right_only:
                 print(x, file=file_out)
+
             file_out.write("\n")
 
         if dcmp.same_files:
             dcmp.same_files.sort()
             print("Identical files :", file=file_out)
+
             for x in dcmp.same_files:
                 print(x, file=file_out)
+
             file_out.write("\n")
 
         if dcmp.diff_files:
             dcmp.diff_files.sort()
             print("Differing files according to cmp:", file=file_out)
+
             for x in dcmp.diff_files:
                 print(x, file=file_out)
+
             file_out.write("\n")
 
         if dcmp.funny_files:
             dcmp.funny_files.sort()
             print("Trouble with common files :", file=file_out)
+
             for x in dcmp.funny_files:
                 print(x, file=file_out)
+
             file_out.write("\n")
 
         if dcmp.common_dirs:
             dcmp.common_dirs.sort()
             print("Common subdirectories :", file=file_out)
+
             for x in dcmp.common_dirs:
                 print(x, file=file_out)
+
             file_out.write("\n")
 
         if dcmp.common_funny:
             dcmp.common_funny.sort()
             print("Common funny cases :", file=file_out)
+
             for x in dcmp.common_funny:
                 print(x, file=file_out)
+
             file_out.write("\n")
 
         detail_diag = detail_file.getvalue()
