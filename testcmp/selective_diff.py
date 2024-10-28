@@ -9,15 +9,13 @@ import traceback
 from . import detailed_diff
 
 
-def my_report(dcmp: filecmp.dircmp, d_diff, file_out, level):
+def my_report(dcmp: filecmp.dircmp, d_diff, file_out, level, ign_funny=False):
 
     detail_file = io.StringIO()
-    n_diff = (
-        len(dcmp.left_only)
-        + len(dcmp.right_only)
-        + len(dcmp.common_funny)
-        + len(dcmp.funny_files)
-    )
+    n_diff = len(dcmp.left_only) + len(dcmp.right_only)
+
+    if not ign_funny:
+        n_diff += +len(dcmp.common_funny) + len(dcmp.funny_files)
 
     if d_diff is None:
         n_diff += len(dcmp.diff_files)
@@ -106,7 +104,7 @@ def my_report(dcmp: filecmp.dircmp, d_diff, file_out, level):
     detail_file.close()
 
     for sub_dcmp in dcmp.subdirs.values():
-        n_diff += my_report(sub_dcmp, d_diff, file_out, level + 1)
+        n_diff += my_report(sub_dcmp, d_diff, file_out, level + 1, ign_funny)
 
     return n_diff
 
