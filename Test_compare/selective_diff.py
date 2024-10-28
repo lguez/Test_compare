@@ -584,4 +584,4 @@ def main_cli():
     add_options(parser)
     parser.add_argument("directory", nargs=2)
     args = parser.parse_args()
-    selective_diff(**vars(args))
+    return selective_diff(**vars(args))
