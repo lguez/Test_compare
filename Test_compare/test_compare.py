@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """This script chains runs in directories which do not pre-exist and are
 created.
 
