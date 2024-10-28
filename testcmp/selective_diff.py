@@ -122,6 +122,7 @@ def selective_diff(
     pyshp=False,
     tolerance=1e-7,
     ign_att=None,
+    ign_funny=False,
     file_out=sys.stdout,
 ):
     if not path.isdir(directory[0]) or not path.isdir(directory[1]):
@@ -168,7 +169,7 @@ def selective_diff(
         )
 
     try:
-        n_diff = my_report(dcmp, d_diff, file_out, level=1)
+        n_diff = my_report(dcmp, d_diff, file_out, level=1, ign_funny=ign_funny)
     except Exception:
         traceback.print_exc()
         sys.exit(2)
