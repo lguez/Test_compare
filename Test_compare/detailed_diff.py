@@ -147,7 +147,7 @@ def nccmp_Ziemlinski(path_1, path_2, detail_file):
     return cp.returncode
 
 
-class detailed_diff:
+class DetailedDiff:
     def __init__(
         self,
         size_lim,

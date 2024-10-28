@@ -153,7 +153,7 @@ def selective_diff(
         else:
             diff_nc = None
 
-        detailed_diff_instance = detailed_diff.detailed_diff(
+        detailed_diff_instance = detailed_diff.DetailedDiff(
             limit, pyshp, diff_csv, diff_nc, tolerance, ign_att
         )
 
