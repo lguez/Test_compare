@@ -582,6 +582,10 @@ def main_cli():
 
     parser = argparse.ArgumentParser()
     add_options(parser)
+
     parser.add_argument("directory", nargs=2)
+    # (This is not in add_options because, for re_compare, the
+    # directories to compare should not be in the command line.)
+
     args = parser.parse_args()
     return selective_diff(**vars(args))
