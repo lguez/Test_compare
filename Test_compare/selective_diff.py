@@ -11,7 +11,6 @@ import tempfile
 import fnmatch
 import io
 import traceback
-import json
 import pprint
 
 import magic
