@@ -257,6 +257,11 @@ def add_options(parser):
         default=[],
         help="exclude files that match shell pattern PAT",
     )
+    parser.add_argument(
+        "--ign_funny",
+        action="store_true",
+        help="do not count difference in funny files, as diagnosed by filecmp",
+    )
 
 
 def main_cli():
