@@ -147,6 +147,28 @@ def nccmp_Ziemlinski(path_1, path_2, detail_file):
     return cp.returncode
 
 
+def diff_nc_ncdump(path_1, path_2, detail_file, size_lim):
+    f1_ncdump = tempfile.NamedTemporaryFile("w+")
+    f2_ncdump = tempfile.NamedTemporaryFile("w+")
+    subprocess.run(["ncdump", "-h", path_1], stdout=f1_ncdump)
+    subprocess.run(["ncdump", "-h", path_2], stdout=f2_ncdump)
+
+    if filecmp.cmp(f1_ncdump.name, f2_ncdump.name, shallow=False):
+        n_diff = 0
+    else:
+        detail_file.write(
+            f"ncdumps of headers of {path_1} and {path_2} " "are different\n"
+        )
+        n_diff = diff_txt(f1_ncdump.name, f2_ncdump.name, size_lim, detail_file)
+
+    f1_ncdump.close()
+    f2_ncdump.close()
+    n_diff += nccmp.nccmp(
+        path_1, path_2, data_only=True, detail_file=detail_file
+    )
+    return min(n_diff, 1)
+
+
 class DetailedDiff:
     def __init__(
         self,
@@ -183,8 +205,8 @@ class DetailedDiff:
             n_diff = self._diff_csv(path_1, path_2, detail_file)
         elif suffix == ".nc":
             if self.diff_nc == "ncdump":
-                n_diff = self._diff_nc_ncdump(
-                    path_1, path_2, detail_file=detail_file
+                n_diff = diff_nc_ncdump(
+                    path_1, path_2, detail_file, self.size_lim
                 )
             elif self.diff_nc == "max_diff_nc":
                 n_diff = max_diff_nc(path_1, path_2, detail_file=detail_file)
@@ -244,30 +266,6 @@ class DetailedDiff:
         f1_dbfdump.close()
         f2_dbfdump.close()
         return n_diff
-
-    def _diff_nc_ncdump(self, path_1, path_2, detail_file):
-        f1_ncdump = tempfile.NamedTemporaryFile("w+")
-        f2_ncdump = tempfile.NamedTemporaryFile("w+")
-        subprocess.run(["ncdump", "-h", path_1], stdout=f1_ncdump)
-        subprocess.run(["ncdump", "-h", path_2], stdout=f2_ncdump)
-
-        if filecmp.cmp(f1_ncdump.name, f2_ncdump.name, shallow=False):
-            n_diff = 0
-        else:
-            detail_file.write(
-                f"ncdumps of headers of {path_1} and {path_2} "
-                "are different\n"
-            )
-            n_diff = diff_txt(
-                f1_ncdump.name, f2_ncdump.name, self.size_lim, detail_file
-            )
-
-        f1_ncdump.close()
-        f2_ncdump.close()
-        n_diff += nccmp.nccmp(
-            path_1, path_2, data_only=True, detail_file=detail_file
-        )
-        return min(n_diff, 1)
 
     def _diff_csv_ndiff(self, path_1, path_2, detail_file, names=None):
         with tempfile.TemporaryFile("w+") as diff_out:
