@@ -15,6 +15,7 @@ def diff_shp(
     plot=False,
     detail_file=sys.stdout,
     tolerance=0.0,
+    max_n_diff=None,
 ):
     detail_subfile = io.StringIO()
     detail_subfile.write("\n" + "*" * 10 + "\n\n")
@@ -57,6 +58,11 @@ def diff_shp(
             marker_iter,
             tolerance,
         )
+        if max_n_diff is not None and ret_code >= max_n_diff:
+            detail_subfile.write(
+                "\nToo many different shapes. Stopping comparison.\n"
+            )
+            break
 
     diff_found = diff_found or ret_code != 0
     detail_subfile.write("\n")

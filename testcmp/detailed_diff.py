@@ -205,6 +205,7 @@ class DetailedDiff:
                 path_2,
                 detail_file=detail_file,
                 tolerance=self.tolerance,
+                max_n_diff=self.size_lim // 5,
             )
         elif suffix == ".png":
             n_diff = diff_png(path_1, path_2, detail_file)
