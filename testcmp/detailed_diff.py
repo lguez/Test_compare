@@ -172,7 +172,12 @@ def diff_nc_ncdump(path_1, path_2, detail_file, size_lim):
 
 
 def diff_csv_ndiff(
-    path_1, path_2, detail_file, names=None, tolerance=1e-7, size_lim=50
+    path_1,
+    path_2,
+    detail_file=sys.stdout,
+    names=None,
+    tolerance=1e-7,
+    size_lim=50,
 ):
     with tempfile.TemporaryFile("w+") as diff_out:
         cp = subprocess.run(
@@ -200,7 +205,12 @@ def diff_csv_ndiff(
 
 
 def diff_csv_numdiff(
-    path_1, path_2, detail_file, names=None, tolerance=1e-7, size_lim=50
+    path_1,
+    path_2,
+    detail_file=sys.stdout,
+    names=None,
+    tolerance=1e-7,
+    size_lim=50,
 ):
     with tempfile.TemporaryFile("w+") as diff_out:
         cp = subprocess.run(
