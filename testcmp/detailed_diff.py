@@ -199,6 +199,46 @@ def diff_csv_ndiff(
     return cp.returncode
 
 
+def _diff_csv_numdiff(
+    path_1, path_2, detail_file, names=None, tolerance=1e-7, size_lim=50
+):
+    with tempfile.TemporaryFile("w+") as diff_out:
+        cp = subprocess.run(
+            [
+                "numdiff",
+                "--quiet",
+                "--statistics",
+                f"--relative-tolerance={tolerance}",
+                path_1,
+                path_2,
+            ],
+            stdout=diff_out,
+            stderr=subprocess.STDOUT,
+            text=True,
+        )
+
+        if cp.returncode == 1:
+            detail_file.write("\n" + "*" * 10 + "\n\n")
+
+            if names is None:
+                detail_file.write(f"numdiff {path_1} {path_2}\n")
+            else:
+                detail_file.write(f"numdiff {names[0]} {names[1]}\n")
+
+            detail_file.write(
+                "Comparison with numdiff, tolerance " f"{tolerance}:\n"
+            )
+            cat_not_too_many(diff_out, size_lim, detail_file)
+            detail_file.write("\n")
+        elif cp.returncode != 0:
+            diff_out.seek(0)
+            sys.stdout.writelines(diff_out)
+            print("selective_diff: error from numdiff")
+            sys.exit(2)
+
+    return cp.returncode
+
+
 class DetailedDiff:
     def __init__(
         self,
@@ -220,7 +260,7 @@ class DetailedDiff:
             self._diff_dbf = self._diff_dbf_dbfdump
 
         if diff_csv == "numdiff":
-            self._diff_csv = self._diff_csv_numdiff
+            self._diff_csv = _diff_csv_numdiff
         elif diff_csv == "max_diff_rect":
             self._diff_csv = max_diff_rect
         else:
@@ -302,48 +342,3 @@ class DetailedDiff:
         f1_dbfdump.close()
         f2_dbfdump.close()
         return n_diff
-
-    def _diff_csv_numdiff(
-        self,
-        path_1,
-        path_2,
-        detail_file,
-        names=None,
-        tolerance=1e-7,
-        size_lim=50,
-    ):
-        with tempfile.TemporaryFile("w+") as diff_out:
-            cp = subprocess.run(
-                [
-                    "numdiff",
-                    "--quiet",
-                    "--statistics",
-                    f"--relative-tolerance={tolerance}",
-                    path_1,
-                    path_2,
-                ],
-                stdout=diff_out,
-                stderr=subprocess.STDOUT,
-                text=True,
-            )
-
-            if cp.returncode == 1:
-                detail_file.write("\n" + "*" * 10 + "\n\n")
-
-                if names is None:
-                    detail_file.write(f"numdiff {path_1} {path_2}\n")
-                else:
-                    detail_file.write(f"numdiff {names[0]} {names[1]}\n")
-
-                detail_file.write(
-                    "Comparison with numdiff, tolerance " f"{tolerance}:\n"
-                )
-                cat_not_too_many(diff_out, size_lim, detail_file)
-                detail_file.write("\n")
-            elif cp.returncode != 0:
-                diff_out.seek(0)
-                sys.stdout.writelines(diff_out)
-                print("selective_diff: error from numdiff")
-                sys.exit(2)
-
-        return cp.returncode
