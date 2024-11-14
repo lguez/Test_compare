@@ -196,7 +196,7 @@ class DetailedDiff:
         else:
             self._diff_csv = self._diff_csv_ndiff
 
-    def diff(self, path_1, path_2, detail_file):
+    def diff(self, path_1, path_2, detail_file=sys.stdout):
         suffix = pathlib.PurePath(path_1).suffix
 
         if suffix == ".dbf":
