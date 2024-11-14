@@ -27,10 +27,10 @@ def diff_txt(path_1, path_2, size_lim, detail_file):
     detail_file.write("\n" + "*" * 10 + "\n\n")
     detail_file.write(f"diff_txt {path_1} {path_2}\n")
 
-    with open(path_1) as f:
+    with open(path_1, encoding="utf-8") as f:
         fromlines = f.readlines()
 
-    with open(path_2) as f:
+    with open(path_2, encoding="utf-8") as f:
         tolines = f.readlines()
 
     my_diff = difflib.unified_diff(
