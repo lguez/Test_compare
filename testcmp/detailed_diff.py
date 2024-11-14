@@ -220,6 +220,7 @@ def diff_csv_numdiff(
     names=None,
     tolerance=1e-7,
     size_lim=50,
+    separators=" \t",
 ):
     with tempfile.TemporaryFile("w+") as diff_out:
         cp = subprocess.run(
@@ -228,6 +229,8 @@ def diff_csv_numdiff(
                 "--quiet",
                 "--statistics",
                 f"--relative-tolerance={tolerance}",
+                "--separators",
+                separators + "\n",
                 path_1,
                 path_2,
             ],
@@ -235,6 +238,7 @@ def diff_csv_numdiff(
             stderr=subprocess.STDOUT,
             text=True,
         )
+        # (numdiff says that the separators options must include "\n".)
 
         if cp.returncode == 1:
             detail_file.write("\n" + "*" * 10 + "\n\n")
