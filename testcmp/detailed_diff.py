@@ -213,7 +213,7 @@ def ndiff(
     return cp.returncode
 
 
-def diff_csv_numdiff(
+def numdiff(
     path_1,
     path_2,
     detail_file=sys.stdout,
@@ -283,7 +283,7 @@ class DetailedDiff:
             self._diff_dbf = self._diff_dbf_dbfdump
 
         if diff_csv == "numdiff":
-            self._diff_csv = diff_csv_numdiff
+            self._diff_csv = numdiff
         elif diff_csv == "max_diff_rect":
             self._diff_csv = max_diff_rect
         else:
