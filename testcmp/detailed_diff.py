@@ -178,10 +178,19 @@ def diff_csv_ndiff(
     names=None,
     tolerance=1e-7,
     size_lim=50,
+    separators=" ",
 ):
     with tempfile.TemporaryFile("w+") as diff_out:
         cp = subprocess.run(
-            ["ndiff", "-relerr", str(tolerance), path_1, path_2],
+            [
+                "ndiff",
+                "-relerr",
+                str(tolerance),
+                "-separators",
+                separators,
+                path_1,
+                path_2,
+            ],
             stdout=diff_out,
             stderr=subprocess.STDOUT,
             text=True,
