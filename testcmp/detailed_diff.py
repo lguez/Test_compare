@@ -238,7 +238,7 @@ class DetailedDiff:
         self,
         size_lim=50,
         diff_dbf_pyshp=False,
-        diff_csv="",
+        diff_csv_option="",
         diff_nc="",
         tolerance=1e-7,
         ign_att=None,
@@ -253,9 +253,9 @@ class DetailedDiff:
         else:
             self._diff_dbf = self._diff_dbf_dbfdump
 
-        if diff_csv == "numdiff":
+        if diff_csv_option == "numdiff":
             self._diff_csv = numdiff
-        elif diff_csv == "max_diff_rect":
+        elif diff_csv_option == "max_diff_rect":
             self._diff_csv = max_diff_rect
         else:
             self._diff_csv = ndiff

@@ -149,11 +149,11 @@ def selective_diff(
         d_diff = None
     else:
         if numdiff:
-            diff_csv = "numdiff"
+            diff_csv_option = "numdiff"
         elif max_diff_rect:
-            diff_csv = "max_diff_rect"
+            diff_csv_option = "max_diff_rect"
         else:
-            diff_csv = None
+            diff_csv_option = None
 
         if ncdump:
             diff_nc = "ncdump"
@@ -165,7 +165,7 @@ def selective_diff(
             diff_nc = None
 
         d_diff = detailed_diff.DetailedDiff(
-            limit, pyshp, diff_csv, diff_nc, tolerance, ign_att
+            limit, pyshp, diff_csv_option, diff_nc, tolerance, ign_att
         )
 
     try:
