@@ -41,10 +41,13 @@ def diff_txt(path_1, path_2, size_lim, detail_file):
 
     detail_file.write("\n" + "*" * 10 + "\n\n")
     detail_file.write(f"diff_txt {path_1} {path_2}\n")
+
     with open(path_1) as f:
         fromlines = f.readlines()
+
     with open(path_2) as f:
         tolines = f.readlines()
+
     my_diff = difflib.unified_diff(
         fromlines, tolines, fromfile=path_1, tofile=path_2, n=0
     )
@@ -93,7 +96,10 @@ def diff_json(path_1, path_2, detail_file):
 
 
 def max_diff_rect(path_1, path_2, detail_file, names=None, **other_kwargs):
-    """other_kwargs is ignored."""
+    """This is a Python wrapper for program max_diff_rect. other_kwargs is
+    ignored.
+
+    """
 
     detail_file.write("\n" + "*" * 10 + "\n\n")
 
@@ -117,6 +123,8 @@ def max_diff_rect(path_1, path_2, detail_file, names=None, **other_kwargs):
 
 
 def max_diff_nc(path_1, path_2, detail_file):
+    """This is a Python wrapper for program max_diff_nc.sh."""
+
     detail_file.write("\n" + "*" * 10 + "\n\n")
     detail_file.write(f"max_diff_nc {path_1} {path_2}\n")
 
@@ -180,6 +188,8 @@ def ndiff(
     size_lim=50,
     separators=" ",
 ):
+    """This is a Python wrapper for program ndiff."""
+
     with tempfile.TemporaryFile("w+") as diff_out:
         cp = subprocess.run(
             [
@@ -222,6 +232,8 @@ def numdiff(
     size_lim=50,
     separators=" \t",
 ):
+    """This is a Python wrapper for program numdiff."""
+
     with tempfile.TemporaryFile("w+") as diff_out:
         cp = subprocess.run(
             [
