@@ -106,9 +106,9 @@ import time
 
 import yachalk
 
-from . import read_runs
-from . import compare_single_test
-from . import cat_compar
+from testcmp import read_runs
+from testcmp import compare_single_test
+from testcmp import cat_compar
 
 
 def get_all_required(title, my_run):

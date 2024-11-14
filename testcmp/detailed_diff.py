@@ -11,10 +11,10 @@ from wand import image
 import jsondiff
 import magic
 
-from . import diff_dbf
-from . import diff_gv
-from . import diff_shp
-from . import nccmp
+from testcmp import diff_dbf
+from testcmp import diff_gv
+from testcmp import diff_shp
+from testcmp import nccmp
 
 
 def cat_not_too_many(file_in, size_lim, file_out):

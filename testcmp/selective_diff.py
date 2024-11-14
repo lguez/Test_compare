@@ -6,7 +6,7 @@ import fnmatch
 import io
 import traceback
 
-from . import detailed_diff
+from testcmp import detailed_diff
 
 
 def my_report(dcmp: filecmp.dircmp, d_diff, file_out, level, ign_funny=False):
