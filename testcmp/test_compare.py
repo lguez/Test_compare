@@ -90,8 +90,6 @@ line. If two tests have the same title, the last one will be kept.
 
 """
 
-# Requires Python >= 3.5
-
 import argparse
 import datetime
 import glob
