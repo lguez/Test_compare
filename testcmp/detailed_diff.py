@@ -172,11 +172,11 @@ def diff_nc_ncdump(path_1, path_2, detail_file, size_lim):
 class DetailedDiff:
     def __init__(
         self,
-        size_lim,
-        diff_dbf_pyshp,
-        diff_csv,
-        diff_nc,
-        tolerance,
+        size_lim=50,
+        diff_dbf_pyshp=False,
+        diff_csv="",
+        diff_nc="",
+        tolerance=1e-7,
         ign_att=None,
     ):
         self.size_lim = size_lim
