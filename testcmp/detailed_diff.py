@@ -171,7 +171,7 @@ def diff_nc_ncdump(path_1, path_2, detail_file, size_lim):
     return min(n_diff, 1)
 
 
-def diff_csv_ndiff(
+def ndiff(
     path_1,
     path_2,
     detail_file=sys.stdout,
@@ -287,7 +287,7 @@ class DetailedDiff:
         elif diff_csv == "max_diff_rect":
             self._diff_csv = max_diff_rect
         else:
-            self._diff_csv = diff_csv_ndiff
+            self._diff_csv = ndiff
 
     def diff(self, path_1, path_2, detail_file=sys.stdout):
         suffix = pathlib.PurePath(path_1).suffix
