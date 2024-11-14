@@ -199,7 +199,7 @@ def diff_csv_ndiff(
     return cp.returncode
 
 
-def _diff_csv_numdiff(
+def diff_csv_numdiff(
     path_1, path_2, detail_file, names=None, tolerance=1e-7, size_lim=50
 ):
     with tempfile.TemporaryFile("w+") as diff_out:
@@ -260,7 +260,7 @@ class DetailedDiff:
             self._diff_dbf = self._diff_dbf_dbfdump
 
         if diff_csv == "numdiff":
-            self._diff_csv = _diff_csv_numdiff
+            self._diff_csv = diff_csv_numdiff
         elif diff_csv == "max_diff_rect":
             self._diff_csv = max_diff_rect
         else:
