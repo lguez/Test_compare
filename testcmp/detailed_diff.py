@@ -204,7 +204,13 @@ class DetailedDiff:
         if suffix == ".dbf":
             n_diff = self._diff_dbf(path_1, path_2, detail_file)
         elif suffix == ".csv":
-            n_diff = self._diff_csv(path_1, path_2, detail_file)
+            n_diff = self._diff_csv(
+                path_1,
+                path_2,
+                detail_file,
+                tolerance=self.tolerance,
+                size_lim=self.size_lim,
+            )
         elif suffix == ".nc":
             if self.diff_nc == "ncdump":
                 n_diff = diff_nc_ncdump(
@@ -269,10 +275,18 @@ class DetailedDiff:
         f2_dbfdump.close()
         return n_diff
 
-    def _diff_csv_ndiff(self, path_1, path_2, detail_file, names=None):
+    def _diff_csv_ndiff(
+        self,
+        path_1,
+        path_2,
+        detail_file,
+        names=None,
+        tolerance=1e-7,
+        size_lim=50,
+    ):
         with tempfile.TemporaryFile("w+") as diff_out:
             cp = subprocess.run(
-                ["ndiff", "-relerr", str(self.tolerance), path_1, path_2],
+                ["ndiff", "-relerr", str(tolerance), path_1, path_2],
                 stdout=diff_out,
                 stderr=subprocess.STDOUT,
                 text=True,
@@ -287,21 +301,29 @@ class DetailedDiff:
                     detail_file.write(f"ndiff {names[0]} {names[1]}\n")
 
                 detail_file.write(
-                    "Comparison with ndiff, tolerance " f"{self.tolerance}:\n"
+                    "Comparison with ndiff, tolerance " f"{tolerance}:\n"
                 )
-                cat_not_too_many(diff_out, self.size_lim, detail_file)
+                cat_not_too_many(diff_out, size_lim, detail_file)
                 detail_file.write("\n")
 
         return cp.returncode
 
-    def _diff_csv_numdiff(self, path_1, path_2, detail_file, names=None):
+    def _diff_csv_numdiff(
+        self,
+        path_1,
+        path_2,
+        detail_file,
+        names=None,
+        tolerance=1e-7,
+        size_lim=50,
+    ):
         with tempfile.TemporaryFile("w+") as diff_out:
             cp = subprocess.run(
                 [
                     "numdiff",
                     "--quiet",
                     "--statistics",
-                    f"--relative-tolerance={self.tolerance}",
+                    f"--relative-tolerance={tolerance}",
                     path_1,
                     path_2,
                 ],
@@ -319,9 +341,9 @@ class DetailedDiff:
                     detail_file.write(f"numdiff {names[0]} {names[1]}\n")
 
                 detail_file.write(
-                    "Comparison with numdiff, tolerance " f"{self.tolerance}:\n"
+                    "Comparison with numdiff, tolerance " f"{tolerance}:\n"
                 )
-                cat_not_too_many(diff_out, self.size_lim, detail_file)
+                cat_not_too_many(diff_out, size_lim, detail_file)
                 detail_file.write("\n")
             elif cp.returncode != 0:
                 diff_out.seek(0)
