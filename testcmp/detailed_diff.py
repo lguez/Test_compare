@@ -92,7 +92,9 @@ def diff_json(path_1, path_2, detail_file):
     return n_diff
 
 
-def max_diff_rect(path_1, path_2, detail_file, names=None):
+def max_diff_rect(path_1, path_2, detail_file, names=None, **other_kwargs):
+    """other_kwargs is ignored."""
+
     detail_file.write("\n" + "*" * 10 + "\n\n")
 
     if names is None:
