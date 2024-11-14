@@ -171,6 +171,34 @@ def diff_nc_ncdump(path_1, path_2, detail_file, size_lim):
     return min(n_diff, 1)
 
 
+def _diff_csv_ndiff(
+    path_1, path_2, detail_file, names=None, tolerance=1e-7, size_lim=50
+):
+    with tempfile.TemporaryFile("w+") as diff_out:
+        cp = subprocess.run(
+            ["ndiff", "-relerr", str(tolerance), path_1, path_2],
+            stdout=diff_out,
+            stderr=subprocess.STDOUT,
+            text=True,
+        )
+
+        if cp.returncode != 0:
+            detail_file.write("\n" + "*" * 10 + "\n\n")
+
+            if names is None:
+                detail_file.write(f"ndiff {path_1} {path_2}\n")
+            else:
+                detail_file.write(f"ndiff {names[0]} {names[1]}\n")
+
+            detail_file.write(
+                "Comparison with ndiff, tolerance " f"{tolerance}:\n"
+            )
+            cat_not_too_many(diff_out, size_lim, detail_file)
+            detail_file.write("\n")
+
+    return cp.returncode
+
+
 class DetailedDiff:
     def __init__(
         self,
@@ -196,7 +224,7 @@ class DetailedDiff:
         elif diff_csv == "max_diff_rect":
             self._diff_csv = max_diff_rect
         else:
-            self._diff_csv = self._diff_csv_ndiff
+            self._diff_csv = _diff_csv_ndiff
 
     def diff(self, path_1, path_2, detail_file=sys.stdout):
         suffix = pathlib.PurePath(path_1).suffix
@@ -274,39 +302,6 @@ class DetailedDiff:
         f1_dbfdump.close()
         f2_dbfdump.close()
         return n_diff
-
-    def _diff_csv_ndiff(
-        self,
-        path_1,
-        path_2,
-        detail_file,
-        names=None,
-        tolerance=1e-7,
-        size_lim=50,
-    ):
-        with tempfile.TemporaryFile("w+") as diff_out:
-            cp = subprocess.run(
-                ["ndiff", "-relerr", str(tolerance), path_1, path_2],
-                stdout=diff_out,
-                stderr=subprocess.STDOUT,
-                text=True,
-            )
-
-            if cp.returncode != 0:
-                detail_file.write("\n" + "*" * 10 + "\n\n")
-
-                if names is None:
-                    detail_file.write(f"ndiff {path_1} {path_2}\n")
-                else:
-                    detail_file.write(f"ndiff {names[0]} {names[1]}\n")
-
-                detail_file.write(
-                    "Comparison with ndiff, tolerance " f"{tolerance}:\n"
-                )
-                cat_not_too_many(diff_out, size_lim, detail_file)
-                detail_file.write("\n")
-
-        return cp.returncode
 
     def _diff_csv_numdiff(
         self,
