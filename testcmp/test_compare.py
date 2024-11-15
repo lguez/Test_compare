@@ -88,120 +88,154 @@ def get_single_required(src, title, my_run, base_dest, required_type):
     return found
 
 
-def run_single_test(title, my_run, path_failed):
-    if "command" in my_run:
-        commands = [my_run["command"]]
-        main_command = 0
-    else:
-        commands = my_run["commands"]
+def run_single_test(title, my_run, path_failed, compare_dir):
+    """return_code: 0 means means successful with same result, 1 means
+    failed, 2 means successful with different result, 3 means missing
+    requirement.
 
-        if "main_command" in my_run:
-            main_command = my_run["main_command"]
+    """
+
+    os.mkdir(title)
+    found = get_all_required(title, my_run)
+
+    if found:
+        if "command" in my_run:
+            commands = [my_run["command"]]
+            main_command = 0
         else:
-            main_command = len(commands) - 1
+            commands = my_run["commands"]
 
-    split_commands = []
+            if "main_command" in my_run:
+                main_command = my_run["main_command"]
+            else:
+                main_command = len(commands) - 1
 
-    for command in commands:
-        if isinstance(command, str):
-            command = command.split()
+        split_commands = []
 
-        split_commands.append(command)
+        for command in commands:
+            if isinstance(command, str):
+                command = command.split()
 
-    commands = split_commands
+            split_commands.append(command)
 
-    if "stdout" in my_run:
-        stdout_filename = my_run["stdout"]
-    else:
-        stdout_filename = commands[main_command][0]
-        stdout_filename = path.basename(stdout_filename)
-        stdout_filename = path.splitext(stdout_filename)[0] + "_stdout.txt"
+        commands = split_commands
 
-    stderr_filename = stdout_filename.replace("_stdout.txt", "_stderr.txt")
+        if "stdout" in my_run:
+            stdout_filename = my_run["stdout"]
+        else:
+            stdout_filename = commands[main_command][0]
+            stdout_filename = path.basename(stdout_filename)
+            stdout_filename = path.splitext(stdout_filename)[0] + "_stdout.txt"
 
-    if "stdin_filename" in my_run and "input" in my_run:
-        print(title, ": stdin_filename and input are exclusive.")
-        shutil.rmtree(title)
-        sys.exit(1)
+        stderr_filename = stdout_filename.replace("_stdout.txt", "_stderr.txt")
 
-    os.chdir(title)
-
-    if "create_file" in my_run:
-        assert isinstance(my_run["create_file"], list)
-
-        with open(my_run["create_file"][0], "w") as f:
-            f.write(my_run["create_file"][1])
-
-    other_kwargs = {}
-
-    if "stdin_filename" in my_run:
-        try:
-            other_kwargs["stdin"] = open(my_run["stdin_filename"])
-        except FileNotFoundError:
-            os.chdir("..")
+        if "stdin_filename" in my_run and "input" in my_run:
+            print(title, ": stdin_filename and input are exclusive.")
             shutil.rmtree(title)
-            raise
-    elif "input" in my_run:
-        other_kwargs["input"] = my_run["input"]
-    else:
-        other_kwargs["stdin"] = subprocess.DEVNULL
+            sys.exit(1)
 
-    if "env" in my_run:
-        other_kwargs["env"] = dict(os.environ, **my_run["env"])
+        os.chdir(title)
 
-    with open("test.json", "w") as f:
-        json.dump(my_run, f, indent=3, sort_keys=True)
-        f.write("\n")
+        if "create_file" in my_run:
+            assert isinstance(my_run["create_file"], list)
 
-    t0 = time.perf_counter()
+            with open(my_run["create_file"][0], "w") as f:
+                f.write(my_run["create_file"][1])
 
-    try:
-        with open(stdout_filename, "a") as stdout, open(
-            stderr_filename, "a"
-        ) as stderr:
-            for command in commands[:main_command]:
+        other_kwargs = {}
+
+        if "stdin_filename" in my_run:
+            try:
+                other_kwargs["stdin"] = open(my_run["stdin_filename"])
+            except FileNotFoundError:
+                os.chdir("..")
+                shutil.rmtree(title)
+                raise
+        elif "input" in my_run:
+            other_kwargs["input"] = my_run["input"]
+        else:
+            other_kwargs["stdin"] = subprocess.DEVNULL
+
+        if "env" in my_run:
+            other_kwargs["env"] = dict(os.environ, **my_run["env"])
+
+        with open("test.json", "w") as f:
+            json.dump(my_run, f, indent=3, sort_keys=True)
+            f.write("\n")
+
+        t0 = time.perf_counter()
+
+        try:
+            with open(stdout_filename, "a") as stdout, open(
+                stderr_filename, "a"
+            ) as stderr:
+                for command in commands[:main_command]:
+                    subprocess.run(
+                        command,
+                        check=True,
+                        stdout=stdout,
+                        stderr=stderr,
+                        universal_newlines=True,
+                    )
+                    stdout.flush()
+
                 subprocess.run(
-                    command,
+                    commands[main_command],
                     check=True,
                     stdout=stdout,
                     stderr=stderr,
                     universal_newlines=True,
+                    **other_kwargs,
                 )
                 stdout.flush()
 
-            subprocess.run(
-                commands[main_command],
-                check=True,
-                stdout=stdout,
-                stderr=stderr,
-                universal_newlines=True,
-                **other_kwargs,
-            )
-            stdout.flush()
+                for command in commands[main_command + 1 :]:
+                    subprocess.run(
+                        command,
+                        check=True,
+                        stdout=stdout,
+                        stderr=stderr,
+                        universal_newlines=True,
+                    )
+                    stdout.flush()
+        except subprocess.CalledProcessError:
+            os.chdir("..")
+            path_failed.touch()
+            print(yachalk.chalk.red("failed"))
+            return_code = 1
+        else:
+            t1 = time.perf_counter()
+            line = "Elapsed time for test: {:.0f} s\n".format(t1 - t0)
 
-            for command in commands[main_command + 1 :]:
-                subprocess.run(
-                    command,
-                    check=True,
-                    stdout=stdout,
-                    stderr=stderr,
-                    universal_newlines=True,
+            with open("timing_test_compare.txt", "w") as f_obj:
+                f_obj.write(line)
+
+            os.chdir("..")
+            return_code = 0
+
+        if return_code == 0:
+            old_dir = path.join(compare_dir, title)
+
+            try:
+                shutil.copytree(title, old_dir, symlinks=True)
+            except FileExistsError:
+                if "sel_diff_args" in my_run:
+                    sel_diff_args = my_run["sel_diff_args"]
+                else:
+                    sel_diff_args = None
+
+                return_code = compare_single_test.compare_single_test(
+                    title, compare_dir, sel_diff_args
                 )
-                stdout.flush()
-    except subprocess.CalledProcessError:
-        os.chdir("..")
-        path_failed.touch()
-        print(yachalk.chalk.red("failed"))
-        return_code = 1
+
+                if return_code != 0:
+                    print("difference found")
+                    return_code = 2
+            else:
+                print("Archived", title)
     else:
-        t1 = time.perf_counter()
-        line = "Elapsed time for test: {:.0f} s\n".format(t1 - t0)
-
-        with open("timing_test_compare.txt", "w") as f_obj:
-            f_obj.write(line)
-
-        os.chdir("..")
-        return_code = 0
+        return_code = 3
+        shutil.rmtree(title)
 
     return return_code
 
@@ -243,37 +277,16 @@ def run_tests(my_runs, allowed_keys, compare_dir):
             else:
                 print("Creating", title + "...", flush=True)
 
-            os.mkdir(title)
-            found = get_all_required(title, my_run)
+            return_code = run_single_test(
+                title, my_run, path_failed, compare_dir
+            )
 
-            if found:
-                return_code = run_single_test(title, my_run, path_failed)
-
-                if return_code == 0:
-                    old_dir = path.join(compare_dir, title)
-
-                    try:
-                        shutil.copytree(title, old_dir, symlinks=True)
-                    except FileExistsError:
-                        if "sel_diff_args" in my_run:
-                            sel_diff_args = my_run["sel_diff_args"]
-                        else:
-                            sel_diff_args = None
-
-                        return_code = compare_single_test.compare_single_test(
-                            title, compare_dir, sel_diff_args
-                        )
-
-                        if return_code != 0:
-                            print("difference found")
-                            cumul_return += 1
-                    else:
-                        print("Archived", title)
-                else:
-                    n_failed += 1
-            else:
+            if return_code == 1:
+                n_failed += 1
+            elif return_code == 2:
+                cumul_return += 1
+            elif return_code == 3:
                 n_missing += 1
-                shutil.rmtree(title)
 
     print("Elapsed time:", time.perf_counter() - t0, "s")
     print("Number of failed runs:", n_failed)
