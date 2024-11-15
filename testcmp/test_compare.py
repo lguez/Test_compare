@@ -268,6 +268,12 @@ def run_tests(my_runs, allowed_keys, compare_dir):
     for i, title in enumerate(my_runs):
         my_run = my_runs[title]
         print(i, end=": ")
+
+        if not set(my_run) <= allowed_keys:
+            print(f"bad keys in {title}:")
+            print(set(my_run) - allowed_keys)
+            sys.exit(1)
+
         path_failed = pathlib.Path(title, "failed")
         previous_failed = path_failed.exists()
 
@@ -279,11 +285,6 @@ def run_tests(my_runs, allowed_keys, compare_dir):
                 cumul_return += 1
                 print("difference found")
         else:
-            if not set(my_run) <= allowed_keys:
-                print(f"bad keys in {title}:")
-                print(set(my_run) - allowed_keys)
-                sys.exit(1)
-
             if "dependencies" not in my_run or dependencies_exist(
                 my_run["dependencies"], compare_dir
             ):
