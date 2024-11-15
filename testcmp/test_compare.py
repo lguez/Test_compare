@@ -265,15 +265,15 @@ def run_tests(my_runs, allowed_keys, compare_dir):
     cumul_return = 0
     n_missing = 0
 
-    for i, title in enumerate(my_runs):
-        my_run = my_runs[title]
-        print(i, end=": ")
-
+    for title, my_run in my_runs.items():
         if not set(my_run) <= allowed_keys:
             print(f"bad keys in {title}:")
             print(set(my_run) - allowed_keys)
             sys.exit(1)
 
+    for i, title in enumerate(my_runs):
+        my_run = my_runs[title]
+        print(i, end=": ")
         path_failed = pathlib.Path(title, "failed")
         previous_failed = path_failed.exists()
 
