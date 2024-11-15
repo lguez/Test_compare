@@ -278,12 +278,56 @@ def run_tests(my_runs, allowed_keys, compare_dir):
         previous_failed = path_failed.exists()
 
         if path.exists(title) and not previous_failed:
-            print("Skipping", title, "(already exists, did not fail)")
             fname = path.join(title, "comparison.txt")
 
             if path.exists(fname):
+                print("Skipping", title, "(already exists, did not fail)")
                 cumul_return += 1
                 print("difference found")
+            else:
+                if "dependencies" not in my_run:
+                    print("Skipping", title)
+                    print(
+                        "(already exists, did not fail, no difference, "
+                        "no dependencies)"
+                    )
+                elif not dependencies_exist(
+                    my_run["dependencies"], compare_dir
+                ):
+                    print("Skipping", title)
+                    print(
+                        "(already exists, did not fail, no difference, "
+                        "missing dependencies)"
+                    )
+                else:
+                    for d in my_run["dependencies"]:
+                        old_dir = path.join(compare_dir, d)
+
+                        if path.getmtime(old_dir) > path.getmtime(title):
+                            need_update = True
+                            break
+                    else:
+                        need_update = False
+
+                    if need_update:
+                        print("Replacing", title, "because outdated...")
+                        shutil.rmtree(title)
+                        return_code = run_single_test(
+                            title, my_run, path_failed, compare_dir
+                        )
+
+                        if return_code == 1:
+                            n_failed += 1
+                        elif return_code == 2:
+                            cumul_return += 1
+                        elif return_code == 3:
+                            n_missing += 1
+                    else:
+                        print("Skipping", title)
+                        print(
+                            "(already exists, did not fail, no difference, "
+                            "no update needed)"
+                        )
         else:
             if "dependencies" not in my_run or dependencies_exist(
                 my_run["dependencies"], compare_dir
