@@ -378,6 +378,7 @@ def main_cli():
                 "test_series_file",
                 "create_file",
                 "sel_diff_args",
+                "dependencies",
             }
             run_again = True
 
