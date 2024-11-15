@@ -253,23 +253,14 @@ def dependencies_exist(dependencies, compare_dir):
     return return_value
 
 
-def run_tests(my_runs, allowed_keys, compare_dir):
-    """my_runs should be a dictionary of dictionaries. allowed_keys should
-    be a set.
-
-    """
+def run_tests(my_runs, compare_dir):
+    """my_runs should be a dictionary of dictionaries."""
 
     print("Starting runs at", datetime.datetime.now())
     t0 = time.perf_counter()
     n_failed = 0
     cumul_return = 0
     n_missing = 0
-
-    for title, my_run in my_runs.items():
-        if not set(my_run) <= allowed_keys:
-            print(f"bad keys in {title}:")
-            print(set(my_run) - allowed_keys)
-            sys.exit(1)
 
     for i, title in enumerate(my_runs):
         my_run = my_runs[title]
@@ -447,9 +438,13 @@ def main_cli():
             run_again = True
 
             while run_again:
-                cumul_return = run_tests(
-                    my_runs, allowed_keys, args.compare_dir
-                )
+                for title, my_run in my_runs.items():
+                    if not set(my_run) <= allowed_keys:
+                        print(f"bad keys in {title}:")
+                        print(set(my_run) - allowed_keys)
+                        sys.exit(1)
+
+                cumul_return = run_tests(my_runs, args.compare_dir)
 
                 if args.cat:
                     cat_compar.cat_compar(args.cat, list(my_runs))
