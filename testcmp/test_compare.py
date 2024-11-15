@@ -240,6 +240,19 @@ def run_single_test(title, my_run, path_failed, compare_dir):
     return return_code
 
 
+def dependencies_exist(dependencies, compare_dir):
+    for title in dependencies:
+        old_dir = path.join(compare_dir, title)
+
+        if not path.isdir(old_dir):
+            return_value = False
+            break
+    else:
+        return_value = True
+
+    return return_value
+
+
 def run_tests(my_runs, allowed_keys, compare_dir):
     """my_runs should be a dictionary of dictionaries. allowed_keys should
     be a set.
@@ -271,22 +284,28 @@ def run_tests(my_runs, allowed_keys, compare_dir):
                 print(set(my_run) - allowed_keys)
                 sys.exit(1)
 
-            if previous_failed:
-                print("Replacing", title, "because previous run failed...")
-                shutil.rmtree(title)
+            if "dependencies" not in my_run or dependencies_exist(
+                my_run["dependencies"], compare_dir
+            ):
+                if previous_failed:
+                    print("Replacing", title, "because previous run failed...")
+                    shutil.rmtree(title)
+                else:
+                    print("Creating", title + "...", flush=True)
+
+                return_code = run_single_test(
+                    title, my_run, path_failed, compare_dir
+                )
+
+                if return_code == 1:
+                    n_failed += 1
+                elif return_code == 2:
+                    cumul_return += 1
+                elif return_code == 3:
+                    n_missing += 1
             else:
-                print("Creating", title + "...", flush=True)
-
-            return_code = run_single_test(
-                title, my_run, path_failed, compare_dir
-            )
-
-            if return_code == 1:
-                n_failed += 1
-            elif return_code == 2:
-                cumul_return += 1
-            elif return_code == 3:
                 n_missing += 1
+                print("Skipping", title, "because of missing dependencies")
 
     print("Elapsed time:", time.perf_counter() - t0, "s")
     print("Number of failed runs:", n_failed)
