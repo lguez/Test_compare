@@ -229,7 +229,7 @@ def run_single_test(title, my_run, path_failed, compare_dir):
                 )
 
                 if return_code != 0:
-                    print("difference found")
+                    print(yachalk.chalk.blue("difference found"))
                     return_code = 2
             else:
                 print("Archived", title)
@@ -283,7 +283,7 @@ def run_tests(my_runs, allowed_keys, compare_dir):
             if path.exists(fname):
                 print("Skipping", title, "(already exists, did not fail)")
                 cumul_return += 1
-                print("difference found")
+                print(yachalk.chalk.blue("difference found"))
             else:
                 if "dependencies" not in my_run:
                     print("Skipping", title)
