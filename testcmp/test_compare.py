@@ -396,10 +396,6 @@ def main_cli():
         for title in my_runs:
             print(title)
     else:
-        my_runs = read_runs.subst_runs(
-            my_runs, args.compare_dir, args.substitutions
-        )
-
         if args.title:
             selected_runs = {}
 
@@ -419,6 +415,10 @@ def main_cli():
                     print("Removing", title + "...")
                     shutil.rmtree(title)
         else:
+            my_runs = read_runs.subst_runs(
+                my_runs, args.compare_dir, args.substitutions
+            )
+
             allowed_keys = {
                 "command",
                 "commands",
