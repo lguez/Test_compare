@@ -435,15 +435,16 @@ def main_cli():
                 "sel_diff_args",
                 "dependencies",
             }
+
+            for title, my_run in my_runs.items():
+                if not set(my_run) <= allowed_keys:
+                    print(f"bad keys in {title}:")
+                    print(set(my_run) - allowed_keys)
+                    sys.exit(1)
+
             run_again = True
 
             while run_again:
-                for title, my_run in my_runs.items():
-                    if not set(my_run) <= allowed_keys:
-                        print(f"bad keys in {title}:")
-                        print(set(my_run) - allowed_keys)
-                        sys.exit(1)
-
                 cumul_return = run_tests(my_runs, args.compare_dir)
 
                 if args.cat:
