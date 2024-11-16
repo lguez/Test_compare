@@ -99,31 +99,15 @@ def run_single_test(title, my_run, path_failed, compare_dir):
     found = get_all_required(title, my_run)
 
     if found:
-        if "command" in my_run:
-            commands = [my_run["command"]]
-            main_command = 0
+        if "main_command" in my_run:
+            main_command = my_run["main_command"]
         else:
-            commands = my_run["commands"]
-
-            if "main_command" in my_run:
-                main_command = my_run["main_command"]
-            else:
-                main_command = len(commands) - 1
-
-        split_commands = []
-
-        for command in commands:
-            if isinstance(command, str):
-                command = command.split()
-
-            split_commands.append(command)
-
-        commands = split_commands
+            main_command = len(my_run["commands"]) - 1
 
         if "stdout" in my_run:
             stdout_filename = my_run["stdout"]
         else:
-            stdout_filename = commands[main_command][0]
+            stdout_filename = my_run["commands"][main_command][0]
             stdout_filename = path.basename(stdout_filename)
             stdout_filename = path.splitext(stdout_filename)[0] + "_stdout.txt"
 
@@ -169,7 +153,7 @@ def run_single_test(title, my_run, path_failed, compare_dir):
             with open(stdout_filename, "a") as stdout, open(
                 stderr_filename, "a"
             ) as stderr:
-                for command in commands[:main_command]:
+                for command in my_run["commands"][:main_command]:
                     subprocess.run(
                         command,
                         check=True,
@@ -180,7 +164,7 @@ def run_single_test(title, my_run, path_failed, compare_dir):
                     stdout.flush()
 
                 subprocess.run(
-                    commands[main_command],
+                    my_run["commands"][main_command],
                     check=True,
                     stdout=stdout,
                     stderr=stderr,
@@ -189,7 +173,7 @@ def run_single_test(title, my_run, path_failed, compare_dir):
                 )
                 stdout.flush()
 
-                for command in commands[main_command + 1 :]:
+                for command in my_run["commands"][main_command + 1 :]:
                     subprocess.run(
                         command,
                         check=True,
@@ -415,6 +399,21 @@ def main_cli():
                     print("Removing", title + "...")
                     shutil.rmtree(title)
         else:
+            for my_run in my_runs.values():
+                if "command" in my_run:
+                    my_run["commands"] = [my_run["command"]]
+                    del my_run["command"]
+
+                split_commands = []
+
+                for command in my_run["commands"]:
+                    if isinstance(command, str):
+                        command = command.split()
+
+                    split_commands.append(command)
+
+                my_run["commands"] = split_commands
+
             my_runs = read_runs.subst_runs(
                 my_runs, args.compare_dir, args.substitutions
             )
