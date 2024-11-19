@@ -399,25 +399,6 @@ def main_cli():
                     print("Removing", title + "...")
                     shutil.rmtree(title)
         else:
-            for my_run in my_runs.values():
-                if "command" in my_run:
-                    my_run["commands"] = [my_run["command"]]
-                    del my_run["command"]
-
-                split_commands = []
-
-                for command in my_run["commands"]:
-                    if isinstance(command, str):
-                        command = command.split()
-
-                    split_commands.append(command)
-
-                my_run["commands"] = split_commands
-
-            my_runs = read_runs.subst_runs(
-                my_runs, args.compare_dir, args.substitutions
-            )
-
             allowed_keys = {
                 "command",
                 "commands",
@@ -440,6 +421,25 @@ def main_cli():
                     print(f"bad keys in {title}:")
                     print(set(my_run) - allowed_keys)
                     sys.exit(1)
+
+            for my_run in my_runs.values():
+                if "command" in my_run:
+                    my_run["commands"] = [my_run["command"]]
+                    del my_run["command"]
+
+                split_commands = []
+
+                for command in my_run["commands"]:
+                    if isinstance(command, str):
+                        command = command.split()
+
+                    split_commands.append(command)
+
+                my_run["commands"] = split_commands
+
+            my_runs = read_runs.subst_runs(
+                my_runs, args.compare_dir, args.substitutions
+            )
 
             run_again = True
 
