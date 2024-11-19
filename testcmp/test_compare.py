@@ -22,8 +22,6 @@ def get_all_required(title, my_run):
 
     for required_type in ["symlink", "copy"]:
         if required_type in my_run:
-            assert isinstance(my_run[required_type], list)
-
             for required_item in my_run[required_type]:
                 if isinstance(required_item, list):
                     found = get_single_required(
@@ -436,6 +434,11 @@ def main_cli():
                     split_commands.append(command)
 
                 my_run["commands"] = split_commands
+
+            for my_run in my_runs.values():
+                for required_type in ["symlink", "copy"]:
+                    if required_type in my_run:
+                        assert isinstance(my_run[required_type], list)
 
             my_runs = read_runs.subst_runs(
                 my_runs, args.compare_dir, args.substitutions
