@@ -246,7 +246,6 @@ def run_tests(my_runs, compare_dir):
 
     for i, title in enumerate(my_runs):
         my_run = my_runs[title]
-        print(i, end=": ")
         path_failed = pathlib.Path(title, "failed")
         previous_failed = path_failed.exists()
 
@@ -254,12 +253,12 @@ def run_tests(my_runs, compare_dir):
             fname = path.join(title, "comparison.txt")
 
             if path.exists(fname):
-                print("Skipping", title, "(already exists, did not fail)")
+                print(f"{i}: Skipping", title, "(already exists, did not fail)")
                 cumul_return += 1
                 print(yachalk.chalk.blue("difference found"))
             else:
                 if "dependencies" not in my_run:
-                    print("Skipping", title)
+                    print(f"{i}: Skipping", title)
                     print(
                         "(already exists, did not fail, no difference, "
                         "no dependencies)"
@@ -267,7 +266,7 @@ def run_tests(my_runs, compare_dir):
                 elif not dependencies_exist(
                     my_run["dependencies"], compare_dir
                 ):
-                    print("Skipping", title)
+                    print(f"{i}: Skipping", title)
                     print(
                         "(already exists, did not fail, no difference, "
                         "missing dependencies)"
@@ -283,7 +282,7 @@ def run_tests(my_runs, compare_dir):
                         need_update = False
 
                     if need_update:
-                        print("Replacing", title, "because outdated...")
+                        print(f"{i}: Replacing", title, "because outdated...")
                         shutil.rmtree(title)
                         return_code = run_single_test(
                             title, my_run, path_failed, compare_dir
@@ -296,7 +295,7 @@ def run_tests(my_runs, compare_dir):
                         elif return_code == 3:
                             n_missing += 1
                     else:
-                        print("Skipping", title)
+                        print(f"{i}: Skipping", title)
                         print(
                             "(already exists, did not fail, no difference, "
                             "no update needed)"
@@ -306,10 +305,14 @@ def run_tests(my_runs, compare_dir):
                 my_run["dependencies"], compare_dir
             ):
                 if previous_failed:
-                    print("Replacing", title, "because previous run failed...")
+                    print(
+                        f"{i}: Replacing",
+                        title,
+                        "because previous run failed...",
+                    )
                     shutil.rmtree(title)
                 else:
-                    print("Creating", title + "...", flush=True)
+                    print(f"{i}: Creating", title + "...", flush=True)
 
                 return_code = run_single_test(
                     title, my_run, path_failed, compare_dir
@@ -323,7 +326,9 @@ def run_tests(my_runs, compare_dir):
                     n_missing += 1
             else:
                 n_missing += 1
-                print("Skipping", title, "because of missing dependencies")
+                print(
+                    f"{i}: Skipping", title, "because of missing dependencies"
+                )
 
     print("Elapsed time:", time.perf_counter() - t0, "s")
     print("Number of failed runs:", n_failed)
