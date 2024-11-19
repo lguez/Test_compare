@@ -335,6 +335,18 @@ def run_tests(my_runs, compare_dir):
     return cumul_return
 
 
+def extract_dependency(word, dependencies):
+    my_parts = pathlib.Path(word).parts
+
+    try:
+        i = my_parts.index("$tests_old_dir")
+    except ValueError:
+        pass
+    else:
+        if my_parts[i + 1] not in dependencies:
+            dependencies.append(my_parts[i + 1])
+
+
 def main_cli():
     parser = argparse.ArgumentParser(
         description=__doc__,
@@ -411,7 +423,6 @@ def main_cli():
                 "test_series_file",
                 "create_file",
                 "sel_diff_args",
-                "dependencies",
             }
 
             for title, my_run in my_runs.items():
@@ -436,9 +447,25 @@ def main_cli():
                 my_run["commands"] = split_commands
 
             for my_run in my_runs.values():
+                my_run["dependencies"] = []
+
+                for command in my_run["commands"]:
+                    for word in command:
+                        extract_dependency(word, my_run["dependencies"])
+
                 for required_type in ["symlink", "copy"]:
                     if required_type in my_run:
                         assert isinstance(my_run[required_type], list)
+
+                        for required_item in my_run[required_type]:
+                            if isinstance(required_item, list):
+                                extract_dependency(
+                                    required_item[0], my_run["dependencies"]
+                                )
+                            else:
+                                extract_dependency(
+                                    required_item, my_run["dependencies"]
+                                )
 
             my_runs = read_runs.subst_runs(
                 my_runs, args.compare_dir, args.substitutions
