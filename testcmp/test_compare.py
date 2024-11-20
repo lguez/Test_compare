@@ -241,7 +241,7 @@ def run_tests(my_runs, compare_dir, verbose):
     print("Starting runs at", datetime.datetime.now())
     t0 = time.perf_counter()
     n_failed = 0
-    cumul_return = 0
+    n_diff = 0
     n_missing = 0
 
     for i, title in enumerate(my_runs):
@@ -261,7 +261,7 @@ def run_tests(my_runs, compare_dir, verbose):
                     )
                     print(yachalk.chalk.blue("difference found"))
 
-                cumul_return += 1
+                n_diff += 1
             else:
                 if not dependencies_exist(my_run["dependencies"], compare_dir):
                     if verbose:
@@ -290,7 +290,7 @@ def run_tests(my_runs, compare_dir, verbose):
                         if return_code == 1:
                             n_failed += 1
                         elif return_code == 2:
-                            cumul_return += 1
+                            n_diff += 1
                         elif return_code == 3:
                             n_missing += 1
                     else:
@@ -319,7 +319,7 @@ def run_tests(my_runs, compare_dir, verbose):
                 if return_code == 1:
                     n_failed += 1
                 elif return_code == 2:
-                    cumul_return += 1
+                    n_diff += 1
                 elif return_code == 3:
                     n_missing += 1
             else:
@@ -333,12 +333,12 @@ def run_tests(my_runs, compare_dir, verbose):
 
     print("Elapsed time:", time.perf_counter() - t0, "s")
     print("Number of failed runs:", n_failed)
-    print("Number of successful runs with different results:", cumul_return)
+    print("Number of successful runs with different results:", n_diff)
 
     if n_missing != 0:
         print("Number not created because of missing requirements:", n_missing)
 
-    return cumul_return
+    return n_diff
 
 
 def extract_dependency(word, dependencies):
@@ -481,14 +481,14 @@ def main_cli():
             run_again = True
 
             while run_again:
-                cumul_return = run_tests(
+                n_diff = run_tests(
                     my_runs, args.compare_dir, args.verbose
                 )
 
                 if args.cat:
                     cat_compar.cat_compar(args.cat, list(my_runs))
 
-                if cumul_return == 0:
+                if n_diff == 0:
                     run_again = False
                 else:
                     reply = input("Replace old runs with difference? ")
