@@ -336,7 +336,11 @@ def run_tests(my_runs, compare_dir, verbose):
     print("Number of successful runs with different results:", n_diff)
 
     if n_missing != 0:
-        print("Number not created because of missing requirements:", n_missing)
+        print(
+            "Number not created because of missing requirements or "
+            "dependencies:",
+            n_missing,
+        )
 
     return n_diff
 
@@ -481,9 +485,7 @@ def main_cli():
             run_again = True
 
             while run_again:
-                n_diff = run_tests(
-                    my_runs, args.compare_dir, args.verbose
-                )
+                n_diff = run_tests(my_runs, args.compare_dir, args.verbose)
 
                 if args.cat:
                     cat_compar.cat_compar(args.cat, list(my_runs))
