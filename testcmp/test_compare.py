@@ -263,16 +263,7 @@ def run_tests(my_runs, compare_dir, verbose):
 
                 cumul_return += 1
             else:
-                if "dependencies" not in my_run:
-                    if verbose:
-                        print(f"{i}: Skipping", title)
-                        print(
-                            "(already exists, did not fail, no difference, "
-                            "no dependencies)"
-                        )
-                elif not dependencies_exist(
-                    my_run["dependencies"], compare_dir
-                ):
+                if not dependencies_exist(my_run["dependencies"], compare_dir):
                     if verbose:
                         print(f"{i}: Skipping", title)
                         print(
@@ -310,9 +301,7 @@ def run_tests(my_runs, compare_dir, verbose):
                                 "no update needed)"
                             )
         else:
-            if "dependencies" not in my_run or dependencies_exist(
-                my_run["dependencies"], compare_dir
-            ):
+            if dependencies_exist(my_run["dependencies"], compare_dir):
                 if previous_failed:
                     print(
                         f"{i}: Replacing",
