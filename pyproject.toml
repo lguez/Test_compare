@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "testcmp"
-version = "0.10"
+version = "0.11"
 authors = [
   { name="Lionel GUEZ", email="guez@lmd.ipsl.fr" },
 ]
