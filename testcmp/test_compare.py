@@ -235,7 +235,7 @@ def dependencies_exist(dependencies, compare_dir):
     return return_value
 
 
-def run_tests(my_runs, compare_dir):
+def run_tests(my_runs, compare_dir, verbose):
     """my_runs should be a dictionary of dictionaries."""
 
     print("Starting runs at", datetime.datetime.now())
@@ -253,24 +253,32 @@ def run_tests(my_runs, compare_dir):
             fname = path.join(title, "comparison.txt")
 
             if path.exists(fname):
-                print(f"{i}: Skipping", title, "(already exists, did not fail)")
+                if verbose:
+                    print(
+                        f"{i}: Skipping",
+                        title,
+                        "(already exists, did not fail)",
+                    )
+                    print(yachalk.chalk.blue("difference found"))
+
                 cumul_return += 1
-                print(yachalk.chalk.blue("difference found"))
             else:
                 if "dependencies" not in my_run:
-                    print(f"{i}: Skipping", title)
-                    print(
-                        "(already exists, did not fail, no difference, "
-                        "no dependencies)"
-                    )
+                    if verbose:
+                        print(f"{i}: Skipping", title)
+                        print(
+                            "(already exists, did not fail, no difference, "
+                            "no dependencies)"
+                        )
                 elif not dependencies_exist(
                     my_run["dependencies"], compare_dir
                 ):
-                    print(f"{i}: Skipping", title)
-                    print(
-                        "(already exists, did not fail, no difference, "
-                        "missing dependencies)"
-                    )
+                    if verbose:
+                        print(f"{i}: Skipping", title)
+                        print(
+                            "(already exists, did not fail, no difference, "
+                            "missing dependencies)"
+                        )
                 else:
                     for d in my_run["dependencies"]:
                         old_dir = path.join(compare_dir, d)
@@ -295,11 +303,12 @@ def run_tests(my_runs, compare_dir):
                         elif return_code == 3:
                             n_missing += 1
                     else:
-                        print(f"{i}: Skipping", title)
-                        print(
-                            "(already exists, did not fail, no difference, "
-                            "no update needed)"
-                        )
+                        if verbose:
+                            print(f"{i}: Skipping", title)
+                            print(
+                                "(already exists, did not fail, no difference, "
+                                "no update needed)"
+                            )
         else:
             if "dependencies" not in my_run or dependencies_exist(
                 my_run["dependencies"], compare_dir
@@ -326,9 +335,12 @@ def run_tests(my_runs, compare_dir):
                     n_missing += 1
             else:
                 n_missing += 1
-                print(
-                    f"{i}: Skipping", title, "because of missing dependencies"
-                )
+                if verbose:
+                    print(
+                        f"{i}: Skipping",
+                        title,
+                        "because of missing dependencies",
+                    )
 
     print("Elapsed time:", time.perf_counter() - t0, "s")
     print("Number of failed runs:", n_failed)
@@ -388,6 +400,7 @@ def main_cli():
     parser.add_argument(
         "--cat", help="cat files comparison.txt", metavar="FILE"
     )
+    parser.add_argument("--verbose", action="store_true")
     args = parser.parse_args()
     my_runs = read_runs.read_runs(args.test_descr)
 
@@ -479,7 +492,9 @@ def main_cli():
             run_again = True
 
             while run_again:
-                cumul_return = run_tests(my_runs, args.compare_dir)
+                cumul_return = run_tests(
+                    my_runs, args.compare_dir, args.verbose
+                )
 
                 if args.cat:
                     cat_compar.cat_compar(args.cat, list(my_runs))
