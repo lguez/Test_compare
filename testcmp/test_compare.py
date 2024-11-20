@@ -264,6 +264,8 @@ def run_tests(my_runs, compare_dir, verbose):
                 n_diff += 1
             else:
                 if not dependencies_exist(my_run["dependencies"], compare_dir):
+                    n_missing += 1
+
                     if verbose:
                         print(f"{i}: Skipping", title)
                         print(
