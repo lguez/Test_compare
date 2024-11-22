@@ -9,6 +9,7 @@ import shutil
 import subprocess
 import sys
 import time
+from importlib import metadata
 
 import yachalk
 
@@ -396,6 +397,9 @@ def main_cli():
         "--cat", help="cat files comparison.txt", metavar="FILE"
     )
     parser.add_argument("--verbose", action="store_true")
+    parser.add_argument(
+        "--version", action="version", version=metadata.version("testcmp")
+    )
     args = parser.parse_args()
     my_runs = read_runs.read_runs(args.test_descr)
 
