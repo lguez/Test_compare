@@ -141,6 +141,7 @@ class DetailedDiff:
 
     def diff(self, path_1, path_2, detail_file=sys.stdout):
         suffix = pathlib.PurePath(path_1).suffix
+        file_type = magic.from_file(path.realpath(path_1))
 
         if suffix == ".dbf":
             n_diff = self._diff_dbf(path_1, path_2, detail_file)
@@ -184,12 +185,15 @@ class DetailedDiff:
             n_diff = diff_gv.diff_gv(path_1, path_2, detail_file)
         elif suffix == ".json":
             n_diff = diff_json(path_1, path_2, detail_file)
-        elif suffix == ".txt" or "text" in magic.from_file(
-            path.realpath(path_1)
-        ):
+        elif suffix == ".txt" or "text" in file_type:
             n_diff = diff_txt.diff_txt(
                 path_1, path_2, self.size_lim, detail_file
             )
+        elif file_type == "empty":
+            detail_file.write("\n" + "*" * 10 + "\n\n")
+            detail_file.write(f"diff {path_1} {path_2}\n")
+            detail_file.write("Old file is empty\n\n")
+            n_diff = 1
         else:
             detail_file.write("\n" + "*" * 10 + "\n\n")
             detail_file.write(f"diff {path_1} {path_2}\n")
