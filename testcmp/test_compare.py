@@ -195,8 +195,6 @@ def run_single_test(title, my_run, path_failed, compare_dir):
 
             os.chdir("..")
             return_code = 0
-
-        if return_code == 0:
             old_dir = path.join(compare_dir, title)
 
             try:
