@@ -194,7 +194,6 @@ def run_single_test(title, my_run, path_failed, compare_dir):
                 f_obj.write(line)
 
             os.chdir("..")
-            return_code = 0
             old_dir = path.join(compare_dir, title)
 
             try:
@@ -214,6 +213,7 @@ def run_single_test(title, my_run, path_failed, compare_dir):
                     return_code = 2
             else:
                 print("Archived", title)
+                return_code = 0
     else:
         return_code = 3
         shutil.rmtree(title)
