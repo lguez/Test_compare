@@ -10,7 +10,10 @@ authors = [
 ]
 description = "Testing by comparison to previous runs"
 readme = "README.md"
+
 requires-python = ">=3.9"
+# operand types for |: 'dict' and 'dict' in compare_single_test
+
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",

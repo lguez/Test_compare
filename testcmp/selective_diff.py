@@ -144,7 +144,7 @@ def selective_diff(
 
     dcmp = filecmp.dircmp(*directory, list(ignore))
 
-    # Use command-line options to define a detailed_diff instance:
+    # Define a detailed_diff instance:
     if brief:
         d_diff = None
     else:
